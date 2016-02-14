@@ -26,6 +26,6 @@ public class HueEmulatorBindingConstants {
     public final static String CHANNEL_1 = "channel1";
 
     public final static String REST_PATH = "/api";
-    public final static String TAG_PREFIX = "he:";
+    public final static String TAG = "hedevice";
 
 }

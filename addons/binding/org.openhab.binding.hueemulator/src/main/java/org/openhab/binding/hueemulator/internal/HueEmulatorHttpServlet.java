@@ -3,12 +3,10 @@ package org.openhab.binding.hueemulator.internal;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -241,12 +239,12 @@ public class HueEmulatorHttpServlet extends HttpServlet {
      *         Map <item name, HueDevice>
      */
     private Map<String, HueDevice> getHueDevices(String username) {
-        Collection<VoiceItem> voiceItems = getItems();
+        Collection<Item> items = itemRegistry.getItemsByTag(HueEmulatorBindingConstants.TAG);
         Map<String, HueDevice> devices = new HashMap<String, HueDevice>();
-        Iterator<VoiceItem> it = voiceItems.iterator();
+        Iterator<Item> it = items.iterator();
         while (it.hasNext()) {
-            VoiceItem voiceItem = it.next();
-            devices.put(voiceItem.item.getName(), itemToDevice(voiceItem));
+            Item item = it.next();
+            devices.put(item.getName(), itemToDevice(item));
         }
         return devices;
     }
@@ -259,12 +257,12 @@ public class HueEmulatorHttpServlet extends HttpServlet {
      *         Map<item name, item voice tag>
      */
     public Map<String, String> getHueDeviceNames(String username) {
-        Collection<VoiceItem> voiceItems = getItems();
+        Collection<Item> items = itemRegistry.getItemsByTag(HueEmulatorBindingConstants.TAG);
         Map<String, String> devices = new HashMap<String, String>();
-        Iterator<VoiceItem> it = voiceItems.iterator();
+        Iterator<Item> it = items.iterator();
         while (it.hasNext()) {
-            VoiceItem voiceItem = it.next();
-            devices.put(voiceItem.item.getName(), voiceItem.voiceName);
+            Item item = it.next();
+            devices.put(item.getName(), item.getLabel());
         }
         return devices;
     }
@@ -277,13 +275,14 @@ public class HueEmulatorHttpServlet extends HttpServlet {
      * @return
      *         HueDevice
      */
-    public HueDevice getHueDevice(String username, String id) {
-        VoiceItem voiceItem = getItem(id);
-        if (voiceItem != null) {
-            return itemToDevice(voiceItem);
+    public HueDevice getHueDevice(String username, String hueId) {
+        try {
+            Item item = itemRegistry.getItem(hueId);
+            return itemToDevice(item);
+        } catch (ItemNotFoundException e) {
+            logger.warn("Item not found: " + hueId, e);
+            return null;
         }
-        return null;
-
     }
 
     /**
@@ -293,8 +292,8 @@ public class HueEmulatorHttpServlet extends HttpServlet {
      * @return
      *         HueDevice
      */
-    private HueDevice itemToDevice(VoiceItem voiceItem) {
-        State itemState = voiceItem.item.getState();
+    private HueDevice itemToDevice(Item item) {
+        State itemState = item.getState();
         short bri = 0;
         if (itemState instanceof DecimalType) {
             bri = (short) ((((DecimalType) itemState).intValue() * 255) / 100);
@@ -302,69 +301,8 @@ public class HueEmulatorHttpServlet extends HttpServlet {
             bri = (short) (((OnOffType) itemState) == OnOffType.ON ? 255 : 0);
         }
         HueState hueState = new HueState(bri > 0, bri);
-        HueDevice d = new HueDevice(hueState, voiceItem.voiceName, voiceItem.item.getName());
+        HueDevice d = new HueDevice(hueState, item.getLabel(), item.getName());
         return d;
-    }
-
-    /**
-     * Gets all items in the registry that our taged for voice
-     *
-     * @return
-     */
-    private Collection<VoiceItem> getItems() {
-        Collection<Item> items = itemRegistry.getItems();
-        Collection<VoiceItem> voiceItems = new ArrayList<VoiceItem>();
-        Iterator<Item> it = items.iterator();
-        while (it.hasNext()) {
-            Item item = it.next();
-            String voiceName = getVoiceName(item);
-            if (voiceName != null) {
-                voiceItems.add(new VoiceItem(item, voiceName));
-            }
-
-        }
-        return voiceItems;
-
-    }
-
-    /**
-     * Gets a single item from the registry if it has a voice tag
-     *
-     * @param name
-     * @return
-     *         VoiceItem or null if not found or no voice tag
-     */
-    private VoiceItem getItem(String name) {
-        Item item;
-        try {
-            item = itemRegistry.getItem(name);
-            String voiceName = getVoiceName(item);
-            if (voiceName != null) {
-                return new VoiceItem(item, voiceName);
-            }
-        } catch (ItemNotFoundException e) {
-            logger.error("Could not find item " + name, e);
-        }
-        return null;
-    }
-
-    /**
-     * Gets the voice name from a tag on a item
-     *
-     * @param item
-     * @return
-     *         Voice name or null
-     */
-    private String getVoiceName(Item item) {
-        Set<String> tags = item.getTags();
-        for (String tag : tags) {
-            logger.debug("Tag " + tag);
-            if (tag.startsWith(HueEmulatorBindingConstants.TAG_PREFIX)) {
-                tag = tag.substring(HueEmulatorBindingConstants.TAG_PREFIX.length(), tag.length());
-                return tag;
-            }
-        }
-        return null;
     }
 
     /**
@@ -379,23 +317,5 @@ public class HueEmulatorHttpServlet extends HttpServlet {
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    }
-
-    /**
-     * Wrapper class for an Item with a voice name
-     *
-     * @author Dan Cunningham
-     *
-     */
-    private class VoiceItem {
-        Item item;
-        String voiceName;
-
-        public VoiceItem(Item item, String voiceName) {
-            super();
-            this.item = item;
-            this.voiceName = voiceName;
-        }
-
     }
 }
