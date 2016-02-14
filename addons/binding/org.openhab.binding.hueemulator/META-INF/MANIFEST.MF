@@ -6,14 +6,11 @@ Bundle-Vendor: openHAB
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
-Import-Package: javax.servlet,
+Import-Package: com.google.gson;version="2.2.4",
+ javax.servlet,
  javax.servlet.annotation,
  javax.servlet.http,
  org.apache.commons.io,
- org.codehaus.jackson,
- org.codehaus.jackson.annotate,
- org.codehaus.jackson.map,
- org.codehaus.jackson.type,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,

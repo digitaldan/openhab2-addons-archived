@@ -17,9 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -35,6 +32,8 @@ import org.openhab.binding.hueemulator.api.HueDevice;
 import org.openhab.binding.hueemulator.api.HueState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * Emulates A Hue compatible HTTP API server
@@ -87,7 +86,7 @@ public class HueEmulatorHttpServlet extends HttpServlet {
         path = path.substring(HueEmulatorBindingConstants.REST_PATH.length(), path.length());
         setHeaders(resp);
         PrintWriter out = resp.getWriter();
-        ObjectMapper mapper = new ObjectMapper();
+        Gson gson = new Gson();
 
         logger.debug("doGet " + path);
 
@@ -109,7 +108,7 @@ public class HueEmulatorHttpServlet extends HttpServlet {
                 matcher.reset();
                 if (matcher.find()) {
                     String username = matcher.group(1);
-                    mapper.writeValue(out, getHueDeviceNames(username));
+                    out.write(gson.toJson(getHueDeviceNames(username)));
                 }
                 return;
             }
@@ -124,7 +123,7 @@ public class HueEmulatorHttpServlet extends HttpServlet {
                     id = matcher.group(2);
                     logger.debug("Username {} id {}", username, id);
                 }
-                mapper.writeValue(out, getHueDevice(username, id));
+                out.write(gson.toJson(getHueDevice(username, id)));
                 return;
             }
 
@@ -135,7 +134,7 @@ public class HueEmulatorHttpServlet extends HttpServlet {
                     String username = matcher.group(1);
                     HueDataStore ds = new HueDataStore();
                     ds.lights = getHueDevices(username);
-                    mapper.writeValue(out, ds);
+                    out.write(gson.toJson(ds));
                 }
                 return;
             }
@@ -152,17 +151,12 @@ public class HueEmulatorHttpServlet extends HttpServlet {
         PrintWriter out = resp.getWriter();
         logger.debug("doPost " + path);
         if (path.equals("/")) {
-            ObjectMapper mapper = new ObjectMapper();
-
+            Gson gson = new Gson();
             try {
-                HueCreateUser user = mapper.readValue(req.getReader(), HueCreateUser.class);
+                HueCreateUser user = gson.fromJson(req.getReader(), HueCreateUser.class);
                 logger.debug("Create user: " + user.devicetype);
                 String response = String.format(NEW_CLIENT_RESP, UUID.randomUUID());
                 out.write(response);
-            } catch (JsonGenerationException e) {
-                logger.debug("error parsing json", e);
-            } catch (JsonMappingException e) {
-                logger.debug("error parsing json", e);
             } catch (IOException e) {
                 logger.debug("error parsing json", e);
             }
@@ -188,12 +182,14 @@ public class HueEmulatorHttpServlet extends HttpServlet {
                 id = matcher.group(2);
                 logger.debug("Username {} id {}", username, id);
             }
-            ObjectMapper mapper = new ObjectMapper();
+            // ObjectMapper mapper = new ObjectMapper();
+            Gson gson = new Gson();
             try {
 
                 // will throw exception if not found
                 itemRegistry.getItem(id);
-                HueState state = mapper.readValue(req.getReader(), HueState.class);
+                HueState state = gson.fromJson(req.getReader(), HueState.class);
+                // HueState state = mapper.readValue(req.getReader(), HueState.class);
                 logger.debug("State " + state);
                 if (state.bri > -1) {
                     eventPublisher.post(ItemEventFactory.createCommandEvent(id,
@@ -206,7 +202,7 @@ public class HueEmulatorHttpServlet extends HttpServlet {
             } catch (ItemNotFoundException e) {
                 resp.sendError(404);
             }
-            mapper.writeValue(out, getHueDevice(username, id));
+            out.write(gson.toJson(getHueDevice(username, id)));
             return;
         }
         out.close();
