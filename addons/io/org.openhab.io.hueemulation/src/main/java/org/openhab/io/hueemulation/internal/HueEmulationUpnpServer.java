@@ -18,7 +18,7 @@ public class HueEmulationUpnpServer extends Thread {
     static final private String MULTI_ADDR = "239.255.255.250";
     private MulticastSocket socket;
     private boolean running;
-    private String discoURL;
+    private String discoPath;
 
     // TODO replace 00000000-722C-4995-89F2-ABCDEF000000
     private String discoString = "HTTP/1.1 200 OK\r\n" + "CACHE-CONTROL: max-age=86400\r\n" + "EXT:\r\n"
@@ -26,9 +26,9 @@ public class HueEmulationUpnpServer extends Thread {
             + "01-NLS: 00000000-722C-4995-89F2-ABCDEF000000\r\n" + "ST: urn:schemas-upnp-org:device:basic:1\r\n"
             + "USN: uuid:00000000-722C-4995-89F2-ABCDEF000000\r\n\r\n";
 
-    public HueEmulationUpnpServer(String discoURL) {
-        this.discoURL = discoURL;
+    public HueEmulationUpnpServer(String discoPath) {
         this.running = true;
+        this.discoPath = discoPath;
     }
 
     public void shutdown() {
@@ -49,7 +49,9 @@ public class HueEmulationUpnpServer extends Thread {
                     if (recv.getLength() > 0) {
                         String data = new String(recv.getData());
                         if (data.startsWith("M-SEARCH")) {
-                            String msg = String.format(discoString, discoURL);
+                            String msg = String.format(discoString,
+                                    "http://" + InetAddress.getLocalHost().getHostAddress().toString() + ":"
+                                            + System.getProperty("org.osgi.service.http.port") + discoPath);
                             DatagramPacket response = new DatagramPacket(msg.getBytes(), msg.length(),
                                     recv.getAddress(), recv.getPort());
                             try {

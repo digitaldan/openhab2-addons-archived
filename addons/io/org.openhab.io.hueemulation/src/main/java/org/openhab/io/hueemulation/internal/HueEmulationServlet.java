@@ -84,8 +84,7 @@ public class HueEmulationServlet extends HttpServlet {
         try {
             Dictionary<String, String> servletParams = new Hashtable<String, String>();
             httpService.registerServlet(PATH, this, servletParams, createHttpContext());
-            disco = new HueEmulationUpnpServer("http://" + InetAddress.getLocalHost().getHostAddress().toString() + ":"
-                    + System.getProperty("org.osgi.service.http.port") + PATH + "/discovery.xml");
+            disco = new HueEmulationUpnpServer(PATH + "/discovery.xml");
             disco.start();
             logger.info("Started Hue Emulation Service at " + PATH);
         } catch (Exception e) {
