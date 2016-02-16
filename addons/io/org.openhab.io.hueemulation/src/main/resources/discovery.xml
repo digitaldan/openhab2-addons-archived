@@ -7,7 +7,7 @@
     <URLBase>http://%s:%s/</URLBase>
     <device>
         <deviceType>urn:schemas-upnp-org:device:Basic:1</deviceType>
-        <friendlyName>OpenHAB Hue Emulator</friendlyName>
+        <friendlyName>OpenHAB Hue Emulation</friendlyName>
         <manufacturer>Royal Philips Electronics</manufacturer>
         <manufacturerURL>   </manufacturerURL>
         <modelDescription>Philips hue Personal Wireless Lighting</modelDescription>

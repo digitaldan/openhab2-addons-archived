@@ -1,4 +1,4 @@
-package org.openhab.binding.hueemulator.api;
+package org.openhab.io.hueemulation.internal.api;
 
 public class HueState {
     /**

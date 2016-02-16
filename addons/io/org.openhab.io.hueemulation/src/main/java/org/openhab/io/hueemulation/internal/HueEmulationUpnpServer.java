@@ -1,4 +1,4 @@
-package org.openhab.binding.hueemulator.upnp;
+package org.openhab.io.hueemulation.internal;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -11,8 +11,8 @@ import java.net.SocketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UpnpDiscoveryServer extends Thread {
-    private Logger logger = LoggerFactory.getLogger(UpnpDiscoveryServer.class);
+public class HueEmulationUpnpServer extends Thread {
+    private Logger logger = LoggerFactory.getLogger(HueEmulationUpnpServer.class);
 
     static final private int UPNP_PORT = 1900;
     static final private String MULTI_ADDR = "239.255.255.250";
@@ -20,13 +20,13 @@ public class UpnpDiscoveryServer extends Thread {
     private boolean running;
     private String discoURL;
 
-    // TODO replace 00000000-722C-4995-89F2-ABCDEF000000 with a user configurable String
+    // TODO replace 00000000-722C-4995-89F2-ABCDEF000000
     private String discoString = "HTTP/1.1 200 OK\r\n" + "CACHE-CONTROL: max-age=86400\r\n" + "EXT:\r\n"
             + "LOCATION: %s\r\n" + "OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n"
             + "01-NLS: 00000000-722C-4995-89F2-ABCDEF000000\r\n" + "ST: urn:schemas-upnp-org:device:basic:1\r\n"
             + "USN: uuid:00000000-722C-4995-89F2-ABCDEF000000\r\n\r\n";
 
-    public UpnpDiscoveryServer(String discoURL) {
+    public HueEmulationUpnpServer(String discoURL) {
         this.discoURL = discoURL;
         this.running = true;
     }
