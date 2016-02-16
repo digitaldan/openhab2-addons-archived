@@ -36,6 +36,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.openhab.io.hueemulation.internal.api.HueCreateUser;
 import org.openhab.io.hueemulation.internal.api.HueDataStore;
 import org.openhab.io.hueemulation.internal.api.HueDevice;
+import org.openhab.io.hueemulation.internal.api.HueErrorResponse;
 import org.openhab.io.hueemulation.internal.api.HueState;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
@@ -69,14 +70,14 @@ public class HueEmulationServlet extends HttpServlet {
     private static String STATE_RESP = "[{\"success\":{\"/lights/%s/state/on\":%s}}]";
 
     // This parses "/api/{username}/{lights}/{id}/{state}"
-    private Pattern allPattern = Pattern.compile(PATH + "/([^/]+)(?:(?:/(lights)/?([^/]+)?/?(state)?)?)?");
+    private Pattern pathPattern = Pattern.compile(PATH + "/([^/]+)(?:(?:/(lights)/?([^/]+)?/?(state)?)?)?");
 
     private HttpService httpService;
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
     private HueEmulationUpnpServer disco;
 
-    private boolean securityEnable = false;
+    private boolean inclusionEnable = true;
 
     protected void activate(Map<String, Object> config) {
         logger.debug("Hue Emulation Servlet Activating");
@@ -139,32 +140,38 @@ public class HueEmulationServlet extends HttpServlet {
         setHeaders(resp);
         PrintWriter out = resp.getWriter();
 
+        // UPNP discovery document
         if (path.equals(PATH + "/discovery.xml")) {
             resp.setContentType(APPLICATION_XML);
             out.print(discoveryXML());
             return;
         }
 
-        Matcher m = allPattern.matcher(path);
-        if (m.matches()) {
-            for (int i = 1; i <= m.groupCount(); i++) {
-                logger.debug("Group {} {}", i, m.group(i));
+        // request for API key
+        if (path.equals(PATH)) {
+            if (inclusionEnable) {
+                apiConfig(req, resp);
+            } else {
+                apiServerError(req, resp, HueErrorResponse.UNAUTHORIZED,
+                        "Not Authorized. Include button must be pressed to add users.");
             }
+            return;
+        }
+
+        // All other API requests
+        Matcher m = pathPattern.matcher(path);
+        if (m.matches()) {
             String userName = m.group(1);
             boolean lightsReq = m.group(2) != null;
             String id = m.group(3);
             boolean stateReq = m.group(4) != null;
 
-            if (securityEnable && userName == null) {
-                resp.sendError(401);
+            // check the user, if inclusion is on then add the user to our list
+            if (!authorizeUser(userName, inclusionEnable)) {
+                apiServerError(req, resp, HueErrorResponse.UNAUTHORIZED, "Not Authorized");
                 return;
             }
-
-            if (!authorizeUser(userName, !securityEnable)) {
-                resp.sendError(401);
-                return;
-            }
-
+            // everything is JSON from here
             resp.setContentType(APPLICATION_JSON);
             if (stateReq) {
                 apiState(id, req, resp);
@@ -175,21 +182,27 @@ public class HueEmulationServlet extends HttpServlet {
             } else if (userName != null) {
                 apiDataStore(req, resp);
             } else {
-                apiConfig(req, resp);
+                apiServerError(req, resp, HueErrorResponse.NOT_AVAILABLE, "Hue Resource Not Availabale");
             }
         }
 
     }
 
-    public void apiState(String id, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    /**
+     * Hue API call to set the state of a light
+     *
+     * @param id
+     * @param req
+     * @param resp
+     * @throws IOException
+     */
+    private void apiState(String id, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (!req.getMethod().equals(METHOD_PUT)) {
-            resp.sendError(406, "Method type not allowed");
+            apiServerError(req, resp, HueErrorResponse.METHOD_NOT_AVAILABLE, "Only PUT allowed for this resource");
             return;
         }
-
-        PrintWriter out = resp.getWriter();
-        Gson gson = new Gson();
         try {
+            Gson gson = new Gson();
             // will throw exception if not found
             itemRegistry.getItem(id);
             HueState state = gson.fromJson(req.getReader(), HueState.class);
@@ -200,21 +213,36 @@ public class HueEmulationServlet extends HttpServlet {
             } else {
                 eventPublisher.post(ItemEventFactory.createCommandEvent(id, state.on ? OnOffType.ON : OnOffType.OFF));
             }
+            PrintWriter out = resp.getWriter();
             out.write(String.format(STATE_RESP, id, String.valueOf(state.on)));
             out.close();
         } catch (ItemNotFoundException e) {
-            resp.sendError(404);
+            apiServerError(req, resp, HueErrorResponse.NOT_AVAILABLE, "The Hue device could not be found");
         }
-        // out.write(gson.toJson(getHueDevice(id)));
     }
 
-    public void apiLight(String id, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    /**
+     * Hue API call to get the state of a single light
+     *
+     * @param id
+     * @param req
+     * @param resp
+     * @throws IOException
+     */
+    private void apiLight(String id, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
         Gson gson = new Gson();
         out.write(gson.toJson(getHueDevice(id)));
         out.close();
     }
 
+    /**
+     * Hue API call to get a listing of all lights
+     *
+     * @param req
+     * @param resp
+     * @throws IOException
+     */
     public void apiLights(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
         Gson gson = new Gson();
@@ -222,6 +250,13 @@ public class HueEmulationServlet extends HttpServlet {
         out.close();
     }
 
+    /**
+     * HUE API call to get the Data Store of the bridge (only lights supported for now)
+     *
+     * @param req
+     * @param resp
+     * @throws IOException
+     */
     public void apiDataStore(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
         Gson gson = new Gson();
@@ -230,9 +265,16 @@ public class HueEmulationServlet extends HttpServlet {
         out.write(gson.toJson(ds));
     }
 
+    /**
+     * Hue API call to configure a user
+     *
+     * @param req
+     * @param resp
+     * @throws IOException
+     */
     public void apiConfig(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (!req.getMethod().equals(METHOD_POST)) {
-            resp.sendError(406, "Method type not allowed");
+            apiServerError(req, resp, HueErrorResponse.METHOD_NOT_AVAILABLE, "Only POST allowed for this resource");
             return;
         }
         PrintWriter out = resp.getWriter();
@@ -247,6 +289,23 @@ public class HueEmulationServlet extends HttpServlet {
         out.write(response);
         authorizeUser(user.username, true);
         out.close();
+    }
+
+    /**
+     * Hue API error response
+     * 
+     * @param req
+     * @param resp
+     * @param error
+     * @param description
+     * @throws IOException
+     */
+    public void apiServerError(HttpServletRequest req, HttpServletResponse resp, int error, String description)
+            throws IOException {
+        PrintWriter out = resp.getWriter();
+        Gson gson = new Gson();
+        HueErrorResponse e = new HueErrorResponse(HueErrorResponse.INTERNAL_ERROR, req.getRequestURI(), "Server Error");
+        out.write(gson.toJson(e));
     }
 
     /**
