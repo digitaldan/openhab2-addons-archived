@@ -217,6 +217,7 @@ public class HueEmulationServlet extends HttpServlet {
             out.write(String.format(STATE_RESP, id, String.valueOf(state.on)));
             out.close();
         } catch (ItemNotFoundException e) {
+            logger.warn("Item not found: " + id);
             apiServerError(req, resp, HueErrorResponse.NOT_AVAILABLE, "The Hue device could not be found");
         }
     }
@@ -230,10 +231,16 @@ public class HueEmulationServlet extends HttpServlet {
      * @throws IOException
      */
     private void apiLight(String id, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        PrintWriter out = resp.getWriter();
-        Gson gson = new Gson();
-        out.write(gson.toJson(getHueDevice(id)));
-        out.close();
+        try {
+            Gson gson = new Gson();
+            Item item = itemRegistry.getItem(id);
+            PrintWriter out = resp.getWriter();
+            out.write(gson.toJson(itemToDevice(item)));
+            out.close();
+        } catch (ItemNotFoundException e) {
+            logger.warn("Item not found: " + id);
+            apiServerError(req, resp, HueErrorResponse.NOT_AVAILABLE, "Item not found " + id);
+        }
     }
 
     /**
@@ -293,7 +300,7 @@ public class HueEmulationServlet extends HttpServlet {
 
     /**
      * Hue API error response
-     * 
+     *
      * @param req
      * @param resp
      * @param error
@@ -304,7 +311,7 @@ public class HueEmulationServlet extends HttpServlet {
             throws IOException {
         PrintWriter out = resp.getWriter();
         Gson gson = new Gson();
-        HueErrorResponse e = new HueErrorResponse(HueErrorResponse.INTERNAL_ERROR, req.getRequestURI(), "Server Error");
+        HueErrorResponse e = new HueErrorResponse(error, req.getRequestURI(), description);
         out.write(gson.toJson(e));
     }
 
@@ -361,24 +368,6 @@ public class HueEmulationServlet extends HttpServlet {
             devices.put(item.getName(), item.getLabel());
         }
         return devices;
-    }
-
-    /**
-     * Gets a Hue Device from an id / item name
-     *
-     * @param username
-     * @param id
-     * @return
-     *         HueDevice
-     */
-    public HueDevice getHueDevice(String hueId) {
-        try {
-            Item item = itemRegistry.getItem(hueId);
-            return itemToDevice(item);
-        } catch (ItemNotFoundException e) {
-            logger.warn("Item not found: " + hueId, e);
-            return null;
-        }
     }
 
     /**
