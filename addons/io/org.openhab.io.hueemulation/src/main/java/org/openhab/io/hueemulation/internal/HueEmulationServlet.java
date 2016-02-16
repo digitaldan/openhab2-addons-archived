@@ -402,29 +402,27 @@ public class HueEmulationServlet extends HttpServlet {
         return items;
     }
 
-    private boolean authorizeUser(String userName, boolean addIfNotFound) {
-        synchronized (this) {
-            try {
-                File file = new File(ConfigConstants.getUserDataFolder() + File.separator + "hueemulator/usernames");
-                file.getParentFile().mkdirs();
-                List<String> userNames;
-                if (file.exists()) {
-                    userNames = IOUtils.readLines(new FileInputStream(file));
-                } else {
-                    userNames = new LinkedList<String>();
-                }
-                if (userNames.contains(userName)) {
-                    return true;
-                } else if (addIfNotFound) {
-                    userNames.add(userName);
-                    IOUtils.writeLines(userNames, null, new FileOutputStream(file));
-                    return true;
-                }
-            } catch (IOException e) {
-                logger.error("Could not write username to file", e);
+    private synchronized boolean authorizeUser(String userName, boolean addIfNotFound) {
+        try {
+            File file = new File(ConfigConstants.getUserDataFolder() + File.separator + "hueemulator/usernames");
+            file.getParentFile().mkdirs();
+            List<String> userNames;
+            if (file.exists()) {
+                userNames = IOUtils.readLines(new FileInputStream(file));
+            } else {
+                userNames = new LinkedList<String>();
             }
-            return false;
+            if (userNames.contains(userName)) {
+                return true;
+            } else if (addIfNotFound) {
+                userNames.add(userName);
+                IOUtils.writeLines(userNames, null, new FileOutputStream(file));
+                return true;
+            }
+        } catch (IOException e) {
+            logger.error("Could not write username to file", e);
         }
+        return false;
     }
 
     /**
