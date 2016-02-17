@@ -80,28 +80,26 @@ public class HueEmulationServlet extends HttpServlet {
     private boolean inclusionEnable = true;
 
     protected void activate(Map<String, Object> config) {
-        logger.debug("Hue Emulation Servlet Activating");
         try {
             Dictionary<String, String> servletParams = new Hashtable<String, String>();
             httpService.registerServlet(PATH, this, servletParams, createHttpContext());
             disco = new HueEmulationUpnpServer(PATH + "/discovery.xml");
             disco.start();
-            logger.info("Started Hue Emulation Service at " + PATH);
+            logger.info("Started Hue Emulation service at " + PATH);
         } catch (Exception e) {
-            logger.error("Could not start Hue Emulation Service", e);
+            logger.error("Could not start Hue Emulation service: {}", e.getMessage(), e);
         }
+        modified(config);
     }
 
     protected void modified(Map<String, ?> config) {
-        logger.debug("Hue Emulation Modified");
+        // process the config params here
     }
 
     protected void deactivate(ComponentContext componentContext) {
-        logger.debug("Hue Emulation Servlet Deactivating");
         try {
             httpService.unregister(PATH);
         } catch (IllegalArgumentException ignored) {
-
         }
         if (disco != null) {
             disco.shutdown();
