@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="hydrawise" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<bridge-type id="account">
+		<label>Hydrawise Account</label>
+		<description>Hydrawise User Account Bridge</description>
+		<config-description>
+			<parameter name="apiKey" type="text" required="true">
+				<label>API Key</label>
+				<description>API Key from https://app.hydrawise.com/config/account</description>
+			</parameter>
+			<parameter name="refresh" type="integer" required="false">
+				<label>Refresh interval</label>
+				<description>Specifies the refresh interval in seconds</description>
+				<default>30</default>
+			</parameter>
+		</config-description>
+	</bridge-type>
+
+	<bridge-type id="controller">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="account" />
+		</supported-bridge-type-refs>
+		<label>Hydrawise Controller Bridge</label>
+		<description>Sample thing for Hydrawise Binding</description>
+		<channels>
+			<channel id="name" typeId="name" />
+			<channel id="lastContact" typeId="lastContact" />
+			<channel id="serialNumber" typeId="serialNumber" />
+			<channel id="controllerId" typeId="controllerId" />
+			<channel id="swVersion" typeId="swVersion" />
+			<channel id="hardware" typeId="hardware" />
+			<channel id="isBoc" typeId="isBoc" />
+			<channel id="address" typeId="address" />
+			<channel id="timezone" typeId="timezone" />
+			<channel id="deviceId" typeId="deviceId" />
+			<channel id="parentDeviceId" typeId="parentDeviceId" />
+			<channel id="image" typeId="image" />
+			<channel id="description" typeId="description" />
+			<channel id="customerId" typeId="customerId" />
+			<channel id="location" typeId="location" />
+			<channel id="lastContactReadable" typeId="lastContactReadable" />
+			<channel id="status" typeId="status" />
+			<channel id="statusIcon" typeId="statusIcon" />
+			<channel id="online" typeId="online" />
+		</channels>
+		<representation-property>controllerId</representation-property>
+		<config-description>
+			<parameter name="controllerId" type="integer" required="true">
+				<label>Controller Id</label>
+				<description>Unique controller Id</description>
+			</parameter>
+		</config-description>
+	</bridge-type>
+
+	<thing-type id="zone">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="controller" />
+		</supported-bridge-type-refs>
+		<label>Zone</label>
+		<description>Hydrawise Zone</description>
+		<channels>
+			<channel id="relayId" typeId="relayId" />
+			<channel id="relay" typeId="relay" />
+			<channel id="name" typeId="name" />
+			<channel id="icon" typeId="icon" />
+			<channel id="lastwater" typeId="lastwater" />
+			<channel id="time" typeId="time" />
+			<channel id="type" typeId="type" />
+			<channel id="run" typeId="run" />
+			<channel id="runSeconds" typeId="runSeconds" />
+			<channel id="nicetime" typeId="nicetime" />
+		</channels>
+		<representation-property>controllerId</representation-property>
+	</thing-type>
+
+	<thing-type id="sensor">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="controller" />
+		</supported-bridge-type-refs>
+		<label>Sensor</label>
+		<description>Hydrawise Sensor</description>
+	</thing-type>
+
+	<!-- Controller -->
+	<channel-type id="name">
+		<item-type>String</item-type>
+		<label>Name</label>
+		<description>Name</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="lastContact">
+		<item-type>Number</item-type>
+		<label>Last Contact</label>
+		<description>Last contact time of the controller</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="serialNumber" advanced="true">
+		<item-type>String</item-type>
+		<label>Serial Number</label>
+		<description>Serial Number of the controller</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="controllerId" advanced="true">
+		<item-type>Number</item-type>
+		<label>Controller ID</label>
+		<description>The unique controller ID</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="swVersion" advanced="true">
+		<item-type>String</item-type>
+		<label>Software Version</label>
+		<description>Software version of the controller</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="hardware" advanced="true">
+		<item-type>String</item-type>
+		<label>Hardware Name</label>
+		<description>The name of the controller hardware</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="isBoc" advanced="true">
+		<item-type>Switch</item-type>
+		<label>Is BOC</label>
+		<description>Is the controller BOC (?)</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="address">
+		<item-type>String</item-type>
+		<label>Address</label>
+		<description>The address location of the controller</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="timezone">
+		<item-type>String</item-type>
+		<label>Timezone</label>
+		<description>Controller timezone</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="deviceId" advanced="true">
+		<item-type>Number</item-type>
+		<label>Device ID</label>
+		<description>Controller device id</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="parentDeviceId" advanced="true">
+		<item-type>Number</item-type>
+		<label>Parent Device ID</label>
+		<description>Controller parent device id</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="image">
+		<item-type>String</item-type>
+		<label>Controller Image</label>
+		<description>Image associated with controller</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="description">
+		<item-type>String</item-type>
+		<label>Description</label>
+		<description>Controller description</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="customerId" advanced="true">
+		<item-type>Number</item-type>
+		<label>Customer ID</label>
+		<description>Customer ID</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="location">
+		<item-type>Point</item-type>
+		<label>Location</label>
+		<description>Latitude and Longitude of controller</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="lastContactReadable">
+		<item-type>String</item-type>
+		<label>Last Contact Read</label>
+		<description>Last date the controller was read from</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="status">
+		<item-type>String</item-type>
+		<label>Status</label>
+		<description>Controller status</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="statusIcon" advanced="true">
+		<item-type>String</item-type>
+		<label>Status Icon</label>
+		<description>Controller status icon</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="online">
+		<item-type>Switch</item-type>
+		<label>Online</label>
+		<description>Controller online status</description>
+		<state readOnly="true"></state>
+	</channel-type>
+
+	<!-- Zone / Relay -->
+	<channel-type id="relayId" advanced="true">
+		<item-type>Number</item-type>
+		<label>Relay ID</label>
+		<description>Zone unique id</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="relay">
+		<item-type>Number</item-type>
+		<label>Relay Number</label>
+		<description>Controller status</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="icon">
+		<item-type>String</item-type>
+		<label>Icon</label>
+		<description>Relay Icon</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="lastwater">
+		<item-type>String</item-type>
+		<label>Last water</label>
+		<description>Relay last watering time</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="time" advanced="true">
+		<item-type>Number</item-type>
+		<label>Start Time</label>
+		<description>Relay start time in seconds</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="type" advanced="true">
+		<item-type>Number</item-type>
+		<label>Type</label>
+		<description>Relay Type</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="runTime">
+		<item-type>String</item-type>
+		<label>Run Time</label>
+		<description>Relay run time string</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="runTimeSeconds" advanced="true">
+		<item-type>Number</item-type>
+		<label>Run Time Seconds</label>
+		<description>Relay run time in seconds</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="nicetime">
+		<item-type>String</item-type>
+		<label>Start Time</label>
+		<description>Relay start time in seconds</description>
+		<state readOnly="true"></state>
+	</channel-type>
+
+    <channel-type id="running">
+        <item-type>Switch</item-type>
+        <label>Running</label>
+        <description>Relay running state</description>
+    </channel-type>
+        <channel-type id="runcustom">
+        <item-type>Number</item-type>
+        <label>Run Zone in Seconds</label>
+        <description>Run zone now for a custom duration of time in seconds</description>
+    </channel-type>
+	<!-- Sensor -->
+
+	<channel-type id="input" advanced="true">
+		<item-type>Number</item-type>
+		<label>Input</label>
+		<description>Sensor input</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="type" advanced="true">
+		<item-type>Number</item-type>
+		<label>Type</label>
+		<description>Sensor type</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="mode" advanced="true">
+		<item-type>Number</item-type>
+		<label>Mode</label>
+		<description>Sensor mode</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="timer" advanced="true">
+		<item-type>Number</item-type>
+		<label>Timer</label>
+		<description>Sensor timer</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="offtimer" advanced="true">
+		<item-type>Number</item-type>
+		<label>Off Timer</label>
+		<description>Sensor off timer</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="name" advanced="true">
+		<item-type>String</item-type>
+		<label>Name</label>
+		<description>Sensor name</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="offlevel" advanced="true">
+		<item-type>Number</item-type>
+		<label>Off Level</label>
+		<description>Sensor off level</description>
+		<state readOnly="true"></state>
+	</channel-type>
+	<channel-type id="active" advanced="true">
+		<item-type>Number</item-type>
+		<label>Active</label>
+		<description>Sensor active</description>
+		<state readOnly="true"></state>
+	</channel-type>
+</thing:thing-descriptions>
