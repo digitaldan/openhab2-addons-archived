@@ -5,7 +5,7 @@
 
 	<bridge-type id="account">
 		<label>Hydrawise Account</label>
-		<description>Hydrawise User Account Bridge</description>
+		<description>Hydrawise Cloud User Account Bridge</description>
 		<config-description>
 			<parameter name="apiKey" type="text" required="true">
 				<label>API Key</label>
@@ -24,10 +24,11 @@
 			<bridge-type-ref id="account" />
 		</supported-bridge-type-refs>
 		<label>Hydrawise Controller Bridge</label>
-		<description>Sample thing for Hydrawise Binding</description>
+		<description>Hydrawise Cloud Controller</description>
 		<channels>
 			<channel id="name" typeId="name" />
 			<channel id="lastContact" typeId="lastContact" />
+			<!-- 
 			<channel id="serialNumber" typeId="serialNumber" />
 			<channel id="controllerId" typeId="controllerId" />
 			<channel id="swVersion" typeId="swVersion" />
@@ -36,10 +37,11 @@
 			<channel id="address" typeId="address" />
 			<channel id="timezone" typeId="timezone" />
 			<channel id="deviceId" typeId="deviceId" />
-			<channel id="parentDeviceId" typeId="parentDeviceId" />
+			<channel id="parentDeviceId" typeId="parentDeviceId" /> 
+			-->
 			<channel id="image" typeId="image" />
 			<channel id="description" typeId="description" />
-			<channel id="customerId" typeId="customerId" />
+			<!--  --><channel id="customerId" typeId="customerId" />
 			<channel id="location" typeId="location" />
 			<channel id="lastContactReadable" typeId="lastContactReadable" />
 			<channel id="status" typeId="status" />
@@ -54,26 +56,63 @@
 			</parameter>
 		</config-description>
 	</bridge-type>
+	
+	<bridge-type id="localController">
+        <label>Hydrawise Local Controller Bridge</label>
+        <description>Local Hydrawise Controller</description>
+        <channels>
+            <channel id="name" typeId="name" />
+        </channels>
+        <representation-property>controllerId</representation-property>
+        <config-description>
+            <parameter name="host" type="text" required="true">
+                <label>Host</label>
+                <description>Host or IP address of local controller</description>
+            </parameter>
+            <parameter name="username" type="text" required="true">
+                <default>admin</default>
+                <label>User Name</label>
+                <description>User name for controller, usually "admin"</description>
+            </parameter>
+            <parameter name="password" type="text" required="true">
+                <label>password</label>
+                <description>Password for local controller, found in the settings menu on the controller itself.</description>
+            </parameter>
+        </config-description>
+    </bridge-type>
+	
 
-	<thing-type id="zone">
+	<thing-type id="relay">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="controller" />
+			<bridge-type-ref id="localController" />
 		</supported-bridge-type-refs>
-		<label>Zone</label>
-		<description>Hydrawise Zone</description>
+		<label>Relay</label>
+		<description>Hydrawise Relay (Zone)</description>
 		<channels>
-			<channel id="relayId" typeId="relayId" />
-			<channel id="relay" typeId="relay" />
+	<!-- 		<channel id="relayId" typeId="relayId" />
+			<channel id="relay" typeId="relay" /> -->
 			<channel id="name" typeId="name" />
 			<channel id="icon" typeId="icon" />
 			<channel id="lastwater" typeId="lastwater" />
 			<channel id="time" typeId="time" />
 			<channel id="type" typeId="type" />
+			<channel id="runcustom" typeId="runcustom" />
 			<channel id="run" typeId="run" />
-			<channel id="runSeconds" typeId="runSeconds" />
 			<channel id="nicetime" typeId="nicetime" />
+			<channel id="timeLeft" typeId="timeLeft" />
 		</channels>
-		<representation-property>controllerId</representation-property>
+		<representation-property>relayId</representation-property>
+		  <config-description>
+            <parameter name="relayId" type="integer" required="true">
+                <label>Relay Id</label>
+                <description>Unique Relay Id</description>
+            </parameter>
+             <parameter name="number" type="integer" required="true">
+                <label>Relay Number</label>
+                <description>Relay Number</description>
+            </parameter>
+        </config-description>
 	</thing-type>
 
 	<thing-type id="sensor">
@@ -97,7 +136,7 @@
 		<description>Last contact time of the controller</description>
 		<state readOnly="true"></state>
 	</channel-type>
-	<channel-type id="serialNumber" advanced="true">
+	<!-- <channel-type id="serialNumber" advanced="true">
 		<item-type>String</item-type>
 		<label>Serial Number</label>
 		<description>Serial Number of the controller</description>
@@ -150,7 +189,7 @@
 		<label>Parent Device ID</label>
 		<description>Controller parent device id</description>
 		<state readOnly="true"></state>
-	</channel-type>
+	</channel-type> -->
 	<channel-type id="image">
 		<item-type>String</item-type>
 		<label>Controller Image</label>
@@ -163,12 +202,12 @@
 		<description>Controller description</description>
 		<state readOnly="true"></state>
 	</channel-type>
-	<channel-type id="customerId" advanced="true">
+<!-- 	<channel-type id="customerId" advanced="true">
 		<item-type>Number</item-type>
 		<label>Customer ID</label>
 		<description>Customer ID</description>
 		<state readOnly="true"></state>
-	</channel-type>
+	</channel-type> -->
 	<channel-type id="location">
 		<item-type>Point</item-type>
 		<label>Location</label>
@@ -201,7 +240,7 @@
 	</channel-type>
 
 	<!-- Zone / Relay -->
-	<channel-type id="relayId" advanced="true">
+<!-- 	<channel-type id="relayId" advanced="true">
 		<item-type>Number</item-type>
 		<label>Relay ID</label>
 		<description>Zone unique id</description>
@@ -212,7 +251,7 @@
 		<label>Relay Number</label>
 		<description>Controller status</description>
 		<state readOnly="true"></state>
-	</channel-type>
+	</channel-type> -->
 	<channel-type id="icon">
 		<item-type>String</item-type>
 		<label>Icon</label>
@@ -252,20 +291,26 @@
 	<channel-type id="nicetime">
 		<item-type>String</item-type>
 		<label>Start Time</label>
-		<description>Relay start time in seconds</description>
+		<description>Relay start time string</description>
 		<state readOnly="true"></state>
 	</channel-type>
-
-    <channel-type id="running">
+    <channel-type id="run">
         <item-type>Switch</item-type>
-        <label>Running</label>
-        <description>Relay running state</description>
+        <label>Run</label>
+        <description>Run or stop zone for the default time.</description>
     </channel-type>
-        <channel-type id="runcustom">
+    <channel-type id="runcustom">
         <item-type>Number</item-type>
         <label>Run Zone in Seconds</label>
         <description>Run zone now for a custom duration of time in seconds</description>
     </channel-type>
+    <channel-type id="timeLeft" advanced="true">
+        <item-type>Number</item-type>
+        <label>Time Left Seconds</label>
+        <description>Time left that relay will run for</description>
+        <state readOnly="true"></state>
+    </channel-type>
+    
 	<!-- Sensor -->
 
 	<channel-type id="input" advanced="true">
