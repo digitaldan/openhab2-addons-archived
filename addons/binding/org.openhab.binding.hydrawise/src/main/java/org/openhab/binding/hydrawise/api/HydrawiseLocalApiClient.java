@@ -66,33 +66,33 @@ public class HydrawiseLocalApiClient {
 
     public String stopZone(int number)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseCommandBuilder(localSetURL).action("stop").relayNumber(number).toString());
+        return zoneCommand(new HydrawiseZoneCommandBuilder(localSetURL).action("stop").relayNumber(number).toString());
     }
 
     public String runZone(int number)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseCommandBuilder(localSetURL).action("run").relayNumber(number).toString());
+        return zoneCommand(new HydrawiseZoneCommandBuilder(localSetURL).action("run").relayNumber(number).toString());
     }
 
     public String runZone(int seconds, int number)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseCommandBuilder(localSetURL).action("run").relayNumber(number).duration(seconds)
+        return zoneCommand(new HydrawiseZoneCommandBuilder(localSetURL).action("run").relayNumber(number).duration(seconds)
                 .toString());
     }
 
     public String stopAllZones()
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseCommandBuilder(localSetURL).action("stopall").toString());
+        return zoneCommand(new HydrawiseZoneCommandBuilder(localSetURL).action("stopall").toString());
     }
 
     public String runAllZones()
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseCommandBuilder(localSetURL).action("runall").toString());
+        return zoneCommand(new HydrawiseZoneCommandBuilder(localSetURL).action("runall").toString());
     }
 
     public String runAllZones(int seconds)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseCommandBuilder(localSetURL).action("runall").duration(seconds).toString());
+        return zoneCommand(new HydrawiseZoneCommandBuilder(localSetURL).action("runall").duration(seconds).toString());
     }
 
     private String zoneCommand(String url)
