@@ -23,7 +23,7 @@ public class HydrawiseCloudApiClient {
     private static String STATUS_SCHEDUE_URL = BASE_URL + "statusschedule.php?api_key=%s&controller_id=%d&hours=168";
     private static String CUSTOMER_DETAILS_URL = BASE_URL + "customerdetails.php?api_key=%s&type=controllers";
     private static String SET_CONTROLLER_URL = BASE_URL + "setcontroller.php?api_key=%s&controller_id=%d&json=true";
-    private static String SET_ZONE_URL = BASE_URL + "setzone.php?api_key=%s&%s";
+    private static String SET_ZONE_URL = BASE_URL + "setzone.php?period_id=999";
     private static int TIMEOUT = 30;
     private String apiKey;
     private HttpClient httpClient;
@@ -74,63 +74,56 @@ public class HydrawiseCloudApiClient {
 
     public String stopZone(int relayId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(String.format(SET_ZONE_URL, apiKey, "action=stop&relay_id=" + relayId));
+        return zoneCommand(
+                new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("stop").relayId(relayId).toString());
     }
 
     public String stopAllRelays(int controllerId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(String.format(SET_ZONE_URL, apiKey, "action=stopall&controller_id=" + controllerId));
+        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("stopall")
+                .controllerId(controllerId).toString());
     }
 
     public String runZone(int relayId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return runZone(0, relayId);
+        return zoneCommand(
+                new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("run").relayId(relayId).toString());
     }
 
     public String runZone(int seconds, int relayId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        String url = String.format(SET_ZONE_URL, apiKey, "action=run&period=999&relay_id=" + relayId);
-        if (seconds > 0) {
-            url += "&custom=";
-        }
-        return zoneCommand(url);
+        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("run").relayId(relayId)
+                .duration(seconds).toString());
     }
 
     public String runAllRelays(int controllerId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return runAllRelays(0, controllerId);
+        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("runall")
+                .controllerId(controllerId).toString());
     }
 
     public String runAllRelays(int seconds, int controllerId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        String url = String.format(SET_ZONE_URL, apiKey, "action=runall&period=999&controller_id=" + controllerId);
-        if (seconds > 0) {
-            url += "&custom=";
-        }
-        return zoneCommand(url);
+        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("runall")
+                .controllerId(controllerId).duration(seconds).toString());
     }
 
     public String suspendZone(int relayId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return suspendZone(0, relayId);
+        return zoneCommand(
+                new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("suspend").relayId(relayId).toString());
     }
 
     public String suspendZone(int seconds, int relayId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        String url = String.format(SET_ZONE_URL, apiKey, "action=suspend&period=999&relay_id=" + relayId);
-        if (seconds > 0) {
-            url += "&custom=";
-        }
-        return zoneCommand(url);
+        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("suspend").relayId(relayId)
+                .duration(seconds).toString());
     }
 
     public String suspendAllRelays(int seconds, int controllerId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        String url = String.format(SET_ZONE_URL, apiKey, "action=suspendall&period=999&controller_id=" + controllerId);
-        if (seconds > 0) {
-            url += "&custom=";
-        }
-        return zoneCommand(url);
+        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("suspendall")
+                .controllerId(controllerId).duration(seconds).toString());
     }
 
     private String zoneCommand(String url)
