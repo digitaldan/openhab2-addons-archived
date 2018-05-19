@@ -28,9 +28,9 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
-import org.openhab.binding.hydrawise.discovery.HydrawiseCloudRelayAndSensorDiscoveryClient;
-import org.openhab.binding.hydrawise.discovery.HydrawiseControllerDiscoveryClient;
-import org.openhab.binding.hydrawise.discovery.HydrawiseLocalRelayDiscoveryClient;
+import org.openhab.binding.hydrawise.discovery.HydrawiseCloudRelayAndSensorDiscoveryService;
+import org.openhab.binding.hydrawise.discovery.HydrawiseControllerDiscoveryService;
+import org.openhab.binding.hydrawise.discovery.HydrawiseLocalRelayDiscoveryService;
 import org.openhab.binding.hydrawise.handler.HydrawiseCloudAccountHandler;
 import org.openhab.binding.hydrawise.handler.HydrawiseCloudControllerHandler;
 import org.openhab.binding.hydrawise.handler.HydrawiseLocalControllerHandler;
@@ -61,14 +61,14 @@ public class HydrawiseHandlerFactory extends BaseThingHandlerFactory {
 
         if (HYDRAWISE_ACCOUNT_THING_TYPE.equals(thingTypeUID)) {
             HydrawiseCloudAccountHandler accountHandler = new HydrawiseCloudAccountHandler((Bridge) thing);
-            HydrawiseControllerDiscoveryClient discovery = new HydrawiseControllerDiscoveryClient(accountHandler);
+            HydrawiseControllerDiscoveryService discovery = new HydrawiseControllerDiscoveryService(accountHandler);
             this.discoveryServiceRegistrations.put(accountHandler.getThing().getUID(), bundleContext
                     .registerService(DiscoveryService.class.getName(), discovery, new Hashtable<String, Object>()));
             return accountHandler;
         }
         if (HYDRAWISE_CONTROLLER_THING_TYPE.equals(thingTypeUID)) {
             HydrawiseCloudControllerHandler controllerHandler = new HydrawiseCloudControllerHandler((Bridge) thing);
-            HydrawiseCloudRelayAndSensorDiscoveryClient discovery = new HydrawiseCloudRelayAndSensorDiscoveryClient(
+            HydrawiseCloudRelayAndSensorDiscoveryService discovery = new HydrawiseCloudRelayAndSensorDiscoveryService(
                     controllerHandler);
             this.discoveryServiceRegistrations.put(controllerHandler.getThing().getUID(), bundleContext
                     .registerService(DiscoveryService.class.getName(), discovery, new Hashtable<String, Object>()));
@@ -77,7 +77,7 @@ public class HydrawiseHandlerFactory extends BaseThingHandlerFactory {
 
         if (HYDRAWISE_LOCAL_CONTROLLER_THING_TYPE.equals(thingTypeUID)) {
             HydrawiseLocalControllerHandler controllerHandler = new HydrawiseLocalControllerHandler((Bridge) thing);
-            HydrawiseLocalRelayDiscoveryClient discovery = new HydrawiseLocalRelayDiscoveryClient(controllerHandler);
+            HydrawiseLocalRelayDiscoveryService discovery = new HydrawiseLocalRelayDiscoveryService(controllerHandler);
             this.discoveryServiceRegistrations.put(controllerHandler.getThing().getUID(), bundleContext
                     .registerService(DiscoveryService.class.getName(), discovery, new Hashtable<String, Object>()));
             return controllerHandler;

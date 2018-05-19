@@ -18,12 +18,12 @@ import org.openhab.binding.hydrawise.handler.HydrawiseCloudAccountHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HydrawiseControllerDiscoveryClient extends AbstractDiscoveryService {
-    private final Logger logger = LoggerFactory.getLogger(HydrawiseControllerDiscoveryClient.class);
+public class HydrawiseControllerDiscoveryService extends AbstractDiscoveryService {
+    private final Logger logger = LoggerFactory.getLogger(HydrawiseControllerDiscoveryService.class);
     private HydrawiseCloudAccountHandler accountHandler;
     private static final int TIMEOUT = 30;
 
-    public HydrawiseControllerDiscoveryClient(HydrawiseCloudAccountHandler accountHandler) throws IllegalArgumentException {
+    public HydrawiseControllerDiscoveryService(HydrawiseCloudAccountHandler accountHandler) throws IllegalArgumentException {
         super(Collections.singleton(HydrawiseBindingConstants.HYDRAWISE_CONTROLLER_THING_TYPE), TIMEOUT);
         this.accountHandler = accountHandler;
         logger.trace("init");

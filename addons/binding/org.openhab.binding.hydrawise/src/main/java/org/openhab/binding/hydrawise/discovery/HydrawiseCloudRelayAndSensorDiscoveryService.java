@@ -19,11 +19,11 @@ import org.openhab.binding.hydrawise.handler.HydrawiseCloudControllerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HydrawiseCloudRelayAndSensorDiscoveryClient extends AbstractDiscoveryService {
-    private final Logger logger = LoggerFactory.getLogger(HydrawiseCloudRelayAndSensorDiscoveryClient.class);
+public class HydrawiseCloudRelayAndSensorDiscoveryService extends AbstractDiscoveryService {
+    private final Logger logger = LoggerFactory.getLogger(HydrawiseCloudRelayAndSensorDiscoveryService.class);
     private HydrawiseCloudControllerHandler controllerHandler;
 
-    public HydrawiseCloudRelayAndSensorDiscoveryClient(HydrawiseCloudControllerHandler controllerHandler)
+    public HydrawiseCloudRelayAndSensorDiscoveryService(HydrawiseCloudControllerHandler controllerHandler)
             throws IllegalArgumentException {
         super(HydrawiseBindingConstants.SUPPORTED_RELAY_AND_SENSOR_THING_TYPES_UIDS, 30, true);
         this.controllerHandler = controllerHandler;

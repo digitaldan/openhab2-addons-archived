@@ -19,11 +19,11 @@ import org.openhab.binding.hydrawise.handler.HydrawiseLocalControllerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HydrawiseLocalRelayDiscoveryClient extends AbstractDiscoveryService {
-    private final Logger logger = LoggerFactory.getLogger(HydrawiseLocalRelayDiscoveryClient.class);
+public class HydrawiseLocalRelayDiscoveryService extends AbstractDiscoveryService {
+    private final Logger logger = LoggerFactory.getLogger(HydrawiseLocalRelayDiscoveryService.class);
     private HydrawiseLocalControllerHandler controllerHandler;
 
-    public HydrawiseLocalRelayDiscoveryClient(HydrawiseLocalControllerHandler controllerHandler)
+    public HydrawiseLocalRelayDiscoveryService(HydrawiseLocalControllerHandler controllerHandler)
             throws IllegalArgumentException {
         super(Stream.of(HydrawiseBindingConstants.HYDRAWISE_RELAY_THING_TYPE).collect(Collectors.toSet()), 30, true);
         this.controllerHandler = controllerHandler;
