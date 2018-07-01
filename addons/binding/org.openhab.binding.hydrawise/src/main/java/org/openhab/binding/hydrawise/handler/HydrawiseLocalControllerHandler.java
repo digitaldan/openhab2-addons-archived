@@ -68,12 +68,12 @@ public class HydrawiseLocalControllerHandler extends BaseBridgeHandler implement
         super(bridge);
     }
 
-    @SuppressWarnings("null")
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
 
     }
 
+    @SuppressWarnings("null")
     @Override
     public void initialize() {
         config = getConfigAs(HydrawiseLocalControllerConfiguration.class);
@@ -100,7 +100,6 @@ public class HydrawiseLocalControllerHandler extends BaseBridgeHandler implement
         if (childHandler instanceof HydrawiseRelayHandler) {
             HydrawiseRelayHandler handler = (HydrawiseRelayHandler) childHandler;
             relays.remove(handler.getConfiguration().relayId);
-            refreshData();
         }
 
     }
@@ -133,8 +132,12 @@ public class HydrawiseLocalControllerHandler extends BaseBridgeHandler implement
         logger.trace("updateData for {}", localScheduleResponse.getName());
         relays.values().forEach(child -> {
             HydrawiseRelayHandler relayHandler = (HydrawiseRelayHandler) child.getHandler();
+            if (relayHandler == null) {
+                return;
+            }
+            HydrawiseRelayConfiguration relayConfig = relayHandler.getConfiguration();
             localScheduleResponse.getRelays().forEach(relay -> {
-                if (relay.getRelayId().equals(relayHandler.getConfiguration().relayId)) {
+                if (relayConfig != null && relay.getRelayId().equals(relayConfig.relayId)) {
                     logger.trace("updateRelay for {}", relay.getName());
                     relayHandler.updateRelay(relay);
                 }

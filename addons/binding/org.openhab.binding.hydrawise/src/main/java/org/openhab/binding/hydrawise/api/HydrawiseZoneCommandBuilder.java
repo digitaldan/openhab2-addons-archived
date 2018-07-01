@@ -19,7 +19,7 @@ public class HydrawiseZoneCommandBuilder {
     }
 
     protected HydrawiseZoneCommandBuilder relayId(int relayId) {
-        builder.append("&relayId=" + relayId);
+        builder.append("&relay_id=" + relayId);
         return this;
     }
 
