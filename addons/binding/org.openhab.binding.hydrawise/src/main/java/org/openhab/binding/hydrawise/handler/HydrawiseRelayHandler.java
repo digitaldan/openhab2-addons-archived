@@ -95,7 +95,6 @@ public class HydrawiseRelayHandler extends BaseThingHandler {
         updateStatus(ThingStatus.ONLINE);
     }
 
-    @Nullable
     public HydrawiseRelayConfiguration getConfiguration() {
         return config;
     }

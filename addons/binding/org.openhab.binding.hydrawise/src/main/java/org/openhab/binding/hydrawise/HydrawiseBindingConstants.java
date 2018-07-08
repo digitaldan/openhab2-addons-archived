@@ -29,7 +29,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 public class HydrawiseBindingConstants {
 
     private static final String BINDING_ID = "hydrawise";
-
     public static final ThingTypeUID HYDRAWISE_ACCOUNT_THING_TYPE = new ThingTypeUID(BINDING_ID, "account");
     public static final ThingTypeUID HYDRAWISE_CONTROLLER_THING_TYPE = new ThingTypeUID(BINDING_ID, "controller");
     public static final ThingTypeUID HYDRAWISE_LOCAL_CONTROLLER_THING_TYPE = new ThingTypeUID(BINDING_ID,
@@ -53,9 +52,14 @@ public class HydrawiseBindingConstants {
     public static final String CHANNEL_RELAY_TYPE = "type";
     public static final String CHANNEL_RELAY_NICE_TIME = "nicetime";
     public static final String CHANNEL_RELAY_TIME_LEFT = "timeLeft";
-
     public static final String CHANNEL_RUN_ALL_RELAYS = "runall";
     public static final String CHANNEL_STOP_ALL_RELAYS = "stopall";
     public static final String CHANNEL_SUSPEND_ALL_RELAYS = "suspendall";
-
+    public static final String CHANNEL_SENSOR_NAME = "name";
+    public static final String CHANNEL_SENSOR_INPUT = "input";
+    public static final String CHANNEL_SENSOR_MODE = "mode";
+    public static final String CHANNEL_SENSOR_TIMER = "timer";
+    public static final String CHANNEL_SENSOR_OFFTIMER = "offtimer";
+    public static final String CHANNEL_SENSOR_OFFLEVEL = "offlevel";
+    public static final String CHANNEL_SENSOR_ACTIVE = "active";
 }

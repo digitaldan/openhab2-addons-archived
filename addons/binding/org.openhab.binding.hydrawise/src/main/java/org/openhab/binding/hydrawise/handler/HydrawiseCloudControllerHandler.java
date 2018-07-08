@@ -58,7 +58,7 @@ public class HydrawiseCloudControllerHandler extends BaseBridgeHandler implement
     @Nullable
     private ScheduledFuture<?> pollingJob;
     @Nullable
-    StatusScheduleResponse statusScheduleResponse;
+    StatusScheduleResponse status;
 
     private static int POLL_FREQUENCY = 30;
     private static int DELAY_POLL = 15;
@@ -157,9 +157,9 @@ public class HydrawiseCloudControllerHandler extends BaseBridgeHandler implement
         return config;
     }
 
-    private void updateStatusSchedule() {
+    private void updateStatus() {
         try {
-            statusScheduleResponse = getApiClient().getStatusSchedule(config.controllerId);
+            status = getApiClient().getStatusSchedule(config.controllerId);
             if (getThing().getStatus() != ThingStatus.ONLINE) {
                 updateStatus(ThingStatus.ONLINE);
             }
@@ -174,22 +174,25 @@ public class HydrawiseCloudControllerHandler extends BaseBridgeHandler implement
     }
 
     public void refreshData() {
-        if (statusScheduleResponse == null) {
+        if (status == null) {
             return;
         }
-        logger.trace("updateData for {}", statusScheduleResponse.getName());
+        logger.trace("updateData for {}", status.getName());
         relays.values().forEach(child -> {
             HydrawiseRelayHandler relayHandler = (HydrawiseRelayHandler) child.getHandler();
-            statusScheduleResponse.getRelays().forEach(relay -> {
+            if (relayHandler == null) {
+                return;
+            }
+            status.getRelays().forEach(relay -> {
                 if (relay.getRelayId().equals(relayHandler.getConfiguration().relayId)) {
                     logger.trace("updateRelay for {}", relay.getName());
                     relayHandler.updateRelay(relay);
                 }
             });
             Running runningRelay = null;
-            List<Running> runningRelays = statusScheduleResponse.getRunning();
+            List<Running> runningRelays = status.getRunning();
             if (runningRelays != null) {
-                for (Running running : statusScheduleResponse.getRunning()) {
+                for (Running running : status.getRunning()) {
                     if (running.getRelayId().equals(relayHandler.getConfiguration().relayId)) {
                         runningRelay = running;
                         break;
@@ -197,6 +200,16 @@ public class HydrawiseCloudControllerHandler extends BaseBridgeHandler implement
                 }
             }
             relayHandler.setRelayRunning(runningRelay);
+        });
+
+        sensors.values().forEach(child -> {
+            HydrawiseSensorHandler sensorHandler = (HydrawiseSensorHandler) child.getHandler();
+            status.getSensors().forEach(sensor -> {
+                if (sensor.getInput().equals(sensorHandler.getConfiguration().sensorId)) {
+                    logger.trace("updateSensor for {}", sensor.getName());
+                    sensorHandler.updateSensor(sensor);
+                }
+            });
         });
     }
 
@@ -234,7 +247,7 @@ public class HydrawiseCloudControllerHandler extends BaseBridgeHandler implement
         stopPolling();
         if (pollingJob == null || pollingJob.isCancelled()) {
             pollingJob = scheduler.scheduleWithFixedDelay(() -> {
-                updateStatusSchedule();
+                updateStatus();
             }, delay, POLL_FREQUENCY, TimeUnit.SECONDS);
         }
     }

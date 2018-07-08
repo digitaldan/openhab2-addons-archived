@@ -35,6 +35,7 @@ import org.openhab.binding.hydrawise.handler.HydrawiseCloudAccountHandler;
 import org.openhab.binding.hydrawise.handler.HydrawiseCloudControllerHandler;
 import org.openhab.binding.hydrawise.handler.HydrawiseLocalControllerHandler;
 import org.openhab.binding.hydrawise.handler.HydrawiseRelayHandler;
+import org.openhab.binding.hydrawise.handler.HydrawiseSensorHandler;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 
@@ -87,7 +88,7 @@ public class HydrawiseHandlerFactory extends BaseThingHandlerFactory {
             return new HydrawiseRelayHandler(thing);
         }
         if ((HYDRAWISE_SENSOR_THING_TYPE).equals(thingTypeUID)) {
-            // return new HydrawiseSensorHandler(thing);
+            return new HydrawiseSensorHandler(thing);
         }
 
         return null;
@@ -95,7 +96,8 @@ public class HydrawiseHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     protected void removeHandler(ThingHandler thingHandler) {
-        if (thingHandler instanceof HydrawiseCloudAccountHandler || thingHandler instanceof HydrawiseCloudControllerHandler) {
+        if (thingHandler instanceof HydrawiseCloudAccountHandler
+                || thingHandler instanceof HydrawiseCloudControllerHandler) {
             unregisterDeviceDiscoveryService(thingHandler.getThing().getUID());
         }
 

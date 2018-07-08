@@ -121,8 +121,17 @@
 		</supported-bridge-type-refs>
 		<label>Sensor</label>
 		<description>Hydrawise Sensor</description>
+		<channels>
+		  <channel id="name" typeId="name" />
+		  <channel id="input" typeId="input" />
+		  <channel id="mode" typeId="mode" />
+		  <channel id="timer" typeId="timer" />
+		  <channel id="offtimer" typeId="offtimer" />
+		  <channel id="offlevel" typeId="offlevel" />
+		  <channel id="active" typeId="active" />
+		</channels>
 	</thing-type>
-
+    
 	<!-- Controller -->
 	<channel-type id="name">
 		<item-type>String</item-type>
