@@ -159,7 +159,7 @@ public class HydrawiseLocalControllerHandler extends BaseBridgeHandler implement
     @Override
     public void runRelay(HydrawiseRelayConfiguration config) {
         try {
-            apiClient.runZone(config.number);
+            apiClient.runRelay(config.number);
             startPolling(DELAY_POLL);
         } catch (HydrawiseConnectionException | HydrawiseAuthenticationException | HydrawiseCommandException e) {
             logger.warn("Could not run relay", e);
@@ -169,7 +169,7 @@ public class HydrawiseLocalControllerHandler extends BaseBridgeHandler implement
     @Override
     public void runRelay(int duration, HydrawiseRelayConfiguration config) {
         try {
-            apiClient.runZone(duration, config.number);
+            apiClient.runRelay(duration, config.number);
             startPolling(DELAY_POLL);
         } catch (HydrawiseConnectionException | HydrawiseAuthenticationException | HydrawiseCommandException e) {
             logger.warn("Could not run relay", e);
@@ -179,7 +179,7 @@ public class HydrawiseLocalControllerHandler extends BaseBridgeHandler implement
     @Override
     public void stopRelay(HydrawiseRelayConfiguration config) {
         try {
-            apiClient.stopZone(config.number);
+            apiClient.stopRelay(config.number);
             startPolling(DELAY_POLL);
         } catch (HydrawiseConnectionException | HydrawiseAuthenticationException | HydrawiseCommandException e) {
             logger.warn("Could not stop relay", e);

@@ -72,61 +72,61 @@ public class HydrawiseCloudApiClient {
         return response;
     }
 
-    public String stopZone(int relayId)
+    public String stopRelay(int relayId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(
+        return relayCommand(
                 new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("stop").relayId(relayId).toString());
     }
 
     public String stopAllRelays(int controllerId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("stopall")
+        return relayCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("stopall")
                 .controllerId(controllerId).toString());
     }
 
-    public String runZone(int relayId)
+    public String runRelay(int relayId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(
+        return relayCommand(
                 new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("run").relayId(relayId).toString());
     }
 
-    public String runZone(int seconds, int relayId)
+    public String runRelay(int seconds, int relayId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("run").relayId(relayId)
+        return relayCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("run").relayId(relayId)
                 .duration(seconds).toString());
     }
 
     public String runAllRelays(int controllerId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("runall")
+        return relayCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("runall")
                 .controllerId(controllerId).toString());
     }
 
     public String runAllRelays(int seconds, int controllerId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("runall")
+        return relayCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("runall")
                 .controllerId(controllerId).duration(seconds).toString());
     }
 
-    public String suspendZone(int relayId)
+    public String suspendRelay(int relayId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(
+        return relayCommand(
                 new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("suspend").relayId(relayId).toString());
     }
 
-    public String suspendZone(int seconds, int relayId)
+    public String suspendRelay(int seconds, int relayId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("suspend").relayId(relayId)
+        return relayCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("suspend").relayId(relayId)
                 .duration(seconds).toString());
     }
 
     public String suspendAllRelays(int seconds, int controllerId)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
-        return zoneCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("suspendall")
+        return relayCommand(new HydrawiseZoneCommandBuilder(SET_ZONE_URL, apiKey).action("suspendall")
                 .controllerId(controllerId).duration(seconds).toString());
     }
 
-    private String zoneCommand(String url)
+    private String relayCommand(String url)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
         String json = doGet(url);
         SetZoneResponse response = gson.fromJson(json, SetZoneResponse.class);
