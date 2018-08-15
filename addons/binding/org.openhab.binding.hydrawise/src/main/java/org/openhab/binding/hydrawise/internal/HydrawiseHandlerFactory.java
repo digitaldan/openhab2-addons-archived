@@ -38,6 +38,8 @@ import org.openhab.binding.hydrawise.handler.HydrawiseRelayHandler;
 import org.openhab.binding.hydrawise.handler.HydrawiseSensorHandler;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link HydrawiseHandlerFactory} is responsible for creating things and thing
@@ -49,6 +51,7 @@ import org.osgi.service.component.annotations.Component;
 @NonNullByDefault
 public class HydrawiseHandlerFactory extends BaseThingHandlerFactory {
 
+    private final Logger logger = LoggerFactory.getLogger(HydrawiseHandlerFactory.class);
     private final Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegistrations = new HashMap<>();
 
     @Override
@@ -59,7 +62,7 @@ public class HydrawiseHandlerFactory extends BaseThingHandlerFactory {
     @Override
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-
+        logger.debug("Getting handler for thing {} of type {}", thing.getLabel(), thingTypeUID.getAsString());
         if (HYDRAWISE_ACCOUNT_THING_TYPE.equals(thingTypeUID)) {
             HydrawiseCloudAccountHandler accountHandler = new HydrawiseCloudAccountHandler((Bridge) thing);
             HydrawiseControllerDiscoveryService discovery = new HydrawiseControllerDiscoveryService(accountHandler);

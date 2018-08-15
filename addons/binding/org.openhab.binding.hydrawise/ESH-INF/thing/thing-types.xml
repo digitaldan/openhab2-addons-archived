@@ -41,7 +41,7 @@
 			-->
 			<channel id="image" typeId="image" />
 			<channel id="description" typeId="description" />
-			<!--  --><channel id="customerId" typeId="customerId" />
+			<!--  <channel id="customerId" typeId="customerId" />-->
 			<channel id="location" typeId="location" />
 			<channel id="lastContactReadable" typeId="lastContactReadable" />
 			<channel id="status" typeId="status" />
@@ -118,6 +118,7 @@
 	<thing-type id="sensor">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="controller" />
+            <bridge-type-ref id="localController" />
 		</supported-bridge-type-refs>
 		<label>Sensor</label>
 		<description>Hydrawise Sensor</description>

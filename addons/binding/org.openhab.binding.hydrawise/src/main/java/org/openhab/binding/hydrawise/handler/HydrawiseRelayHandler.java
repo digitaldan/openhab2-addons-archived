@@ -45,8 +45,8 @@ public class HydrawiseRelayHandler extends BaseThingHandler {
 
     private HydrawiseRelayConfiguration config;
 
-    public HydrawiseRelayHandler(Thing zone) {
-        super(zone);
+    public HydrawiseRelayHandler(Thing relay) {
+        super(relay);
         config = getConfigAs(HydrawiseRelayConfiguration.class);
     }
 
@@ -104,8 +104,12 @@ public class HydrawiseRelayHandler extends BaseThingHandler {
             logger.warn("Will not update me, relay {} , with new config for relay {}", config.relayId,
                     relay.getRelayId());
         }
+        if (relay.getRunTimeSeconds() != null) {
+            updateState(CHANNEL_RELAY_TIME, new DecimalType(relay.getRunTimeSeconds()));
+        }
         updateState(CHANNEL_RELAY_ICON, new StringType(relay.getIcon()));
-        updateState(CHANNEL_RELAY_TIME, new DecimalType(relay.getRunTimeSeconds()));
+        updateState(CHANNEL_RELAY_LAST_WATER, new StringType(relay.getLastwater()));
+        updateState(CHANNEL_RELAY_NICE_TIME, new StringType(relay.getNicetime()));
 
     }
 
