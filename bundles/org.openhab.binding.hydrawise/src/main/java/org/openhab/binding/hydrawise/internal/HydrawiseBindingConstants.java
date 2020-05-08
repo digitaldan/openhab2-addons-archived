@@ -38,14 +38,15 @@ public class HydrawiseBindingConstants {
     public static final String CONFIG_CONTROLLER_ID = "controllerId";
 
     public static final String CHANNEL_GROUP_CONTROLLER_SYSTEM = "system";
-    public static final String CHANNEL_CONTROLLER_LAST_CONTACT = "lastContact";
+    public static final String CHANNEL_CONTROLLER_NAME = "name";
+    public static final String CHANNEL_CONTROLLER_LAST_CONTACT = "lastcontact";
     public static final String CHANNEL_CONTROLLER_STATUS = "status";
     public static final String CHANNEL_CONTROLLER_SUMMARY = "summary";
     public static final String CHANNEL_CONTROLLER_ONLINE = "online";
     public static final String CHANNEL_GROUP_ALLZONES = "allzones";
     public static final String CHANNEL_ZONE_NAME = "name";
     public static final String CHANNEL_ZONE_ICON = "icon";
-    public static final String CHANNEL_ZONE_STARTTIME = "startTime";
+    public static final String CHANNEL_ZONE_STARTTIME = "starttime";
     public static final String CHANNEL_ZONE_DURATION = "duration";
     public static final String CHANNEL_ZONE_TYPE = "type";
     public static final String CHANNEL_ZONE_RUN = "run";
@@ -53,7 +54,7 @@ public class HydrawiseBindingConstants {
     public static final String CHANNEL_ZONE_NEXT_RUN_TIME_TIME = "nextruntime";
     // public static final String CHANNEL_ZONE_STOP = "stop";
     public static final String CHANNEL_ZONE_SUSPEND = "suspend";
-    public static final String CHANNEL_ZONE_SUSPENDUNTIL = "suspendedUntil";
+    public static final String CHANNEL_ZONE_SUSPENDUNTIL = "suspenduntil";
     // public static final String CHANNEL_ZONE_LAST_WATER = "lastwater";
     public static final String CHANNEL_ZONE_SUMMARY = "summary";
     public static final String CHANNEL_ZONE_TIME_LEFT = "timeleft";
@@ -67,6 +68,7 @@ public class HydrawiseBindingConstants {
     public static final String CHANNEL_SENSOR_OFFTIMER = "offtimer";
     public static final String CHANNEL_SENSOR_OFFLEVEL = "offlevel";
     public static final String CHANNEL_SENSOR_ACTIVE = "active";
+    public static final String CHANNEL_SENSOR_WATERFLOW = "waterflow";
     public static final String CHANNEL_FORECAST_TEMPERATURE_HIGH = "temperaturehigh";
     public static final String CHANNEL_FORECAST_TEMPERATURE_LOW = "temperaturelow";
     public static final String CHANNEL_FORECAST_CONDITIONS = "conditions";

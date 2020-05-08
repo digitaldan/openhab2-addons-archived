@@ -139,7 +139,6 @@ Channels uses across zones, sensors and forecasts
 |-----------------|--------------------|----------------|------------------------------------------|------------|
 | name            | String             | zone, sensor   | Descriptive name                         | R          |
 | icon            | String             | zone           | Icon URL                                 | R          |
-| time            | DateTime           | zone           | Zone start time                          | R          |
 | type            | Number             | zone           | Zone type                                | R          |
 | run             | Switch             | zone, allzones | Run/Start zone                           | RW         |
 | runcustom       | Number:Time        | zone, allzones | Run zone for custom length               | W          |

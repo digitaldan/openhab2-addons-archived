@@ -81,25 +81,7 @@
               label
             }
           }
-          runs {
-            startTime {
-              timestamp
-            }
-            duration
-          }
           nextRun {
-            id
-            startTime {
-              timestamp
-            }
-            endTime {
-              timestamp
-            }
-            duration
-          }
-        }
-        pastRuns {
-          lastRun {
             id
             startTime {
               timestamp

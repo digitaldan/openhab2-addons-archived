@@ -15,6 +15,7 @@ package org.openhab.binding.hydrawise.internal;
 import static org.openhab.binding.hydrawise.internal.HydrawiseBindingConstants.*;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,11 +23,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.measure.quantity.Speed;
 import javax.measure.quantity.Temperature;
+import javax.measure.quantity.Volume;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -37,6 +40,7 @@ import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -73,8 +77,8 @@ import tec.uom.se.unit.Units;
 @NonNullByDefault
 public class HydrawiseControllerHandler extends BaseThingHandler implements HydrawiseControllerListener {
     private static final int DEFAULT_SUSPEND_TIME_HOURS = 24;
-    private static final String DATE_FORMAT = "EEE, dd MMM yy HH:mm:ss Z";
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, dd MMM uu HH:mm:ss Z",
+            Locale.US);
     private final Logger logger = LoggerFactory.getLogger(HydrawiseControllerHandler.class);
     private Map<String, State> stateMap = Collections.synchronizedMap(new HashMap<>());
     private Map<String, Zone> zoneMaps = Collections.synchronizedMap(new HashMap<>());
@@ -104,6 +108,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
+        logger.debug("handleCommand channel {} Command {}", channelUID.getAsString(), command.toFullString());
         if (getThing().getStatus() != ThingStatus.ONLINE) {
             logger.warn("Controller is NOT ONLINE and is not responding to commands");
             return;
@@ -173,15 +178,15 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                     }
                     if (allCommand) {
                         if (command == OnOffType.ON) {
-                            client.suspendAllRelays(controllerId,
-                                    Instant.now().plus(DEFAULT_SUSPEND_TIME_HOURS, ChronoUnit.HOURS).toString());
+                            client.suspendAllRelays(controllerId, OffsetDateTime.now(ZoneOffset.UTC)
+                                    .plus(DEFAULT_SUSPEND_TIME_HOURS, ChronoUnit.HOURS).format(DATE_FORMATTER));
                         } else {
                             client.resumeAllRelays(controllerId);
                         }
                     } else {
                         if (command == OnOffType.ON) {
-                            client.suspendRelay(zone.id,
-                                    Instant.now().plus(DEFAULT_SUSPEND_TIME_HOURS, ChronoUnit.HOURS).toString());
+                            client.suspendRelay(zone.id, OffsetDateTime.now(ZoneOffset.UTC)
+                                    .plus(DEFAULT_SUSPEND_TIME_HOURS, ChronoUnit.HOURS).format(DATE_FORMATTER));
                         } else {
                             client.resumeRelay(zone.id);
                         }
@@ -193,9 +198,11 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                         return;
                     }
                     if (allCommand) {
-                        client.suspendAllRelays(controllerId, ((DateTimeType) command).format(DATE_FORMAT));
+                        client.suspendAllRelays(controllerId,
+                                ((DateTimeType) command).getZonedDateTime().format(DATE_FORMATTER));
                     } else {
-                        client.suspendRelay(zone.id, ((DateTimeType) command).format(DATE_FORMAT));
+                        client.suspendRelay(zone.id,
+                                ((DateTimeType) command).getZonedDateTime().format(DATE_FORMATTER));
                     }
                     break;
                 default:
@@ -219,6 +226,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
         controllers.stream().filter(c -> c.id == controllerId).findFirst().ifPresent(controller -> {
             logger.trace("Updating Controller {} sensors {} forecast {} ", controller.id, controller.sensors,
                     controller.location.forecast);
+            updateController(controller);
             if (controller.sensors != null) {
                 updateSensors(controller.sensors);
             }
@@ -237,7 +245,18 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
         stateMap.remove(channelUID.getId());
     }
 
-    protected void updateZones(List<Zone> zones) {
+    private void updateController(Controller controller) {
+        updateGroupState(CHANNEL_GROUP_CONTROLLER_SYSTEM, CHANNEL_CONTROLLER_NAME, new StringType(controller.name));
+        logger.debug("Controller Name {}", controller.name);
+        updateGroupState(CHANNEL_GROUP_CONTROLLER_SYSTEM, CHANNEL_CONTROLLER_SUMMARY,
+                new StringType(controller.status.summary));
+        updateGroupState(CHANNEL_GROUP_CONTROLLER_SYSTEM, CHANNEL_CONTROLLER_ONLINE,
+                OnOffType.from(controller.status.online));
+        updateGroupState(CHANNEL_GROUP_CONTROLLER_SYSTEM, CHANNEL_CONTROLLER_LAST_CONTACT,
+                secondsToDateTime(controller.status.lastContact.timestamp));
+    }
+
+    private void updateZones(List<Zone> zones) {
         AtomicReference<Boolean> anyRunning = new AtomicReference<Boolean>(false);
         int i = 1;
         for (Zone zone : zones) {
@@ -245,8 +264,11 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
             zoneMaps.put(group, zone);
             logger.trace("Updateing Zone {} {} ", group, zone.name);
             updateGroupState(group, CHANNEL_ZONE_NAME, new StringType(zone.name));
-            updateGroupState(group, CHANNEL_ZONE_ICON, new StringType(zone.icon.fileName));
+            updateGroupState(group, CHANNEL_ZONE_ICON, new StringType(BASE_IMAGE_URL + zone.icon.fileName));
             if (zone.scheduledRuns != null) {
+                updateGroupState(group, CHANNEL_ZONE_SUMMARY,
+                        zone.scheduledRuns.summary != null ? new StringType(zone.scheduledRuns.summary)
+                                : UnDefType.UNDEF);
                 ZoneRun nextRun = zone.scheduledRuns.nextRun;
                 if (nextRun != null) {
                     updateGroupState(group, CHANNEL_ZONE_DURATION, new QuantityType<>(nextRun.duration, Units.MINUTE));
@@ -276,7 +298,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                 updateGroupState(group, CHANNEL_ZONE_SUSPENDUNTIL, UnDefType.UNDEF);
             }
         }
-        updateGroupState(CHANNEL_GROUP_ALLZONES, CHANNEL_ZONE_RUN, anyRunning.get() ? OnOffType.ON : OnOffType.OFF);
+        updateGroupState(CHANNEL_GROUP_ALLZONES, CHANNEL_ZONE_RUN, OnOffType.from(anyRunning.get()));
     }
 
     private void updateSensors(List<Sensor> sensors) {
@@ -296,7 +318,11 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                 updateGroupState(group, CHANNEL_SENSOR_OFFLEVEL, new DecimalType(sensor.model.offLevel));
             }
             if (sensor.status.active != null) {
-                updateGroupState(group, CHANNEL_SENSOR_ACTIVE, sensor.status.active ? OnOffType.ON : OnOffType.OFF);
+                updateGroupState(group, CHANNEL_SENSOR_ACTIVE, OnOffType.from(sensor.status.active));
+            }
+            if (sensor.status.waterFlow != null) {
+                updateGroupState(group, CHANNEL_SENSOR_WATERFLOW,
+                        waterFlowToQuantityType(sensor.status.waterFlow.value, sensor.status.waterFlow.unit));
             }
         }
     }
@@ -307,7 +333,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
             String group = "forecast" + (i++);
             updateGroupState(group, CHANNEL_FORECAST_TIME, stringToDateTime(forecast.time));
             updateGroupState(group, CHANNEL_FORECAST_CONDITIONS, new StringType(forecast.conditions));
-            updateGroupState(group, CHANNEL_FORECAST_HUMIDITY, new DecimalType(forecast.averageHumidity));
+            updateGroupState(group, CHANNEL_FORECAST_HUMIDITY, new DecimalType(forecast.averageHumidity.intValue()));
             updateTemperature(forecast.highTemperature, group, CHANNEL_FORECAST_TEMPERATURE_HIGH);
             updateTemperature(forecast.lowTemperature, group, CHANNEL_FORECAST_TEMPERATURE_LOW);
             updateWindspeed(forecast.averageWindSpeed, group, CHANNEL_FORECAST_WIND);
@@ -359,5 +385,13 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
     private DateTimeType stringToDateTime(String date) {
         ZonedDateTime zdt = ZonedDateTime.parse(date, DATE_FORMATTER);
         return new DateTimeType(zdt);
+    }
+
+    private QuantityType<Volume> waterFlowToQuantityType(Number flow, String units) {
+        double waterFlow = flow.doubleValue();
+        if ("gals".equals(units)) {
+            waterFlow = waterFlow * 3.785;
+        }
+        return new QuantityType<>(waterFlow, SmartHomeUnits.LITRE);
     }
 }

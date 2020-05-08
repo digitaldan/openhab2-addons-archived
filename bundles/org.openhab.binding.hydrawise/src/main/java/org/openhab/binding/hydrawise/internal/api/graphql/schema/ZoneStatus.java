@@ -18,6 +18,6 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  */
 public class ZoneStatus {
 
-    public SuspendedUntil suspendedUntil;
+    public Time suspendedUntil;
 
 }

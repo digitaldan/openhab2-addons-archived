@@ -19,8 +19,8 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
 public class ZoneRun {
 
     public String id;
-    public StartTime startTime;
-    public EndTime endTime;
+    public Time startTime;
+    public Time endTime;
     public Integer duration;
 
 }

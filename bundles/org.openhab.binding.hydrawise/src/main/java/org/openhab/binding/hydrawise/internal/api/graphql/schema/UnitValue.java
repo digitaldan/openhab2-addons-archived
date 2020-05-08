@@ -18,7 +18,7 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  */
 public class UnitValue {
 
-    public Double value;
+    public Number value;
     public String unit;
 
 }

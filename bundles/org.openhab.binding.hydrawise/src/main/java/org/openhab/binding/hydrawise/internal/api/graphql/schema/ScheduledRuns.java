@@ -17,6 +17,7 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  * @author Dan Cunningham - Initial contribution
  */
 public class ScheduledRuns {
+    public String summary;
     public ZoneRun nextRun;
     public ZoneRun currentRun;
 }

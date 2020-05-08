@@ -10,13 +10,12 @@
 		<channels>
 			<channel id="name" typeId="name" />
 			<channel id="icon" typeId="icon" />
-			<channel id="time" typeId="time" />
 			<channel id="type" typeId="type" />
 			<channel id="run" typeId="run" />
 			<channel id="runcustom" typeId="runcustom" />
 			<channel id="nextruntime" typeId="nextruntime" />
 			<channel id="suspend" typeId="suspend" />
-			<channel id="suspendUnitl" typeId="suspendUntil" />
+			<channel id="suspenduntil" typeId="suspenduntil" />
 			<channel id="timeleft" typeId="timeleft" />
 			<channel id="summary" typeId="summary" />
 		</channels>
@@ -29,6 +28,7 @@
 			<channel id="runcustom" typeId="runcustom" />
 			<channel id="run" typeId="run" />
 			<channel id="suspend" typeId="suspend" />
+			<channel id="suspenduntil" typeId="suspenduntil" />
 		</channels>
 	</channel-group-type>
 
@@ -42,6 +42,7 @@
 			<channel id="offtimer" typeId="offtimer" />
 			<channel id="offlevel" typeId="offlevel" />
 			<channel id="active" typeId="active" />
+			<channel id="waterflow" typeId="waterflow" />
 		</channels>
 	</channel-group-type>
 
@@ -57,17 +58,17 @@
 			<channel id="wind" typeId="wind" />
 		</channels>
 	</channel-group-type>
-	
-	   <channel-group-type id="system">
-        <label>System</label>
-        <description>Controller system data</description>
-        <channels>
-            <channel id="name" typeId="name" />
-            <channel id="summary" typeId="summary" />
-            <channel id="online" typeId="online" />
-            <channel id="lastContactTime" typeId="lastContactTime" />
-        </channels>
-    </channel-group-type>
+
+	<channel-group-type id="system">
+		<label>System</label>
+		<description>Controller system data</description>
+		<channels>
+			<channel id="name" typeId="name" />
+			<channel id="summary" typeId="summary" />
+			<channel id="online" typeId="online" />
+			<channel id="lastContactTime" typeId="lastContactTime" />
+		</channels>
+	</channel-group-type>
 
 	<!-- Controller -->
 
@@ -84,13 +85,13 @@
 		<description>Status summary</description>
 		<state readOnly="true"></state>
 	</channel-type>
-	
-	   <channel-type id="online">
-        <item-type>Switch</item-type>
-        <label>Online</label>
-        <description>Online status of the controller</description>
-        <state readOnly="true"></state>
-    </channel-type>
+
+	<channel-type id="online">
+		<item-type>Switch</item-type>
+		<label>Online</label>
+		<description>Online status of the controller</description>
+		<state readOnly="true"></state>
+	</channel-type>
 
 	<!-- Zones -->
 
@@ -108,19 +109,19 @@
 		<state readOnly="true"></state>
 	</channel-type>
 
-	<channel-type id="startTime" advanced="true">
+	<channel-type id="starttime" advanced="true">
 		<item-type>DateTime</item-type>
 		<label>Start Time</label>
 		<description>Next zone start time</description>
 		<state readOnly="true"></state>
 	</channel-type>
-	
-	 <channel-type id="duration" advanced="true">
-        <item-type>Number:Time</item-type>
-        <label>Duration</label>
-        <description>Next start duration</description>
-        <state readOnly="true"></state>
-    </channel-type>
+
+	<channel-type id="duration" advanced="true">
+		<item-type>Number:Time</item-type>
+		<label>Duration</label>
+		<description>Next start duration</description>
+		<state readOnly="true"></state>
+	</channel-type>
 
 	<channel-type id="type" advanced="true">
 		<item-type>Number</item-type>
@@ -147,18 +148,18 @@
 		<label>Run Zones With Custom Duration </label>
 		<description>Run zones now for a custom duration</description>
 	</channel-type>
-	
+
 	<channel-type id="suspend">
-        <item-type>DateTime</item-type>
-        <label>Suspend Zones </label>
-        <description>Suspends or resumes zones until this date</description>
-    </channel-type>
-    
-	<channel-type id="suspendUntil">
-        <item-type>Switch</item-type>
-        <label>Suspend Zones </label>
-        <description>Suspends zones until this date</description>
-    </channel-type>
+		<item-type>Switch</item-type>
+		<label>Suspend Zones</label>
+		<description>Suspends or resumes zones</description>
+	</channel-type>
+
+	<channel-type id="suspenduntil">
+		<item-type>DateTime</item-type>
+		<label>Suspend Zones </label>
+		<description>Suspends zones until this date</description>
+	</channel-type>
 
 	<channel-type id="timeleft">
 		<item-type>Number:Time</item-type>
@@ -210,12 +211,20 @@
 		<description>Sensor off level</description>
 		<state readOnly="true"></state>
 	</channel-type>
+	
 	<channel-type id="active">
 		<item-type>Switch</item-type>
 		<label>Active</label>
 		<description>Sensor active</description>
 		<state readOnly="true"></state>
 	</channel-type>
+	
+	<channel-type id="waterflow" advanced="true">
+        <item-type>Number:Volume</item-type>
+        <label>Water Flow</label>
+        <description>Sensor water flow</description>
+        <state readOnly="true"></state>
+    </channel-type>
 
 	<!-- Weather Forecast -->
 	<channel-type id="temperaturehigh">

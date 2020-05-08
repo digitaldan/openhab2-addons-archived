@@ -36,6 +36,7 @@ import org.openhab.binding.hydrawise.internal.api.HydrawiseAuthenticationExcepti
 import org.openhab.binding.hydrawise.internal.api.HydrawiseCommandException;
 import org.openhab.binding.hydrawise.internal.api.HydrawiseConnectionException;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.AuthToken;
+import org.openhab.binding.hydrawise.internal.api.graphql.schema.ControllerStatus;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.Forecast;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.Mutation;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.MutationResponse;
@@ -44,6 +45,7 @@ import org.openhab.binding.hydrawise.internal.api.graphql.schema.MutationRespons
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.QueryRequest;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.QueryResponse;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.ScheduledRuns;
+import org.openhab.binding.hydrawise.internal.api.graphql.schema.Sensor;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.Zone;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.ZoneRun;
 import org.slf4j.Logger;
@@ -66,12 +68,14 @@ public class HydrawiseGraphQLClient {
 
     private final Logger logger = LoggerFactory.getLogger(HydrawiseGraphQLClient.class);
 
+    // For some reason, GSON refuses to deserailzie these classes unless they are registered with a typeadaptor.
     private final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .registerTypeAdapter(Zone.class, new NoOpJsonDeserializer<Zone>())
             .registerTypeAdapter(ScheduledRuns.class, new NoOpJsonDeserializer<ScheduledRuns>())
             .registerTypeAdapter(ZoneRun.class, new NoOpJsonDeserializer<ZoneRun>())
             .registerTypeAdapter(Forecast.class, new NoOpJsonDeserializer<Forecast>())
-            .registerTypeAdapter(Forecast.class, new NoOpJsonDeserializer<Forecast>()).create();
+            .registerTypeAdapter(Sensor.class, new NoOpJsonDeserializer<Forecast>())
+            .registerTypeAdapter(ControllerStatus.class, new NoOpJsonDeserializer<ControllerStatus>()).create();
 
     private static final String BASE_URL = "https://app.hydrawise.com/api/v2/";
     private static final String AUTH_URL = BASE_URL + "oauth/access-token";
@@ -87,8 +91,8 @@ public class HydrawiseGraphQLClient {
     private static final String MUTATION_START_ALL_ZONES_CUSTOM = "startAllZones(controllerId: %d, markRunAsScheduled: false, customRunDuration: %d ){ status }";
     private static final String MUTATION_STOP_ZONE = "stopZone(zoneId: %d) { status }";
     private static final String MUTATION_STOP_ALL_ZONES = "stopAllZones(controllerId: %d){ status }";
-    private static final String MUTATION_SUSPEND_ZONE = "suspendZone(zoneId: %d, until \"%s\"){ status }";
-    private static final String MUTATION_SUSPEND_ALL_ZONES = "suspendAllZones(controllerId: %d, until \"%s\"){ status }";
+    private static final String MUTATION_SUSPEND_ZONE = "suspendZone(zoneId: %d, until: \"%s\"){ status }";
+    private static final String MUTATION_SUSPEND_ALL_ZONES = "suspendAllZones(controllerId: %d, until:0 \"%s\"){ status }";
     private static final String MUTATION_RESUME_ZONE = "resumeZone(zoneId: %d){ status }";
     private static final String MUTATION_RESUME_ALL_ZONES = "resumeAllZones(controllerId: %d){ status }";
 
@@ -103,7 +107,7 @@ public class HydrawiseGraphQLClient {
 
     /**
      * Login to the Hydrawise service
-     * 
+     *
      * @param username
      * @param password
      * @return
@@ -124,7 +128,7 @@ public class HydrawiseGraphQLClient {
 
     /**
      * Sends a GrapQL query for controller data
-     * 
+     *
      * @return
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
@@ -306,7 +310,9 @@ public class HydrawiseGraphQLClient {
     private void sendGraphQLMutation(String content)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
         Mutation mutation = new Mutation(content);
+        logger.debug("Sending Mutation {}", gson.toJson(mutation).toString());
         String response = sendGraphQLRequest(gson.toJson(mutation).toString(), true);
+        logger.debug("Mutation response {}", response);
         MutationResponse mResponse = gson.fromJson(response, MutationResponse.class);
         Optional<MutationResponseStatus> status = mResponse.data.values().stream().findFirst();
         if (!status.isPresent()) {
@@ -425,13 +431,12 @@ public class HydrawiseGraphQLClient {
         return queryString;
     }
 
-    // Why this class? GSON refuses to deserialize Zone.scheduledRuns and Zone.pastRun without this. I have no idea why.
+    // Why this class? GSON refuses to deserialize certain objects without this. I have no idea why.
     class NoOpJsonDeserializer<T> implements JsonDeserializer<T> {
         @Override
         public T deserialize(@Nullable JsonElement je, @Nullable Type type, @Nullable JsonDeserializationContext jdc)
                 throws JsonParseException {
-            T pojo = new Gson().fromJson(je, type);
-            return pojo;
+            return new Gson().fromJson(je, type);
 
         }
     }

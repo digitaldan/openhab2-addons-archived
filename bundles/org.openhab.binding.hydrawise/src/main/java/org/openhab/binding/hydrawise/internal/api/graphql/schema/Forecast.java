@@ -23,10 +23,10 @@ public class Forecast {
     public String conditions;
     public UnitValue highTemperature;
     public UnitValue lowTemperature;
-    public Evapotranspiration evapotranspiration;
+    public UnitValue evapotranspiration;
     public Integer probabilityOfPrecipitation;
-    public Precipitation precipitation;
-    public Integer averageHumidity;
+    public UnitValue precipitation;
+    public Number averageHumidity;
     public UnitValue averageWindSpeed;
 
 }

@@ -135,6 +135,10 @@ public class HydrawiseAccountHandler extends BaseBridgeHandler implements Hydraw
     }
 
     private void poll() {
+        poll(true);
+    }
+
+    private void poll(boolean retry) {
         try {
             QueryResponse response = apiClient.queryControllers();
             if (getThing().getStatus() != ThingStatus.ONLINE) {
@@ -145,7 +149,13 @@ public class HydrawiseAccountHandler extends BaseBridgeHandler implements Hydraw
                 listener.onData(response.data.me.controllers);
             });
         } catch (HydrawiseConnectionException e) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+            if (retry) {
+                logger.debug("Retrying failed poll", e);
+                poll(false);
+            } else {
+                logger.debug("Will try again during next poll period", e);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+            }
         } catch (HydrawiseAuthenticationException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
             clearPolling();

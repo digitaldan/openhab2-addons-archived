@@ -16,6 +16,6 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
 /**
  * @author Dan Cunningham - Initial contribution
  */
-public class EndTime {
+public class Time {
     public Integer timestamp;
 }

@@ -23,6 +23,7 @@ public class Controller {
 
     public Integer id;
     public String name;
+    public ControllerStatus status;
     public Location location;
     public List<Zone> zones = null;
     public List<Sensor> sensors = null;

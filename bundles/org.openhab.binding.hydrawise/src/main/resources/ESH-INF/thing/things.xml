@@ -5,8 +5,8 @@
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
 	<bridge-type id="account">
-		<label>Hydrawise Cloud Account Thing</label>
-		<description>Hydrawise cloud account</description>
+		<label>Hydrawise Account Thing</label>
+		<description>Hydrawise account</description>
 		<config-description>
 			<parameter name="userName" type="text" required="false">
 				<label>User Name</label>
@@ -41,8 +41,8 @@
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="account" />
 		</supported-bridge-type-refs>
-		<label>Hydrawise Cloud Controller Thing</label>
-		<description>Hydrawise cloud connected irrigation controller</description>
+		<label>Hydrawise Controller Thing</label>
+		<description>Hydrawise connected irrigation controller</description>
 
 		<!-- Until we have https://github.com/eclipse/smarthome/issues/1118 fixed, we need to list all possible channel groups. 
 			Once this is fixed we can dynamically add them to the thing and not list them here. -->
