@@ -87,12 +87,12 @@ public class HydrawiseGraphQLClient {
     private static final String GRANT_REFRESH = "refresh_token";
     private static final String MUTATION_START_ZONE = "startZone(zoneId: %d) { status }";
     private static final String MUTATION_START_ZONE_CUSTOM = "startZone(zoneId: %d, customRunDuration: %d) { status }";
-    private static final String MUTATION_START_ALL_ZONES = "startAllZones(controllerId: %d){ status } }";
+    private static final String MUTATION_START_ALL_ZONES = "startAllZones(controllerId: %d){ status }";
     private static final String MUTATION_START_ALL_ZONES_CUSTOM = "startAllZones(controllerId: %d, markRunAsScheduled: false, customRunDuration: %d ){ status }";
     private static final String MUTATION_STOP_ZONE = "stopZone(zoneId: %d) { status }";
     private static final String MUTATION_STOP_ALL_ZONES = "stopAllZones(controllerId: %d){ status }";
     private static final String MUTATION_SUSPEND_ZONE = "suspendZone(zoneId: %d, until: \"%s\"){ status }";
-    private static final String MUTATION_SUSPEND_ALL_ZONES = "suspendAllZones(controllerId: %d, until:0 \"%s\"){ status }";
+    private static final String MUTATION_SUSPEND_ALL_ZONES = "suspendAllZones(controllerId: %d, until: \"%s\"){ status }";
     private static final String MUTATION_RESUME_ZONE = "resumeZone(zoneId: %d){ status }";
     private static final String MUTATION_RESUME_ALL_ZONES = "resumeAllZones(controllerId: %d){ status }";
 
