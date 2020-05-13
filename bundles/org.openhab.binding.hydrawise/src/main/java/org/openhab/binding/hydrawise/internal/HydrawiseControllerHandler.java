@@ -80,8 +80,8 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, dd MMM uu HH:mm:ss Z",
             Locale.US);
     private final Logger logger = LoggerFactory.getLogger(HydrawiseControllerHandler.class);
-    private Map<String, State> stateMap = Collections.synchronizedMap(new HashMap<>());
-    private Map<String, Zone> zoneMaps = Collections.synchronizedMap(new HashMap<>());
+    private Map<String, @Nullable State> stateMap = Collections.synchronizedMap(new HashMap<String, @Nullable State>());
+    private Map<String, @Nullable Zone> zoneMaps = Collections.synchronizedMap(new HashMap<String, @Nullable Zone>());
     private int controllerId;
     // private boolean processingCommand;
 
@@ -251,13 +251,14 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
         updateGroupState(CHANNEL_GROUP_CONTROLLER_SYSTEM, CHANNEL_CONTROLLER_SUMMARY,
                 new StringType(controller.status.summary));
         updateGroupState(CHANNEL_GROUP_CONTROLLER_SYSTEM, CHANNEL_CONTROLLER_ONLINE,
-                OnOffType.from(controller.status.online));
+                controller.status.online ? OnOffType.ON : OnOffType.OFF);
         updateGroupState(CHANNEL_GROUP_CONTROLLER_SYSTEM, CHANNEL_CONTROLLER_LAST_CONTACT,
                 secondsToDateTime(controller.status.lastContact.timestamp));
     }
 
     private void updateZones(List<Zone> zones) {
         AtomicReference<Boolean> anyRunning = new AtomicReference<Boolean>(false);
+        AtomicReference<Boolean> anySuspended = new AtomicReference<Boolean>(false);
         int i = 1;
         for (Zone zone : zones) {
             String group = "zone" + (i++);
@@ -293,12 +294,16 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                 updateGroupState(group, CHANNEL_ZONE_SUSPEND, OnOffType.ON);
                 updateGroupState(group, CHANNEL_ZONE_SUSPENDUNTIL,
                         secondsToDateTime(zone.status.suspendedUntil.timestamp));
+                anyRunning.set(true);
             } else {
                 updateGroupState(group, CHANNEL_ZONE_SUSPEND, OnOffType.OFF);
                 updateGroupState(group, CHANNEL_ZONE_SUSPENDUNTIL, UnDefType.UNDEF);
             }
         }
-        updateGroupState(CHANNEL_GROUP_ALLZONES, CHANNEL_ZONE_RUN, OnOffType.from(anyRunning.get()));
+        updateGroupState(CHANNEL_GROUP_ALLZONES, CHANNEL_ZONE_RUN, anyRunning.get() ? OnOffType.ON : OnOffType.OFF);
+        updateGroupState(CHANNEL_GROUP_ALLZONES, CHANNEL_ZONE_SUSPEND,
+                anySuspended.get() ? OnOffType.ON : OnOffType.OFF);
+        updateGroupState(CHANNEL_GROUP_ALLZONES, CHANNEL_ZONE_SUSPENDUNTIL, UnDefType.UNDEF);
     }
 
     private void updateSensors(List<Sensor> sensors) {
@@ -318,7 +323,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                 updateGroupState(group, CHANNEL_SENSOR_OFFLEVEL, new DecimalType(sensor.model.offLevel));
             }
             if (sensor.status.active != null) {
-                updateGroupState(group, CHANNEL_SENSOR_ACTIVE, OnOffType.from(sensor.status.active));
+                updateGroupState(group, CHANNEL_SENSOR_ACTIVE, sensor.status.active ? OnOffType.ON : OnOffType.OFF);
             }
             if (sensor.status.waterFlow != null) {
                 updateGroupState(group, CHANNEL_SENSOR_WATERFLOW,
