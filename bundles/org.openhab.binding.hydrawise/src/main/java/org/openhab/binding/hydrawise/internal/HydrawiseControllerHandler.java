@@ -45,7 +45,6 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
@@ -77,6 +76,7 @@ import tec.uom.se.unit.Units;
 @NonNullByDefault
 public class HydrawiseControllerHandler extends BaseThingHandler implements HydrawiseControllerListener {
     private static final int DEFAULT_SUSPEND_TIME_HOURS = 24;
+    private static final int DEFAULT_REFRESH_SECONDS = 15;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, dd MMM uu HH:mm:ss Z",
             Locale.US);
     private final Logger logger = LoggerFactory.getLogger(HydrawiseControllerHandler.class);
@@ -207,16 +207,17 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                     break;
                 default:
                     logger.warn("Uknown channelId {}", channelId);
+                    return;
 
             }
-            // initPolling(COMMAND_REFRESH_SECONDS);
+            HydrawiseAccountHandler handler = getAccountHandler();
+            if (handler != null) {
+                handler.refreshData(DEFAULT_REFRESH_SECONDS);
+            }
         } catch (HydrawiseCommandException | HydrawiseConnectionException e) {
             logger.debug("Could not issue command", e);
-            // initPolling(COMMAND_REFRESH_SECONDS);
         } catch (HydrawiseAuthenticationException e) {
             logger.debug("Credentials not valid");
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Credentials not valid");
-            // configureInternal();
         }
     }
 
@@ -294,7 +295,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                 updateGroupState(group, CHANNEL_ZONE_SUSPEND, OnOffType.ON);
                 updateGroupState(group, CHANNEL_ZONE_SUSPENDUNTIL,
                         secondsToDateTime(zone.status.suspendedUntil.timestamp));
-                anyRunning.set(true);
+                anySuspended.set(true);
             } else {
                 updateGroupState(group, CHANNEL_ZONE_SUSPEND, OnOffType.OFF);
                 updateGroupState(group, CHANNEL_ZONE_SUSPENDUNTIL, UnDefType.UNDEF);
@@ -367,7 +368,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
     }
 
     @Nullable
-    private HydrawiseGraphQLClient apiClient() {
+    private HydrawiseAccountHandler getAccountHandler() {
         Bridge bridge = getBridge();
         if (bridge == null) {
             logger.warn("No bridge found for thing");
@@ -378,7 +379,17 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
             logger.warn("No handler found for bridge");
             return null;
         }
-        return ((HydrawiseAccountHandler) handler).graphQLClient();
+        return ((HydrawiseAccountHandler) handler);
+    }
+
+    @Nullable
+    private HydrawiseGraphQLClient apiClient() {
+        HydrawiseAccountHandler handler = getAccountHandler();
+        if (handler == null) {
+            return null;
+        } else {
+            return handler.graphQLClient();
+        }
     }
 
     private DateTimeType secondsToDateTime(Integer seconds) {

@@ -83,6 +83,10 @@ public class HydrawiseAccountHandler extends BaseBridgeHandler implements Hydraw
         return lastData;
     }
 
+    public void refreshData(int delaySeconds) {
+        initPolling(delaySeconds, this.refresh);
+    }
+
     private void configure() {
         HydrawiseAccountConfiguration config = getConfig().as(HydrawiseAccountConfiguration.class);
         // TODO switch to Java 11 String.isBlank
