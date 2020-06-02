@@ -77,7 +77,7 @@ public class HydrawiseBindingConstants {
     public static final String CHANNEL_FORECAST_ICON = "icon";
     public static final String CHANNEL_FORECAST_EVAPOTRANSPRIATION = "evapotranspiration";
     public static final String CHANNEL_FORECAST_PRECIPITATION = "precipitation";
-    public static final String CHANNEL_FORECAST_PROBABILITYOFPRECIPITATION = "probabilityOfPrecipitation";
+    public static final String CHANNEL_FORECAST_PROBABILITYOFPRECIPITATION = "probabilityofprecipitation";
     public static final String PROPERTY_CONTROLLER_ID = "controller";
     public static final String PROPERTY_NAME = "name";
     public static final String PROPERTY_DESCRIPTION = "description";

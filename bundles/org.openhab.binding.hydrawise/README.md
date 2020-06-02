@@ -143,7 +143,7 @@ Channels uses across zones, sensors and forecasts
 | run                        | Switch             | zone, allzones | Run/Start zone                                | RW         |
 | runcustom                  | Number:Time        | zone, allzones | Run zone for custom length                    | W          |
 | suspend                    | Switch             | zone, allzones | Suspend zone                                  | RW         |
-| suspendUntil               | DateTime           | zone, allzones | Suspend zone unitl specified date             | RW         |
+| suspenduntil               | DateTime           | zone, allzones | Suspend zone unitl specified date             | RW         |
 | nextrun                    | DateTime           | zone           | Next date and time this zone will run         | R          |
 | timeleft                   | Number:Time        | zone           | Amount of time left for the running zone      | R          |
 | input                      | Number             | sensor         | Sensor input type                             | R          |
@@ -159,7 +159,7 @@ Channels uses across zones, sensors and forecasts
 | wind                       | Number:Speed       | forecast       | Daily wind speed                              | R          |
 | evapotranspiration         | Number             | forecast       | Daily evapotranspiration amount               | R          |
 | precipitation              | Number             | forecast       | Daily precipitation amount                    | R          |
-| probabilityOfPrecipitation | Number             | forecast       | Daily probability of precipitation percentage | R          |
+| probabilityofprecipitation | Number             | forecast       | Daily probability of precipitation percentage | R          |
 
 
 ## Full Example

@@ -56,6 +56,9 @@
 			<channel id="time" typeId="time" />
 			<channel id="humidity" typeId="humidity" />
 			<channel id="wind" typeId="wind" />
+			<channel id="evapotranspiration" typeId="evapotranspiration" />
+			<channel id="precipitation" typeId="precipitation" />
+			<channel id="probabilityofprecipitation" typeId="probabilityofprecipitation" />
 		</channels>
 	</channel-group-type>
 
@@ -66,13 +69,13 @@
 			<channel id="name" typeId="name" />
 			<channel id="summary" typeId="summary" />
 			<channel id="online" typeId="online" />
-			<channel id="lastContactTime" typeId="lastContactTime" />
+			<channel id="lastcontacttime" typeId="lastcontacttime" />
 		</channels>
 	</channel-group-type>
 
 	<!-- Controller -->
 
-	<channel-type id="lastContactTime" advanced="true">
+	<channel-type id="lastcontacttime" advanced="true">
 		<item-type>DateTime</item-type>
 		<label>Last Contact Time</label>
 		<description>Last contact time of a controller</description>
@@ -279,4 +282,25 @@
 		<category>Wind</category>
 		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
+	
+	<channel-type id="evapotranspiration">
+        <item-type>Number</item-type>
+        <label>Evapotranspiration</label>
+        <description>Evapotranspiration amount</description>
+        <state readOnly="true" pattern="%.1f" />
+    </channel-type>
+    
+    <channel-type id="precipitation">
+        <item-type>Precipitation</item-type>
+        <label>Precipitation</label>
+        <description>Precipitation amount</description>
+        <state readOnly="true" pattern="%.1f" />
+    </channel-type>
+    
+    <channel-type id="probabilityofprecipitation">
+        <item-type>Number</item-type>
+        <label>Probability Of Precipitation </label>
+        <description>Probability of precipitation percentage</description>
+        <state readOnly="true" pattern="%d%%" />
+    </channel-type>
 </thing:thing-descriptions>
