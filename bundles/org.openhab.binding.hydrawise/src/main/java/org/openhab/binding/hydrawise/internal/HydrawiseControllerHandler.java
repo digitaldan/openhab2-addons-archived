@@ -75,19 +75,20 @@ import tec.uom.se.unit.Units;
 
 @NonNullByDefault
 public class HydrawiseControllerHandler extends BaseThingHandler implements HydrawiseControllerListener {
+    private final Logger logger = LoggerFactory.getLogger(HydrawiseControllerHandler.class);
     private static final int DEFAULT_SUSPEND_TIME_HOURS = 24;
     private static final int DEFAULT_REFRESH_SECONDS = 15;
+    // All responses use US local time formats
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, dd MMM uu HH:mm:ss Z",
             Locale.US);
-    private final Logger logger = LoggerFactory.getLogger(HydrawiseControllerHandler.class);
-    private Map<String, @Nullable State> stateMap = Collections.synchronizedMap(new HashMap<String, @Nullable State>());
-    private Map<String, @Nullable Zone> zoneMaps = Collections.synchronizedMap(new HashMap<String, @Nullable Zone>());
+    private final Map<String, @Nullable State> stateMap = Collections
+            .synchronizedMap(new HashMap<String, @Nullable State>());
+    private final Map<String, @Nullable Zone> zoneMaps = Collections
+            .synchronizedMap(new HashMap<String, @Nullable Zone>());
     private int controllerId;
-    // private boolean processingCommand;
 
     public HydrawiseControllerHandler(Thing thing) {
         super(thing);
-
     }
 
     @Override
@@ -110,7 +111,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
     public void handleCommand(ChannelUID channelUID, Command command) {
         logger.debug("handleCommand channel {} Command {}", channelUID.getAsString(), command.toFullString());
         if (getThing().getStatus() != ThingStatus.ONLINE) {
-            logger.warn("Controller is NOT ONLINE and is not responding to commands");
+            logger.debug("Controller is NOT ONLINE and is not responding to commands");
             return;
         }
 
@@ -124,7 +125,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
 
         HydrawiseGraphQLClient client = apiClient();
         if (client == null) {
-            logger.warn("API client not found");
+            logger.debug("API client not found");
             return;
         }
 
@@ -139,7 +140,6 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
         }
 
         try {
-            // clearPolling();
             switch (channelId) {
                 case CHANNEL_ZONE_RUN_CUSTOM:
                     if (!(command instanceof QuantityType<?>)) {
@@ -148,7 +148,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                     }
                     if (allCommand) {
                         client.runAllRelays(controllerId, ((QuantityType<?>) command).intValue());
-                    } else {
+                    } else if (zone != null) {
                         client.runRelay(zone.id, ((QuantityType<?>) command).intValue());
                     }
                     break;
@@ -163,7 +163,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                         } else {
                             client.stopAllRelays(controllerId);
                         }
-                    } else {
+                    } else if (zone != null) {
                         if (command == OnOffType.ON) {
                             client.runRelay(zone.id);
                         } else {
@@ -183,7 +183,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                         } else {
                             client.resumeAllRelays(controllerId);
                         }
-                    } else {
+                    } else if (zone != null) {
                         if (command == OnOffType.ON) {
                             client.suspendRelay(zone.id, OffsetDateTime.now(ZoneOffset.UTC)
                                     .plus(DEFAULT_SUSPEND_TIME_HOURS, ChronoUnit.HOURS).format(DATE_FORMATTER));
@@ -200,7 +200,7 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
                     if (allCommand) {
                         client.suspendAllRelays(controllerId,
                                 ((DateTimeType) command).getZonedDateTime().format(DATE_FORMATTER));
-                    } else {
+                    } else if (zone != null) {
                         client.suspendRelay(zone.id,
                                 ((DateTimeType) command).getZonedDateTime().format(DATE_FORMATTER));
                     }
@@ -248,7 +248,6 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
 
     private void updateController(Controller controller) {
         updateGroupState(CHANNEL_GROUP_CONTROLLER_SYSTEM, CHANNEL_CONTROLLER_NAME, new StringType(controller.name));
-        logger.debug("Controller Name {}", controller.name);
         updateGroupState(CHANNEL_GROUP_CONTROLLER_SYSTEM, CHANNEL_CONTROLLER_SUMMARY,
                 new StringType(controller.status.summary));
         updateGroupState(CHANNEL_GROUP_CONTROLLER_SYSTEM, CHANNEL_CONTROLLER_ONLINE,
@@ -319,7 +318,6 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
             if (sensor.model.delay != null) {
                 updateGroupState(group, CHANNEL_SENSOR_DELAY, new QuantityType<>(sensor.model.delay, Units.SECOND));
             }
-            // Some fields are missing depending on sensor type.
             if (sensor.model.offLevel != null) {
                 updateGroupState(group, CHANNEL_SENSOR_OFFLEVEL, new DecimalType(sensor.model.offLevel));
             }
@@ -343,6 +341,13 @@ public class HydrawiseControllerHandler extends BaseThingHandler implements Hydr
             updateTemperature(forecast.highTemperature, group, CHANNEL_FORECAST_TEMPERATURE_HIGH);
             updateTemperature(forecast.lowTemperature, group, CHANNEL_FORECAST_TEMPERATURE_LOW);
             updateWindspeed(forecast.averageWindSpeed, group, CHANNEL_FORECAST_WIND);
+            updateGroupState(group, CHANNEL_FORECAST_EVAPOTRANSPRIATION,
+                    new DecimalType(forecast.evapotranspiration.value.floatValue()));
+            updateGroupState(group, CHANNEL_FORECAST_PRECIPITATION,
+                    new DecimalType(forecast.precipitation.value.floatValue()));
+            updateGroupState(group, CHANNEL_FORECAST_PROBABILITYOFPRECIPITATION,
+                    new DecimalType(forecast.probabilityOfPrecipitation));
+
         }
     }
 

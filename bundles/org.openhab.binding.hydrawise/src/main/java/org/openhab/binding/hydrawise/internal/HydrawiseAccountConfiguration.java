@@ -18,8 +18,7 @@ package org.openhab.binding.hydrawise.internal;
  * @author Dan Cunningham - Initial contribution
  */
 public class HydrawiseAccountConfiguration {
-
-    public String refreshToken;
+    // public String refreshToken;
 
     public String userName;
 

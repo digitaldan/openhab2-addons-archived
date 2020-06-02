@@ -25,6 +25,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
+import org.eclipse.smarthome.core.auth.client.oauth2.OAuthFactory;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -47,12 +48,12 @@ import org.osgi.service.component.annotations.Reference;
 @NonNullByDefault
 @Component(configurationPid = "binding.hydrawise", service = ThingHandlerFactory.class)
 public class HydrawiseHandlerFactory extends BaseThingHandlerFactory {
-
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream
             .of(THING_TYPE_ACCOUNT, THING_TYPE_CONTROLLER, THING_TYPE_LOCAL).collect(Collectors.toSet());
 
     private final Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
     private @NonNullByDefault({}) HttpClient httpClient;
+    private @NonNullByDefault({}) OAuthFactory oAuthFactory;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -64,7 +65,7 @@ public class HydrawiseHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (THING_TYPE_ACCOUNT.equals(thingTypeUID)) {
-            HydrawiseAccountHandler handler = new HydrawiseAccountHandler((Bridge) thing, httpClient);
+            HydrawiseAccountHandler handler = new HydrawiseAccountHandler((Bridge) thing, httpClient, oAuthFactory);
             registerDiscoveryService(handler);
             return handler;
         }
@@ -87,6 +88,15 @@ public class HydrawiseHandlerFactory extends BaseThingHandlerFactory {
 
     protected void unsetHttpClientFactory(HttpClientFactory httpClientFactory) {
         this.httpClient = null;
+    }
+
+    @Reference
+    protected void setOAuthFactory(OAuthFactory oAuthFactory) {
+        this.oAuthFactory = oAuthFactory;
+    }
+
+    protected void unsetOAuthFactory(OAuthFactory oAuthFactory) {
+        this.oAuthFactory = null;
     }
 
     private synchronized void registerDiscoveryService(HydrawiseAccountHandler handler) {

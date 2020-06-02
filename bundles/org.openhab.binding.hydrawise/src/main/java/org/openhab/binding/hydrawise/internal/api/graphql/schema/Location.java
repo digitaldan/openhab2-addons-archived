@@ -19,8 +19,6 @@ import java.util.List;
  * @author Dan Cunningham - Initial contribution
  */
 public class Location {
-
     public Coordinates coordinates;
-    public List<Forecast> forecast = null;
-
+    public List<Forecast> forecast;
 }

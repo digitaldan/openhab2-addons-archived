@@ -20,7 +20,6 @@ import java.util.List;
  */
 
 public class Controller {
-
     public Integer id;
     public String name;
     public ControllerStatus status;

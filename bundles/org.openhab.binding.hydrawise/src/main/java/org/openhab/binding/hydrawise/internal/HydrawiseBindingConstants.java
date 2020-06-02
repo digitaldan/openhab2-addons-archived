@@ -23,7 +23,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  */
 @NonNullByDefault
 public class HydrawiseBindingConstants {
-
     private static final String BINDING_ID = "hydrawise";
 
     // List of all Thing Type UIDs
@@ -76,6 +75,9 @@ public class HydrawiseBindingConstants {
     public static final String CHANNEL_FORECAST_HUMIDITY = "humidity";
     public static final String CHANNEL_FORECAST_WIND = "wind";
     public static final String CHANNEL_FORECAST_ICON = "icon";
+    public static final String CHANNEL_FORECAST_EVAPOTRANSPRIATION = "evapotranspiration";
+    public static final String CHANNEL_FORECAST_PRECIPITATION = "precipitation";
+    public static final String CHANNEL_FORECAST_PROBABILITYOFPRECIPITATION = "probabilityOfPrecipitation";
     public static final String PROPERTY_CONTROLLER_ID = "controller";
     public static final String PROPERTY_NAME = "name";
     public static final String PROPERTY_DESCRIPTION = "description";

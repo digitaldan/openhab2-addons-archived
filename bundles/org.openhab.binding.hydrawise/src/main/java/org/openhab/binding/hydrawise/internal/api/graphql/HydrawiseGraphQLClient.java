@@ -28,14 +28,15 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Response;
-import org.eclipse.jetty.client.util.FormContentProvider;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.util.Fields;
+import org.eclipse.smarthome.core.auth.client.oauth2.AccessTokenResponse;
+import org.eclipse.smarthome.core.auth.client.oauth2.OAuthClientService;
+import org.eclipse.smarthome.core.auth.client.oauth2.OAuthException;
+import org.eclipse.smarthome.core.auth.client.oauth2.OAuthResponseException;
 import org.openhab.binding.hydrawise.internal.api.HydrawiseAuthenticationException;
 import org.openhab.binding.hydrawise.internal.api.HydrawiseCommandException;
 import org.openhab.binding.hydrawise.internal.api.HydrawiseConnectionException;
-import org.openhab.binding.hydrawise.internal.api.graphql.schema.AuthToken;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.ControllerStatus;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.Forecast;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.Mutation;
@@ -65,10 +66,9 @@ import com.google.gson.JsonParseException;
  *
  */
 public class HydrawiseGraphQLClient {
-
     private final Logger logger = LoggerFactory.getLogger(HydrawiseGraphQLClient.class);
 
-    // For some reason, GSON refuses to deserailzie these classes unless they are registered with a typeadaptor.
+    // For some reason, GSON refuses to deserailzie these classes unless they are registered with a type adaptor.
     private final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .registerTypeAdapter(Zone.class, new NoOpJsonDeserializer<Zone>())
             .registerTypeAdapter(ScheduledRuns.class, new NoOpJsonDeserializer<ScheduledRuns>())
@@ -77,14 +77,7 @@ public class HydrawiseGraphQLClient {
             .registerTypeAdapter(Sensor.class, new NoOpJsonDeserializer<Forecast>())
             .registerTypeAdapter(ControllerStatus.class, new NoOpJsonDeserializer<ControllerStatus>()).create();
 
-    private static final String BASE_URL = "https://app.hydrawise.com/api/v2/";
-    private static final String AUTH_URL = BASE_URL + "oauth/access-token";
-    private static final String GRAPH_URL = BASE_URL + "graph";
-    private static final String CLIENT_SECRET = "zn3CrjglwNV1";
-    private static final String CLIENT_ID = "hydrawise_app";
-    private static final String SCOPE = "all";
-    private static final String GRANT_PASSWORD = "password";
-    private static final String GRANT_REFRESH = "refresh_token";
+    private static final String GRAPH_URL = "https://app.hydrawise.com/api/v2/graph";
     private static final String MUTATION_START_ZONE = "startZone(zoneId: %d) { status }";
     private static final String MUTATION_START_ZONE_CUSTOM = "startZone(zoneId: %d, customRunDuration: %d) { status }";
     private static final String MUTATION_START_ALL_ZONES = "startAllZones(controllerId: %d){ status }";
@@ -97,39 +90,18 @@ public class HydrawiseGraphQLClient {
     private static final String MUTATION_RESUME_ALL_ZONES = "resumeAllZones(controllerId: %d){ status }";
 
     private final HttpClient httpClient;
-    private final HydrawiseAuthTokenProvider provider;
+    private final OAuthClientService oAuthService;
     private String queryString;
 
-    public HydrawiseGraphQLClient(HttpClient httpClient, HydrawiseAuthTokenProvider provider) {
+    public HydrawiseGraphQLClient(HttpClient httpClient, OAuthClientService oAuthService) {
         this.httpClient = httpClient;
-        this.provider = provider;
-    }
-
-    /**
-     * Login to the Hydrawise service
-     *
-     * @param username
-     * @param password
-     * @return
-     * @throws HydrawiseConnectionException
-     * @throws HydrawiseAuthenticationException
-     */
-    public AuthToken login(String username, String password)
-            throws HydrawiseConnectionException, HydrawiseAuthenticationException {
-        Fields fields = new Fields();
-        fields.add("client_id", CLIENT_ID);
-        fields.add("client_secret", CLIENT_SECRET);
-        fields.add("grant_type", GRANT_PASSWORD);
-        fields.add("scope", SCOPE);
-        fields.add("username", username);
-        fields.add("password", password);
-        return getToken(fields);
+        this.oAuthService = oAuthService;
     }
 
     /**
      * Sends a GrapQL query for controller data
      *
-     * @return
+     * @return QueryResponse
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      */
@@ -149,7 +121,6 @@ public class HydrawiseGraphQLClient {
      * Stops a given relay
      *
      * @param relayId
-     * @return Response message
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      * @throws HydrawiseCommandException
@@ -163,7 +134,6 @@ public class HydrawiseGraphQLClient {
      * Stops all relays on a given controller
      *
      * @param controllerId
-     * @return Response message
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      * @throws HydrawiseCommandException
@@ -177,7 +147,6 @@ public class HydrawiseGraphQLClient {
      * Runs a relay for the default amount of time
      *
      * @param relayId
-     * @return Response message
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      * @throws HydrawiseCommandException
@@ -192,7 +161,6 @@ public class HydrawiseGraphQLClient {
      *
      * @param relayId
      * @param seconds
-     * @return Response message
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      * @throws HydrawiseCommandException
@@ -206,7 +174,6 @@ public class HydrawiseGraphQLClient {
      * Run all relays on a given controller for the default amount of time
      *
      * @param controllerId
-     * @return Response message
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      * @throws HydrawiseCommandException
@@ -221,7 +188,6 @@ public class HydrawiseGraphQLClient {
      *
      * @param controllerId
      * @param seconds
-     * @return Response message
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      * @throws HydrawiseCommandException
@@ -235,7 +201,6 @@ public class HydrawiseGraphQLClient {
      * Suspends a given relay
      *
      * @param relayId
-     * @return Response message
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      * @throws HydrawiseCommandException
@@ -249,7 +214,6 @@ public class HydrawiseGraphQLClient {
      * Resumes a given relay
      *
      * @param relayId
-     * @return Response message
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      * @throws HydrawiseCommandException
@@ -264,7 +228,6 @@ public class HydrawiseGraphQLClient {
      *
      * @param controllerId
      * @param until
-     * @return Response message
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      * @throws HydrawiseCommandException
@@ -278,7 +241,6 @@ public class HydrawiseGraphQLClient {
      * Resumes all relays on a given controller
      *
      * @param controllerId
-     * @return Response message
      * @throws HydrawiseConnectionException
      * @throws HydrawiseAuthenticationException
      * @throws HydrawiseCommandException
@@ -288,30 +250,16 @@ public class HydrawiseGraphQLClient {
         sendGraphQLMutation(String.format(MUTATION_RESUME_ALL_ZONES, controllerId));
     }
 
-    private void refreshToken() throws HydrawiseConnectionException, HydrawiseAuthenticationException {
-        AuthToken token = provider.getAuthToken();
-        if (token == null) {
-            throw new HydrawiseAuthenticationException("Login Required");
-        }
-        Fields fields = new Fields();
-        fields.add("client_id", CLIENT_ID);
-        fields.add("client_secret", CLIENT_SECRET);
-        fields.add("grant_type", GRANT_REFRESH);
-        fields.add("scope", SCOPE);
-        fields.add("refresh_token", token.refreshToken);
-        provider.authTokenUpdated(getToken(fields));
-    }
-
     private String sendGraphQLQuery(String content)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException {
-        return sendGraphQLRequest(content, true);
+        return sendGraphQLRequest(content);
     }
 
     private void sendGraphQLMutation(String content)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException, HydrawiseCommandException {
         Mutation mutation = new Mutation(content);
         logger.debug("Sending Mutation {}", gson.toJson(mutation).toString());
-        String response = sendGraphQLRequest(gson.toJson(mutation).toString(), true);
+        String response = sendGraphQLRequest(gson.toJson(mutation).toString());
         logger.debug("Mutation response {}", response);
         MutationResponse mResponse = gson.fromJson(response, MutationResponse.class);
         Optional<MutationResponseStatus> status = mResponse.data.values().stream().findFirst();
@@ -323,71 +271,20 @@ public class HydrawiseGraphQLClient {
         }
     }
 
-    private AuthToken getToken(Fields authFields)
-            throws HydrawiseConnectionException, HydrawiseAuthenticationException {
-        final AtomicInteger responseCode = new AtomicInteger(0);
-        final StringBuilder responseMessage = new StringBuilder();
-        try {
-            logger.trace("Auth Req: {} {}", AUTH_URL, FormContentProvider.convert(authFields));
-            ContentResponse response;
-            // response = httpClient.FORM(AUTH_URL, authFields);
-            response = httpClient.newRequest(AUTH_URL).method(HttpMethod.POST)
-                    .content(new FormContentProvider(authFields)).onResponseFailure(new Response.FailureListener() {
-                        @Override
-                        public void onFailure(Response response, Throwable failure) {
-                            logger.trace("onFailure code: {} message: {}", response.getStatus(), failure.getMessage());
-                            responseCode.set(response.getStatus());
-                            responseMessage.append(response.getReason());
-                        }
-                    }).send();
-            return gson.fromJson(response.getContentAsString(), AuthToken.class);
-        } catch (InterruptedException | TimeoutException e) {
-            logger.debug("Could not get Token", e);
-            throw new HydrawiseConnectionException(e);
-        } catch (ExecutionException e) {
-            // Hydrawise returns back a 40x status, but without a valid Realm , so jetty throws an exception this allows
-            // us to catch this in a callback and handle accordingly
-            switch (responseCode.get()) {
-                case 401:
-                case 403:
-                    throw new HydrawiseAuthenticationException(responseMessage.toString());
-                default:
-                    throw new HydrawiseConnectionException(e);
-            }
-        }
-        //
-        // String tokenString = response.getContentAsString();
-        // // TODO remove this line
-        // logger.trace("Received Refresh Token Response: {}", tokenString);
-        // // TODO Jetty will swallow 401 codes as a error so need to refactor this.
-        // switch (response.getStatus()) {
-        // case 200:
-        // return gson.fromJson(tokenString, AuthToken.class);
-        // case 401:
-        // case 403:
-        // throw new HydrawiseAuthenticationException(response.getContentAsString());
-        // default:
-        // throw new HydrawiseConnectionException("Invalid return code: " + response.getStatus());
-        // }
-    }
-
-    private String sendGraphQLRequest(String content, boolean retryAuth)
+    private String sendGraphQLRequest(String content)
             throws HydrawiseConnectionException, HydrawiseAuthenticationException {
         logger.trace("Sending Request: {}", content);
         ContentResponse response;
         final AtomicInteger responseCode = new AtomicInteger(0);
         final StringBuilder responseMessage = new StringBuilder();
-        AuthToken token = provider.getAuthToken();
-        if (token == null) {
-            throw new HydrawiseAuthenticationException("Login required");
-        }
-        if (token.accessToken == null || token.accessToken.trim().isEmpty()) {
-            refreshToken();
-        }
         try {
+            AccessTokenResponse token = oAuthService.getAccessTokenResponse();
+            if (token == null) {
+                throw new HydrawiseAuthenticationException("Login required");
+            }
             response = httpClient.newRequest(GRAPH_URL).method(HttpMethod.POST)
                     .content(new StringContentProvider(content), "application/json")
-                    .header("Authorization", token.tokenType + " " + token.accessToken)
+                    .header("Authorization", token.getTokenType() + " " + token.getAccessToken())
                     .onResponseFailure(new Response.FailureListener() {
                         @Override
                         public void onFailure(Response response, Throwable failure) {
@@ -399,21 +296,18 @@ public class HydrawiseGraphQLClient {
             String stringResponse = response.getContentAsString();
             logger.trace("Received Response: {}", stringResponse);
             return stringResponse;
-        } catch (InterruptedException | TimeoutException e) {
+        } catch (InterruptedException | TimeoutException | OAuthException | IOException e) {
             logger.debug("Could not send request", e);
             throw new HydrawiseConnectionException(e);
+        } catch (OAuthResponseException e) {
+            throw new HydrawiseAuthenticationException(e.getMessage());
         } catch (ExecutionException e) {
-            // Hydrawise returns back a 40x status, but without a valid Realm , so jetty throws an exception this allows
-            // us to catch this in a callback and handle accordingly
+            // Hydrawise returns back a 40x status, but without a valid Realm , so jetty throws an exception,
+            // this allows us to catch this in a callback and handle accordingly
             switch (responseCode.get()) {
                 case 401:
                 case 403:
-                    if (retryAuth) {
-                        refreshToken();
-                        return sendGraphQLRequest(content, false);
-                    } else {
-                        throw new HydrawiseAuthenticationException();
-                    }
+                    throw new HydrawiseAuthenticationException(responseMessage.toString());
                 default:
                     throw new HydrawiseConnectionException(e);
             }
@@ -437,7 +331,6 @@ public class HydrawiseGraphQLClient {
         public T deserialize(@Nullable JsonElement je, @Nullable Type type, @Nullable JsonDeserializationContext jdc)
                 throws JsonParseException {
             return new Gson().fromJson(je, type);
-
         }
     }
 }

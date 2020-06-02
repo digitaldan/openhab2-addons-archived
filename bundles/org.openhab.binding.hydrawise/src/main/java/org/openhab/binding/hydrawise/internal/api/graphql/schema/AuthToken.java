@@ -17,7 +17,6 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  * @author Dan Cunningham - Initial contribution
  */
 public class AuthToken {
-
     public String tokenType;
     public Integer expiresIn;
     public String accessToken;

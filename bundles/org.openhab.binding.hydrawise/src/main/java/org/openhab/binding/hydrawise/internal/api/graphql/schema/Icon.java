@@ -17,9 +17,7 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  * @author Dan Cunningham - Initial contribution
  */
 public class Icon {
-
     public Integer id;
     public String fileName;
     public Object customImage;
-
 }

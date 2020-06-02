@@ -17,7 +17,6 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  * @author Dan Cunningham - Initial contribution
  */
 public class Forecast {
-
     public String time;
     public String updateTime;
     public String conditions;
@@ -28,5 +27,4 @@ public class Forecast {
     public UnitValue precipitation;
     public Number averageHumidity;
     public UnitValue averageWindSpeed;
-
 }

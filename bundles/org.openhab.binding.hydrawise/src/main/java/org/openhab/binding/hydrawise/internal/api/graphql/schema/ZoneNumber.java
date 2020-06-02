@@ -17,8 +17,6 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  * @author Dan Cunningham - Initial contribution
  */
 public class ZoneNumber {
-
     public Integer value;
     public String label;
-
 }

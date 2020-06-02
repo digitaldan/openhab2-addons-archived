@@ -19,9 +19,7 @@ import java.util.List;
  * @author Dan Cunningham - Initial contribution
  */
 public class Customer {
-
     public String email;
     public String lastContact;
     public List<Controller> controllers = null;
-
 }

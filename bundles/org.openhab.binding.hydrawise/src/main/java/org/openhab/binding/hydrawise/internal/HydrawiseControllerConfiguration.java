@@ -18,7 +18,6 @@ package org.openhab.binding.hydrawise.internal;
  * @author Dan Cunningham - Initial contribution
  */
 public class HydrawiseControllerConfiguration {
-
     /**
      * optional id of the controller to connect to
      */

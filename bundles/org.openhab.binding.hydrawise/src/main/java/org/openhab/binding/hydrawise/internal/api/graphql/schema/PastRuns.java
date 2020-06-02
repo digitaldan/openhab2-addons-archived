@@ -17,7 +17,5 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  * @author Dan Cunningham - Initial contribution
  */
 public class PastRuns {
-
     public ZoneRun lastRun;
-
 }

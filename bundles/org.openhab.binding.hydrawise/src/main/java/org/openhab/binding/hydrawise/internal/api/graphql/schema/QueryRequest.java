@@ -17,10 +17,9 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  * @author Dan Cunningham - Initial contribution
  */
 public class QueryRequest {
+    public String query;
 
     public QueryRequest(String query) {
         this.query = query;
     }
-
-    String query;
 }

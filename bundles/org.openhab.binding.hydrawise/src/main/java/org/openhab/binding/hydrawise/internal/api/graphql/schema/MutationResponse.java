@@ -19,7 +19,6 @@ import java.util.Map;
  * @author Dan Cunningham - Initial contribution
  */
 public class MutationResponse {
-
     public Map<String, MutationResponseStatus> data;
 
     public class MutationResponseStatus {

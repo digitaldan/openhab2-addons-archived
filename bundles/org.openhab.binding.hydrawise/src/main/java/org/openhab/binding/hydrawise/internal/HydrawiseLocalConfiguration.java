@@ -18,7 +18,6 @@ package org.openhab.binding.hydrawise.internal;
  * @author Dan Cunningham - Initial contribution
  */
 public class HydrawiseLocalConfiguration {
-
     /**
      * Host or IP for local controller
      */

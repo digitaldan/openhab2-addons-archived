@@ -17,11 +17,9 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  * @author Dan Cunningham - Initial contribution
  */
 public class Sensor {
-
     public Integer id;
     public String name;
     public Input input;
     public SensorStatus status;
     public SensorModel model;
-
 }

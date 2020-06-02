@@ -28,12 +28,12 @@
 				<description>Specifies the refresh interval in seconds</description>
 				<default>60</default>
 			</parameter>
-			<parameter name="refreshToken" type="text" required="false">
+			<!-- <parameter name="refreshToken" type="text" required="false">
 				<label>Refresh Token</label>
 				<context>password</context>
 				<description>Your Hydrawise account refresh token. The account user name and password will be used to retrieve this
 					if left empty</description>
-			</parameter>
+			</parameter> -->
 		</config-description>
 	</bridge-type>
 

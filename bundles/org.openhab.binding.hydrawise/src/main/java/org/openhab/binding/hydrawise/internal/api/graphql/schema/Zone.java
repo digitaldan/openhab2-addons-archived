@@ -17,7 +17,6 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  * @author Dan Cunningham - Initial contribution
  */
 public class Zone {
-
     public Integer id;
     public String name;
     public ZoneStatus status;
@@ -25,11 +24,4 @@ public class Zone {
     public ZoneNumber number;
     public ScheduledRuns scheduledRuns;
     public PastRuns pastRuns;
-    //
-    // @Override
-    // public String toString() {
-    // return new StringBuilder().append("ID: ").append(id).append(" name: ").append(name).append(" status: ")
-    // .append(status).append("ICcon: ").append(icon).append(" number: ").append(number)
-    // .append(" scheduledRuns: ").append(scheduledRuns).append("pastRuns: ").append(pastRuns).toString();
-    // }
 }

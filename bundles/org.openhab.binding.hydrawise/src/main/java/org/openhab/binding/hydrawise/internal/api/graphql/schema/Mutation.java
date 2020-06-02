@@ -17,7 +17,8 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  */
 public class Mutation {
     private static final String MUTATION_TEMPLATE = "mutation { %s }";
-    String query;
+
+    public String query;
 
     public Mutation(String graphQLquery) {
         this.query = String.format(MUTATION_TEMPLATE, graphQLquery);

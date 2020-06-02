@@ -17,11 +17,9 @@ package org.openhab.binding.hydrawise.internal.api.graphql.schema;
  * @author Dan Cunningham - Initial contribution
  */
 public class SensorModel {
-
     public String modeType;
     public Boolean active;
     public Integer offLevel;
     public Integer offTimer;
     public Integer delay;
-
 }

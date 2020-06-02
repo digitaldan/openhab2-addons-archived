@@ -60,10 +60,9 @@ import tec.uom.se.unit.Units;
  */
 @NonNullByDefault
 public class HydrawiseLocalHandler extends BaseThingHandler {
-
     private final Logger logger = LoggerFactory.getLogger(HydrawiseLocalHandler.class);
-    protected Map<String, State> stateMap = Collections.synchronizedMap(new HashMap<>());
-    protected Map<String, Relay> relayMap = Collections.synchronizedMap(new HashMap<>());
+    protected final Map<String, State> stateMap = Collections.synchronizedMap(new HashMap<>());
+    protected final Map<String, Relay> relayMap = Collections.synchronizedMap(new HashMap<>());
     private @Nullable ScheduledFuture<?> pollFuture;
 
     /**

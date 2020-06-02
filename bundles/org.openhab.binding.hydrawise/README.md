@@ -135,28 +135,32 @@ A single all zone group are supported per Cloud or Local Thing
 ### Channels
 
 Channels uses across zones, sensors and forecasts
-| channel ID      | type               | Groups         | description                              | Read Write |
-|-----------------|--------------------|----------------|------------------------------------------|------------|
-| name            | String             | zone, sensor   | Descriptive name                         | R          |
-| icon            | String             | zone           | Icon URL                                 | R          |
-| type            | Number             | zone           | Zone type                                | R          |
-| run             | Switch             | zone, allzones | Run/Start zone                           | RW         |
-| runcustom       | Number:Time        | zone, allzones | Run zone for custom length               | W          |
-| suspend         | Switch             | zone, allzones | Suspend zone                             | RW         |
-| suspendUntil    | DateTime           | zone, allzones | Suspend zone unitl specified date        | RW         |
-| nextrun         | DateTime           | zone           | Next date and time this zone will run    | R          |
-| timeleft        | Number:Time        | zone           | Amount of time left for the running zone | R          |
-| input           | Number             | sensor         | Sensor input type                        | R          |
-| timer           | Number             | sensor         | Sensor timer                             | R          |
-| offtimer        | Number:Time        | sensor         | Sensor off timer                         | R          |
-| offlevel        | Number             | sensor         | Sensor off level                         | R          |
-| active          | Switch             | sensor         | Is sensor active / triggered             | R          |
-| temperaturehigh | Number:Temperature | forecast       | Daily high temperature                   | R          |
-| temperaturelow  | Number:Temperature | forecast       | Daily low temperature                    | R          |
-| conditions      | String             | forecast       | Daily conditions description             | R          |
-| day             | DateTime           | forecast       | Day of week of forecast (Mon-Sun)        | R          |
-| humidity        | Number             | forecast       | Daily humidity percentage                | R          |
-| wind            | Number:Speed       | forecast       | Daily wind speed                         | R          |
+| channel ID                 | type               | Groups         | description                                   | Read Write |
+|----------------------------|--------------------|----------------|-----------------------------------------------|------------|
+| name                       | String             | zone, sensor   | Descriptive name                              | R          |
+| icon                       | String             | zone           | Icon URL                                      | R          |
+| type                       | Number             | zone           | Zone type                                     | R          |
+| run                        | Switch             | zone, allzones | Run/Start zone                                | RW         |
+| runcustom                  | Number:Time        | zone, allzones | Run zone for custom length                    | W          |
+| suspend                    | Switch             | zone, allzones | Suspend zone                                  | RW         |
+| suspendUntil               | DateTime           | zone, allzones | Suspend zone unitl specified date             | RW         |
+| nextrun                    | DateTime           | zone           | Next date and time this zone will run         | R          |
+| timeleft                   | Number:Time        | zone           | Amount of time left for the running zone      | R          |
+| input                      | Number             | sensor         | Sensor input type                             | R          |
+| timer                      | Number             | sensor         | Sensor timer                                  | R          |
+| offtimer                   | Number:Time        | sensor         | Sensor off timer                              | R          |
+| offlevel                   | Number             | sensor         | Sensor off level                              | R          |
+| active                     | Switch             | sensor         | Is sensor active / triggered                  | R          |
+| temperaturehigh            | Number:Temperature | forecast       | Daily high temperature                        | R          |
+| temperaturelow             | Number:Temperature | forecast       | Daily low temperature                         | R          |
+| conditions                 | String             | forecast       | Daily conditions description                  | R          |
+| day                        | DateTime           | forecast       | Day of week of forecast (Mon-Sun)             | R          |
+| humidity                   | Number             | forecast       | Daily humidity percentage                     | R          |
+| wind                       | Number:Speed       | forecast       | Daily wind speed                              | R          |
+| evapotranspiration         | Number             | forecast       | Daily evapotranspiration amount               | R          |
+| precipitation              | Number             | forecast       | Daily precipitation amount                    | R          |
+| probabilityOfPrecipitation | Number             | forecast       | Daily probability of precipitation percentage | R          |
+
 
 ## Full Example
 
