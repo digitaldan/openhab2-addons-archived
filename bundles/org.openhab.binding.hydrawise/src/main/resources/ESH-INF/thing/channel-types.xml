@@ -291,7 +291,7 @@
     </channel-type>
     
     <channel-type id="precipitation">
-        <item-type>Precipitation</item-type>
+        <item-type>Number</item-type>
         <label>Precipitation</label>
         <description>Precipitation amount</description>
         <state readOnly="true" pattern="%.1f" />
