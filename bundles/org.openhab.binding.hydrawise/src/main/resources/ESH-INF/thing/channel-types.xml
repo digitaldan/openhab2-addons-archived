@@ -214,20 +214,20 @@
 		<description>Sensor off level</description>
 		<state readOnly="true"></state>
 	</channel-type>
-	
+
 	<channel-type id="active">
 		<item-type>Switch</item-type>
 		<label>Active</label>
 		<description>Sensor active</description>
 		<state readOnly="true"></state>
 	</channel-type>
-	
+
 	<channel-type id="waterflow" advanced="true">
-        <item-type>Number:Volume</item-type>
-        <label>Water Flow</label>
-        <description>Sensor water flow</description>
-        <state readOnly="true"></state>
-    </channel-type>
+		<item-type>Number:Volume</item-type>
+		<label>Water Flow</label>
+		<description>Sensor water flow</description>
+		<state readOnly="true"></state>
+	</channel-type>
 
 	<!-- Weather Forecast -->
 	<channel-type id="temperaturehigh">
@@ -282,25 +282,25 @@
 		<category>Wind</category>
 		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
-	
+
 	<channel-type id="evapotranspiration">
-        <item-type>Number</item-type>
-        <label>Evapotranspiration</label>
-        <description>Evapotranspiration amount</description>
-        <state readOnly="true" pattern="%.1f" />
-    </channel-type>
-    
-    <channel-type id="precipitation">
-        <item-type>Number</item-type>
-        <label>Precipitation</label>
-        <description>Precipitation amount</description>
-        <state readOnly="true" pattern="%.1f" />
-    </channel-type>
-    
-    <channel-type id="probabilityofprecipitation">
-        <item-type>Number</item-type>
-        <label>Probability Of Precipitation </label>
-        <description>Probability of precipitation percentage</description>
-        <state readOnly="true" pattern="%d%%" />
-    </channel-type>
+		<item-type>Number</item-type>
+		<label>Evapotranspiration</label>
+		<description>Evapotranspiration amount</description>
+		<state readOnly="true" pattern="%.1f" />
+	</channel-type>
+
+	<channel-type id="precipitation">
+		<item-type>Number</item-type>
+		<label>Precipitation</label>
+		<description>Precipitation amount</description>
+		<state readOnly="true" pattern="%.1f" />
+	</channel-type>
+
+	<channel-type id="probabilityofprecipitation">
+		<item-type>Number</item-type>
+		<label>Probability Of Precipitation </label>
+		<description>Probability of precipitation percentage</description>
+		<state readOnly="true" pattern="%d%%" />
+	</channel-type>
 </thing:thing-descriptions>

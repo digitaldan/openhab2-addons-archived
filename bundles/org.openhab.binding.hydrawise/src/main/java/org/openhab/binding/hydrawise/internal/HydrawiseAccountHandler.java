@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.openhab.binding.hydrawise.internal;
 
 import java.io.IOException;
@@ -31,6 +43,12 @@ import org.openhab.binding.hydrawise.internal.api.graphql.schema.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The {@link HydrawiseAccountHandler} is responsible for handling for connecting to a Hydrawise account and polling for
+ * controller data
+ *
+ * @author Dan Cunningham - Initial contribution
+ */
 @NonNullByDefault
 public class HydrawiseAccountHandler extends BaseBridgeHandler implements AccessTokenRefreshListener {
     private final Logger logger = LoggerFactory.getLogger(HydrawiseAccountHandler.class);
@@ -127,6 +145,10 @@ public class HydrawiseAccountHandler extends BaseBridgeHandler implements Access
         } catch (OAuthException | IOException e) {
             logger.debug("Could not log in", e);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+            // TODO should we try and connect again? Maybe call configure again? If we startup before the network, then
+            // we never try again
+            // we also need to inform the child bridge ( in iaqualink as well)
+            // initPolling(DEFAULT_REFRESH_SECONDS, refresh);
         } catch (OAuthResponseException e) {
             logger.debug("Could not log in", e);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Login credentials required.");

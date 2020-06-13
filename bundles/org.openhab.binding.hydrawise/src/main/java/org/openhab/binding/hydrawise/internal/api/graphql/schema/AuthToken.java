@@ -27,10 +27,4 @@ public class AuthToken {
         super();
         issued = System.currentTimeMillis();
     }
-
-    public AuthToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-        this.accessToken = "";
-        this.tokenType = "";
-    }
 }
