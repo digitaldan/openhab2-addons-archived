@@ -21,11 +21,11 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.openhab.binding.hydrawise.internal.HydrawiseAccountHandler;
 import org.openhab.binding.hydrawise.internal.HydrawiseBindingConstants;
 import org.openhab.binding.hydrawise.internal.HydrawiseControllerListener;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.Controller;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.Customer;
+import org.openhab.binding.hydrawise.internal.handler.HydrawiseAccountHandler;
 
 /**
  *

@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.hydrawise.internal;
+package org.openhab.binding.hydrawise.internal.handler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,11 +35,13 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.openhab.binding.hydrawise.internal.HydrawiseControllerListener;
 import org.openhab.binding.hydrawise.internal.api.HydrawiseAuthenticationException;
 import org.openhab.binding.hydrawise.internal.api.HydrawiseConnectionException;
 import org.openhab.binding.hydrawise.internal.api.graphql.HydrawiseGraphQLClient;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.Customer;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.QueryResponse;
+import org.openhab.binding.hydrawise.internal.config.HydrawiseAccountConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +128,7 @@ public class HydrawiseAccountHandler extends BaseBridgeHandler implements Access
     private void configure() {
         HydrawiseAccountConfiguration config = getConfig().as(HydrawiseAccountConfiguration.class);
         try {
-            // TODO switch to Java 11 String.isBlank
+            // TODO remove apache isBlank here
             if (StringUtils.isNotBlank(config.userName) && StringUtils.isNotBlank(config.password)) {
                 if (!config.savePassword) {
                     Configuration editedConfig = editConfiguration();
@@ -138,7 +140,6 @@ public class HydrawiseAccountHandler extends BaseBridgeHandler implements Access
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Login credentials required.");
                 return;
             }
-
             this.refresh = Math.max(config.refreshInterval != null ? config.refreshInterval : DEFAULT_REFRESH_SECONDS,
                     MIN_REFRESH_SECONDS);
             initPolling(0, refresh);

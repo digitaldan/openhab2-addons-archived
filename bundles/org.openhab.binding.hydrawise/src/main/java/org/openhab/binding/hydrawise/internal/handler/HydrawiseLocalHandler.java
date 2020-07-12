@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.hydrawise.internal;
+package org.openhab.binding.hydrawise.internal.handler;
 
 import static org.openhab.binding.hydrawise.internal.HydrawiseBindingConstants.*;
 
@@ -47,6 +47,7 @@ import org.openhab.binding.hydrawise.internal.api.local.HydrawiseLocalApiClient;
 import org.openhab.binding.hydrawise.internal.api.local.model.LocalScheduleResponse;
 import org.openhab.binding.hydrawise.internal.api.local.model.Relay;
 import org.openhab.binding.hydrawise.internal.api.local.model.Running;
+import org.openhab.binding.hydrawise.internal.config.HydrawiseLocalConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,29 +10,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.hydrawise.internal;
+package org.openhab.binding.hydrawise.internal.config;
 
 /**
- * The {@link HydrawiseLocalConfiguration} class contains fields mapping thing configuration parameters.
+ * The {@link HydrawiseAccountConfiguration} class contains fields mapping thing configuration parameters.
  *
  * @author Dan Cunningham - Initial contribution
  */
-public class HydrawiseLocalConfiguration {
-    /**
-     * Host or IP for local controller
-     */
-    public String host;
-    /**
-     * User name (admin) for local controller
-     */
-    public String username;
-    /**
-     * Password for local controller
-     */
+public class HydrawiseAccountConfiguration {
+    // public String refreshToken;
+
+    public String userName;
+
     public String password;
+
+    public Boolean savePassword;
 
     /**
      * refresh interval in seconds.
      */
-    public int refresh;
+    public Integer refreshInterval;
 }

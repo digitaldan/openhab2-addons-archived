@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.hydrawise.internal;
+package org.openhab.binding.hydrawise.internal.handler;
 
 import static org.openhab.binding.hydrawise.internal.HydrawiseBindingConstants.*;
 
@@ -52,6 +52,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.openhab.binding.hydrawise.internal.HydrawiseControllerListener;
 import org.openhab.binding.hydrawise.internal.api.HydrawiseAuthenticationException;
 import org.openhab.binding.hydrawise.internal.api.HydrawiseCommandException;
 import org.openhab.binding.hydrawise.internal.api.HydrawiseConnectionException;
@@ -62,6 +63,7 @@ import org.openhab.binding.hydrawise.internal.api.graphql.schema.Sensor;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.UnitValue;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.Zone;
 import org.openhab.binding.hydrawise.internal.api.graphql.schema.ZoneRun;
+import org.openhab.binding.hydrawise.internal.config.HydrawiseControllerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

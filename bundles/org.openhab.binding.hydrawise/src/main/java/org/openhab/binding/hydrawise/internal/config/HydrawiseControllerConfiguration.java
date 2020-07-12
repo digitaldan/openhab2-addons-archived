@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.hydrawise.internal;
+package org.openhab.binding.hydrawise.internal.config;
 
 /**
  * The {@link HydrawiseControllerConfiguration} class contains fields mapping thing configuration parameters.
