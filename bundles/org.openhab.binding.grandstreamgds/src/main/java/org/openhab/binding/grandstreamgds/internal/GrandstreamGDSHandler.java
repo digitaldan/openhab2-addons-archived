@@ -236,9 +236,14 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
 
     private void poll() {
         try {
-            updateDigitalInputState();
-            if (getThing().getStatus() != ThingStatus.ONLINE) {
-                updateStatus(ThingStatus.ONLINE);
+            String cookie = configLogin();
+            logger.debug("Cookie {}", cookie);
+            if (cookie != null) {
+                updateDigitalInputState(cookie);
+                updateKeepDoorOpen(cookie);
+                if (getThing().getStatus() != ThingStatus.ONLINE) {
+                    updateStatus(ThingStatus.ONLINE);
+                }
             }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             logger.debug("Could not update DI states", e);
@@ -313,26 +318,23 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
         return null;
     }
 
-    private void updateDigitalInputState()
+    private void updateDigitalInputState(String cookie)
             throws InterruptedException, ExecutionException, TimeoutException, GDSResponseException {
-        String cookie = configLogin();
-        logger.debug("Cookie {}", cookie);
-        if (cookie != null) {
-            Fields fields = new Fields();
-            fields.put("cmd", "get");
-            fields.put("type", "event");
-            fields.put("t", String.valueOf(System.currentTimeMillis()));
-            ContentResponse response = doPost(String.format(CONFIG_SET_URL, gdsBaseURL), cookie, fields);
-            String content = response.getContentAsString();
-            // String digital1_NO_NC = getXMLValue(content, "Configuration/" + EVENT_DIGIT_INPUT_1_STATUS.getId());
-            // String digital2_NO_NC = getXMLValue(content, "Configuration/" + EVENT_DIGIT_INPUT_2_STATUS.getId());
+        Fields fields = new Fields();
+        fields.put("cmd", "get");
+        fields.put("type", "event");
+        fields.put("t", String.valueOf(System.currentTimeMillis()));
+        ContentResponse response = doPost(String.format(CONFIG_SET_URL, gdsBaseURL), cookie, fields);
+        String content = response.getContentAsString();
+        // String digital1_NO_NC = getXMLValue(content, "Configuration/" + EVENT_DIGIT_INPUT_1_STATUS.getId());
+        // String digital2_NO_NC = getXMLValue(content, "Configuration/" + EVENT_DIGIT_INPUT_2_STATUS.getId());
 
-            String digital1 = getXMLValue(content, "Configuration/ALMIN1_STATUS");
-            String digital2 = getXMLValue(content, "Configuration/ALMIN2_STATUS");
-            logger.debug("DI_1 {} : DI_2 {}", digital1, digital2);
-            updateState(CHANNEL_DI_1, diToState(digital1));
-            updateState(CHANNEL_DI_2, diToState(digital2));
-        }
+        String digital1 = getXMLValue(content, "Configuration/ALMIN1_STATUS");
+        String digital2 = getXMLValue(content, "Configuration/ALMIN2_STATUS");
+        logger.debug("DI_1 {} : DI_2 {}", digital1, digital2);
+        updateState(CHANNEL_DI_1, diToState(digital1));
+        updateState(CHANNEL_DI_2, diToState(digital2));
+
     }
 
     private State diToState(@Nullable String value) {
@@ -346,6 +348,24 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
             return OpenClosedType.OPEN;
         }
         return UnDefType.UNDEF;
+    }
+
+    private void updateKeepDoorOpen(String cookie)
+            throws InterruptedException, ExecutionException, TimeoutException, GDSResponseException {
+        Fields fields = new Fields();
+        fields.put("cmd", "get");
+        fields.put("type", "sch_open_door");
+        fields.put("t", String.valueOf(System.currentTimeMillis()));
+        ContentResponse response = doPost(String.format(CONFIG_SET_URL, gdsBaseURL), cookie, fields);
+        String content = response.getContentAsString();
+        String openState = getXMLValue(content, "Configuration/" + FORCED_OPENING_FORCED_OPENING_DOOR_1.getId());
+        String openLength = getXMLValue(content, "Configuration/" + FORCED_OPENING_LENGTH_DOOR_1.getId());
+        logger.debug("openState {} : openLength {}", openState, openLength);
+        if (openState != null && openLength != null) {
+            updateState(CHANNEL_KEEP_DOOR_OPEN,
+                    new DecimalType("0".equals(openState) ? 0 : Integer.parseInt(openLength)));
+        }
+
     }
 
     private int keepDoorOpen(int minutes)
