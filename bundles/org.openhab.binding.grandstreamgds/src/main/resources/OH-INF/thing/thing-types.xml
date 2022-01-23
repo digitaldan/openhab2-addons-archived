@@ -8,10 +8,10 @@
 		<label>Grandstream GDS</label>
 		<description>Grandstream GDS door phone.</description>
 		<channels>
-			<channel id="dooropen" typeId="dooropen" />
-			<channel id="keepdooropen" typeId="keepdooropen" />
-			<channel id="digital_input1" typeId="digital_input" />
-			<channel id="digital_input2" typeId="digital_input" />
+			<channel id="dooropen" typeId="dooropen"/>
+			<channel id="keepdooropen" typeId="keepdooropen"/>
+			<channel id="digital_input1" typeId="digital_input"/>
+			<channel id="digital_input2" typeId="digital_input"/>
 			<channel id="event_all" typeId="gdsevent">
 				<label>All Events Trigger</label>
 				<description>Triggers on all GDS events</description>
@@ -46,7 +46,8 @@
 			</channel>
 			<channel id="event_call_out_log" typeId="gdsevent">
 				<label>Call Out Log Event Trigger</label>
-				<description>Indicates the GDS unit initiated a call out, for example when someone uses the keypad to dial a number or press door bell button which preconfigured destination number.</description>
+				<description>Indicates the GDS unit initiated a call out, for example when someone uses the keypad to dial a number
+					or press door bell button which preconfigured destination number.</description>
 			</channel>
 			<channel id="event_call_in_log" typeId="gdsevent">
 				<label>Call In Log Event Trigger</label>
@@ -58,7 +59,8 @@
 			</channel>
 			<channel id="event_open_door_via_card_and_pin" typeId="gdsevent">
 				<label>Open Door via Card and PIN Event Trigger</label>
-				<description>Indicates that someone used his RFID card or key fob, plus his own private password to authenticate and open the door.</description>
+				<description>Indicates that someone used his RFID card or key fob, plus his own private password to authenticate and
+					open the door.</description>
 			</channel>
 			<channel id="event_keep_door_open_immediately" typeId="gdsevent">
 				<label>Keep Door Open (Immediately) Event Trigger</label>
@@ -130,7 +132,8 @@
 			</channel>
 			<channel id="event_invalid_password" typeId="gdsevent">
 				<label>Invalid Password Event Trigger</label>
-				<description>Indicates that someone has entered wrong password PIN code to open the door for 5 attempts and corresponding alarm action has been triggered.</description>
+				<description>Indicates that someone has entered wrong password PIN code to open the door for 5 attempts and
+					corresponding alarm action has been triggered.</description>
 			</channel>
 			<channel id="event_mainboard_temperature_normal" typeId="gdsevent">
 				<label>Mainboard Temperature(32°C) Normal Event Trigger</label>
@@ -180,7 +183,8 @@
 			</parameter>
 			<parameter name="modifyGdsConfig" type="boolean" required="true">
 				<label>Modify GDS Configuration</label>
-				<description>By Default the binding will attempt to update the GDS to have it send events to openHAB.  Disabling this will require manual configuration of the GDS through it's web UI.</description>
+				<description>By Default the binding will attempt to update the GDS to have it send events to openHAB. Disabling this
+					will require manual configuration of the GDS through it's web UI.</description>
 				<default>true</default>
 			</parameter>
 		</config-description>
@@ -203,7 +207,7 @@
 		<item-type>Number</item-type>
 		<label>Keeps Door Open</label>
 		<description>Keeps the door open for amount of time in minutes</description>
-		<state min="0" max="480" readOnly="false" />
+		<state min="0" max="480" readOnly="false"/>
 	</channel-type>
 
 	<channel-type id="digital_input">

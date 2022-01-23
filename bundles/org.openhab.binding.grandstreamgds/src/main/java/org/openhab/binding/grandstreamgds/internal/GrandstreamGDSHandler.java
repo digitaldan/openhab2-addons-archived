@@ -334,7 +334,6 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
         logger.debug("DI_1 {} : DI_2 {}", digital1, digital2);
         updateState(CHANNEL_DI_1, diToState(digital1));
         updateState(CHANNEL_DI_2, diToState(digital2));
-
     }
 
     private State diToState(@Nullable String value) {
@@ -365,7 +364,6 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
             updateState(CHANNEL_KEEP_DOOR_OPEN,
                     new DecimalType("0".equals(openState) ? 0 : Integer.parseInt(openLength)));
         }
-
     }
 
     private int keepDoorOpen(int minutes)
@@ -518,7 +516,6 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
             handleGDSEvent(body);
             resp.setCharacterEncoding(StandardCharsets.UTF_8.toString());
             resp.getWriter().write("ok");
-
         }
     }
 
