@@ -313,7 +313,7 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
             // logger.debug("Open Code {}", match.group(1));
             // return match.group(1);
             // }
-            return getXMLValue(config, DOOR_SYSTEM_REMOTE_PIN_TO_OPEN_THE_DOOR.getXapth());
+            return getXMLValue(config, "gs_provision/config/" + DOOR_SYSTEM_REMOTE_PIN_TO_OPEN_THE_DOOR.getId());
         }
         return null;
     }
