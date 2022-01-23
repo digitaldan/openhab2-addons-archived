@@ -305,14 +305,6 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
             throws InterruptedException, ExecutionException, TimeoutException, GDSResponseException {
         String config = getGDSConfig();
         if (config != null) {
-            // XML returned is sometimes not valid enough for XPATH and throws a parse exception, so do this the ugly
-            // way.
-            // Pattern pattern = Pattern.compile(".*<P10457>(.*?)<\\/P10457>.*");
-            // Matcher match = pattern.matcher(config);
-            // if (match.find()) {
-            // logger.debug("Open Code {}", match.group(1));
-            // return match.group(1);
-            // }
             return getXMLValue(config, "gs_provision/config/" + DOOR_SYSTEM_REMOTE_PIN_TO_OPEN_THE_DOOR.getId());
         }
         return null;
