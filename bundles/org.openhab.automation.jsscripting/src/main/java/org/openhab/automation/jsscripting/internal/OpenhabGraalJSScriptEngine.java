@@ -48,6 +48,7 @@ import org.openhab.automation.jsscripting.internal.fs.ReadOnlySeekableByteArrayC
 import org.openhab.automation.jsscripting.internal.fs.watch.JSDependencyTracker;
 import org.openhab.automation.jsscripting.internal.scriptengine.InvocationInterceptingScriptEngineWithInvocableAndAutoCloseable;
 import org.openhab.core.automation.module.script.ScriptExtensionAccessor;
+import org.openhab.core.items.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +98,10 @@ public class OpenhabGraalJSScriptEngine
                         (v) -> v.hasMember("minusDuration") && v.hasMember("toNanos"), v -> {
                             return Duration.ofNanos(v.invokeMember("toNanos").asLong());
                         }, HostAccess.TargetMappingPrecedence.LOW)
-                .build();
+                // Translate openhab-js Item to org.openhab.core.items.Item
+                .targetTypeMapping(Value.class, Item.class, (v) -> v.hasMember("rawItem"), v -> {
+                    return v.getMember("rawItem").as(Item.class);
+                }, HostAccess.TargetMappingPrecedence.LOW).build();
 
         delegate = GraalJSScriptEngine.create(
                 Engine.newBuilder().allowExperimentalOptions(true).option("engine.WarnInterpreterOnly", "false")
