@@ -32,7 +32,6 @@ public class LutronViveAreaHandler extends BaseThingHandler {
     @Override
     public void initialize() {
         updateStatus(ThingStatus.UNKNOWN);
-
     }
 
     @Override
@@ -66,7 +65,6 @@ public class LutronViveAreaHandler extends BaseThingHandler {
                 ((LutronViveHubHandler) handler).sendCommand(exe);
             }
         }
-
     }
 
     public String getId() {
@@ -99,5 +97,4 @@ public class LutronViveAreaHandler extends BaseThingHandler {
     public void updateAreaDetail(AreaDetail detail) {
         this.detail = detail;
     }
-
 }

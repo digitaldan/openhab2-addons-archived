@@ -96,7 +96,6 @@ public class LutronViveHubHandler extends BaseBridgeHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-
     }
 
     @Override
@@ -111,7 +110,8 @@ public class LutronViveHubHandler extends BaseBridgeHandler {
     @Override
     public void dispose() {
         stopFuture(connectFuture);
-        disconnectFromService();
+        disconnectFromWebSocket();
+        logout();
     }
 
     @Override
@@ -123,7 +123,7 @@ public class LutronViveHubHandler extends BaseBridgeHandler {
         stopFuture(connectFuture);
         connectFuture = scheduler.schedule(() -> {
             login();
-            loginStatus();
+            // loginStatus();
             connectWs();
         }, seconds, TimeUnit.SECONDS);
     }
@@ -153,9 +153,18 @@ public class LutronViveHubHandler extends BaseBridgeHandler {
                 .content(new StringContentProvider(gson.toJson(loginRequest)), "application/json");
         try {
             ContentResponse response = request.send();
-            logger.debug("Status response {}", response.getContentAsString());
+            logger.debug("login response {}", response.getContentAsString());
             loginResponse = gson.fromJson(response.getContentAsString(), Login.class);
 
+        } catch (InterruptedException | TimeoutException | ExecutionException | JsonSyntaxException e) {
+            logger.error("Status error", e);
+        }
+    }
+
+    public void logout() {
+        try {
+            String result = sendGet("/logout", null);
+            logger.debug("logout response {}", result);
         } catch (InterruptedException | TimeoutException | ExecutionException | JsonSyntaxException e) {
             logger.error("Status error", e);
         }
@@ -219,6 +228,9 @@ public class LutronViveHubHandler extends BaseBridgeHandler {
     private String sendGet(String path, String[] extraHeader)
             throws InterruptedException, TimeoutException, ExecutionException {
 
+        String cookie = httpClient.getCookieStore().getCookies().stream().map(c -> c.toString())
+                .collect(Collectors.joining("; "));
+        logger.debug("sending: {} csrf: {} cookies: {}", path, loginResponse.csrfToken, cookie);
         Request request = httpClient.newRequest(baseURL() + path).method(HttpMethod.GET)
                 .header("x-requested-with", "XMLHttpRequest").header("x-csrf-token", loginResponse.csrfToken);
         if (extraHeader != null) {
@@ -231,7 +243,7 @@ public class LutronViveHubHandler extends BaseBridgeHandler {
     }
 
     public void connectWs() {
-        disconnectFromService();
+        disconnectFromWebSocket();
 
         final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
 
@@ -303,7 +315,7 @@ public class LutronViveHubHandler extends BaseBridgeHandler {
         }
     }
 
-    private void disconnectFromService() {
+    private void disconnectFromWebSocket() {
         if (webSocket != null) {
             logger.debug("Listener: Disconnecting socket and removing event listeners for {}", webSocket.toString());
             webSocket.disconnect();
@@ -389,7 +401,6 @@ public class LutronViveHubHandler extends BaseBridgeHandler {
                     }
                     break;
             }
-
         }
     };
 
@@ -413,7 +424,6 @@ public class LutronViveHubHandler extends BaseBridgeHandler {
         if (handler != null) {
             handler.updateAreaStatus(status);
         }
-
     }
 
     private void updateAreaHander(AreaDetail detail) {
@@ -444,7 +454,8 @@ public class LutronViveHubHandler extends BaseBridgeHandler {
 
     private void setOffline(String reason) {
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, reason);
-        disconnectFromService();
+        disconnectFromWebSocket();
+        logout();
         connectIn(30);
     }
 

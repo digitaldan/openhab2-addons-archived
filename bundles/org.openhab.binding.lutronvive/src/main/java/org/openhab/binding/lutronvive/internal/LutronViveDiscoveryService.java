@@ -59,7 +59,6 @@ public class LutronViveDiscoveryService extends AbstractDiscoveryService
                     .withBridge(accountHandler.getThing().getUID()).build();
             thingDiscovered(result);
         }
-
     }
 
     @Override

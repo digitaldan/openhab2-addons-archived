@@ -6,7 +6,7 @@
 
 	<!-- Sample Thing Type -->
 	<bridge-type id="hub">
-		<!-- Comment this in for Things which need a Bridge to function. <supported-bridge-type-refs> <bridge-type-ref id="LutronViveBridge" 
+		<!-- Comment this in for Things which need a Bridge to function. <supported-bridge-type-refs> <bridge-type-ref id="LutronViveBridge"
 			/> </supported-bridge-type-refs> -->
 
 		<label>Hub</label>
@@ -42,16 +42,16 @@
 	<thing-type id="area">
 
 		<supported-bridge-type-refs>
-			<bridge-type-ref id="hub" />
+			<bridge-type-ref id="hub"/>
 		</supported-bridge-type-refs>
 
 		<label>Area</label>
 		<description>Lutron Vive Area</description>
 
 		<channels>
-			<channel id="switch" typeId="switch" />
-			<channel id="dimmer" typeId="dimmer" />
-			<channel id="occupancy" typeId="occupancy" />
+			<channel id="switch" typeId="switch"/>
+			<channel id="dimmer" typeId="dimmer"/>
+			<channel id="occupancy" typeId="occupancy"/>
 		</channels>
 		<representation-property>id</representation-property>
 		<config-description>
