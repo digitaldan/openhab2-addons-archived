@@ -29,7 +29,7 @@ https://api.voicerss.org/?key=API_KEY&hl=de-de&f=44khz_16bit_mono&src=Hallo%20We
 
 ## Configuration
 
-The following configurations can be edited using the "VoiceRSS Text-to-Speech" settings in the UI:
+The following settings can be edited in UI (**Settings / Other Services - VoiceRSS Text-to-Speech**):
 
 * **VoiceRSS API Key** - The API Key to get access to https://www.voicerss.org.
 
@@ -146,14 +146,21 @@ It supports the following voices (depending on language):
 * Omer (Turkish)
 * Chi (Vietnamese)
 
-### Voice Configuration
+### Default Text-to-Speech and Voice Configuration
 
-You can setup your preferred default voice in the UI:
+You can setup your preferred default Text-to-Speech and default voice in the UI:
 
 * Go to **Settings**.
 * Edit **System Services - Voice**.
 * Set **VoiceRSS** as **Default Text-to-Speech**.
 * Choose your preferred **Default Voice** for your setup.
+
+In case you would like to setup these settings via a text file, you can edit the file `runtime.cfg` in `$OPENHAB_ROOT/conf/services` and set the following entries:
+
+```
+org.openhab.voice:defaultTTS=voicerss
+org.openhab.voice:defaultVoice=voicerss:frFR_Zola
+```
 
 ## Supported Audio Formats
 
@@ -170,17 +177,17 @@ Synopsis of this tool:
 
 ```
 Usage: java org.openhab.voice.voicerss.tool.CreateTTSCache <args>
-Arguments: --api-key <key> <cache-dir> <locale> { <text> | @inputfile }
+Arguments: --api-key <key> <cache-dir> <locale> <voice> { <text> | @inputfile } [ <codec> <format> ]
   key       the VoiceRSS API Key, e.g. "123456789"
   cache-dir is directory where the files will be stored, e.g. "voicerss-cache"
   locale    the language locale, has to be valid, e.g. "en-us", "de-de"
+  voice     the voice, "default" for the default voice
   text      the text to create audio file for, e.g. "Hello World"
   inputfile a name of a file, where all lines will be translatet to text, e.g. "@message.txt"
+  codec     the audio codec, "MP3", "WAV", "OGG" or "AAC", "MP3" by default
+  format    the audio format, "44khz_16bit_mono" by default
 
-Sample: java org.openhab.voice.voicerss.tool.CreateTTSCache --api-key 1234567890 cache en-US @messages.txt
+Sample: java org.openhab.voice.voicerss.tool.CreateTTSCache --api-key 1234567890 cache en-US default @messages.txt
 ```
 
-
-## Open Issues
-
-* do not log API-Key in plain text
+You will need to specify the classpath for your addon (jar) in the command line (java -cp <path> ...).
