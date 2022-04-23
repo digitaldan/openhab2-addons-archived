@@ -149,13 +149,13 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
             logger.debug("Error unregestering servlet", e);
         }
 
-        if (httpClient.isStarted()) {
-            try {
-                httpClient.stop();
-            } catch (Exception e) {
-                logger.debug("Error stopping httpClient", e);
-            }
+        // if (httpClient.isStarted()) {
+        try {
+            httpClient.stop();
+        } catch (Exception e) {
+            logger.debug("Error stopping httpClient", e);
         }
+        // }
     }
 
     @Override
@@ -325,6 +325,9 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
         String digital2 = getXMLValue(content, "Configuration/ALMIN2_STATUS");
         logger.debug("DI_1 {} : DI_2 {}", digital1, digital2);
         updateState(CHANNEL_DI_1, diToState(digital1));
+        // we should probably add a config option to tie a DI channel to the doorstate, doing this now for homekit
+        logger.debug("Sending {} to {}", diToState(digital1), CHANNEL_DOOR_OPEN);
+        updateState(CHANNEL_DOOR_OPEN, new StringType(diToState(digital1).toString()));
         updateState(CHANNEL_DI_2, diToState(digital2));
     }
 
