@@ -179,8 +179,7 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
                 initPolling(5);
             }
 
-        }
-        if (CHANNEL_KEEP_DOOR_OPEN.equals(channelUID.getId())) {
+        } else if (CHANNEL_KEEP_DOOR_OPEN.equals(channelUID.getId())) {
             if (command instanceof DecimalType) {
                 try {
                     int len = keepDoorOpen(((DecimalType) command).intValue());
@@ -190,6 +189,32 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
                 }
             }
             initPolling(5);
+        } else if (channelUID.getId().startsWith("call_")) {
+            String account = "auto";
+            switch (channelUID.getId()) {
+                case CHANNEL_CALL_HANGUP:
+                    try {
+                        hangup();
+                    } catch (InterruptedException | ExecutionException | TimeoutException | GDSResponseException e) {
+                        logger.debug("Could not hangup", e);
+                    }
+                    break;
+                case CHANNEL_CALL_ACCOUNT1:
+                    account = "1";
+                case CHANNEL_CALL_ACCOUNT2:
+                    account = "2";
+                case CHANNEL_CALL_ACCOUNT3:
+                    account = "3";
+                case CHANNEL_CALL_ACCOUNT4:
+                    account = "4";
+                default:
+                    try {
+                        call(account, command.toString());
+                    } catch (InterruptedException | ExecutionException | TimeoutException | GDSResponseException e) {
+                        logger.debug("Could not call", e);
+                    }
+
+            }
         }
     }
 
@@ -382,6 +407,39 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
         String content = response.getContentAsString();
         logger.debug("keepDoorOpen response {}", content);
         return len;
+    }
+
+    private void call(String account, String dialString)
+            throws InterruptedException, ExecutionException, TimeoutException, GDSResponseException {
+        String cookie = configLogin();
+        logger.debug("Cookie {}", cookie);
+        if (cookie == null) {
+            throw new GDSResponseException(GDSResponseCode.UNKNOWN);
+        }
+        Fields fields = new Fields();
+        fields.put("cmd", "call");
+        fields.put("call_type", "1");
+        fields.put("account", account);
+        fields.put("call_num", dialString);
+
+        ContentResponse response = doPost(String.format(CONFIG_SET_URL, gdsBaseURL), cookie, fields);
+        String content = response.getContentAsString();
+        logger.debug("call response {}", content);
+    }
+
+    private void hangup() throws InterruptedException, ExecutionException, TimeoutException, GDSResponseException {
+        String cookie = configLogin();
+        logger.debug("Cookie {}", cookie);
+        if (cookie == null) {
+            throw new GDSResponseException(GDSResponseCode.UNKNOWN);
+        }
+        Fields fields = new Fields();
+        fields.put("cmd", "call");
+        fields.put("call_type", "0");
+
+        ContentResponse response = doPost(String.format(CONFIG_SET_URL, gdsBaseURL), cookie, fields);
+        String content = response.getContentAsString();
+        logger.debug("hangup response {}", content);
     }
 
     private @Nullable String getGDSConfig()

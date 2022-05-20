@@ -12,6 +12,27 @@
 			<channel id="keepdooropen" typeId="keepdooropen"/>
 			<channel id="digital_input1" typeId="digital_input"/>
 			<channel id="digital_input2" typeId="digital_input"/>
+			<channel id="call_auto" typeId="call">
+				<label>Call Account Auto</label>
+				<description>Calls the provided dial string by auto selecting an account</description>
+			</channel>
+			<channel id="call_account1" typeId="call">
+				<label>Call Account 1</label>
+				<description>Calls the provided dial string using account 1</description>
+			</channel>
+			<channel id="call_account2" typeId="call">
+				<label>Call Account 2</label>
+				<description>Calls the provided dial string using account 2</description>
+			</channel>
+			<channel id="call_account3" typeId="call">
+				<label>Call Account 3</label>
+				<description>Calls the provided dial string using account 3</description>
+			</channel>
+			<channel id="call_account4" typeId="call">
+				<label>Call Account 4</label>
+				<description>Calls the provided dial string using account 4</description>
+			</channel>
+			<channel id="call_hangup" typeId="call_hangup"/>
 			<channel id="event_all" typeId="gdsevent">
 				<label>All Events Trigger</label>
 				<description>Triggers on all GDS events</description>
@@ -221,6 +242,18 @@
 		<label>GDS Event Trigger</label>
 		<event>
 		</event>
+	</channel-type>
+
+	<channel-type id="call">
+		<item-type>String</item-type>
+		<label>Call</label>
+		<description>Calls the provided dial string</description>
+	</channel-type>
+
+	<channel-type id="call_hangup">
+		<item-type>Switch</item-type>
+		<label>Call Hangup</label>
+		<description>Hangs up the current call(s)</description>
 	</channel-type>
 
 </thing:thing-descriptions>
