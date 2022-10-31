@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="qolsysiq"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+	<bridge-type id="partition">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="panel"/>
+		</supported-bridge-type-refs>
+		<label>Partion</label>
+		<description>A Qolsys IQ Partition</description>
+		<channels>
+			<channel id="status" typeId="partitionStatus"/>
+			<channel id="alarmState" typeId="alarmState"/>
+			<channel id="armCommand" typeId="armCommand"/>
+			<channel id="disarmComand" typeId="disarmComand"/>
+			<channel id="alarmCommand" typeId="alarmCommand"/>
+		</channels>
+		<properties>
+			<property name="secureArm">false</property>
+		</properties>
+		<representation-property>partitionId</representation-property>
+		<config-description>
+			<parameter name="partitionId" type="integer" required="true">
+				<label>Partition ID</label>
+				<description>The Partition ID.</description>
+			</parameter>
+		</config-description>
+	</bridge-type>
+
+	<channel-type id="partitionStatus">
+		<item-type>String</item-type>
+		<label>Partition Status</label>
+		<description>Represents the partition status.</description>
+		<category>Alarm</category>
+		<state readOnly="true">
+			<options>
+				<option value="ALARM">Alarm</option>
+				<option value="ARM_AWAY">Arm Away</option>
+				<option value="ARM_STAY">Arm Stay</option>
+				<option value="DISARM">Disarm</option>
+				<option value="ENTRY_DELAY">Entry Delay</option>
+				<option value="EXIT_DELAY">Exit Delay</option>
+			</options>
+		</state>
+	</channel-type>
+	<channel-type id="alarmState">
+		<item-type>String</item-type>
+		<label>Partition Alarm State</label>
+		<description>The alarm state that the partition is currently in</description>
+		<category>Alarm</category>
+		<state readOnly="true">
+			<options>
+				<option value="AUXILIARY">Auxiliary</option>
+				<option value="FIRE">Fire</option>
+				<option value="POLICE">Police</option>
+				<option value="ZONEOPEN">Zone Open</option>
+				<option value="NONE">None</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="disarmComand">
+		<item-type>String</item-type>
+		<label>Disarm System</label>
+		<description>Disarm system with user code</description>
+		<category>Alarm</category>
+	</channel-type>
+
+	<channel-type id="armCommand">
+		<item-type>String</item-type>
+		<label>Arm System</label>
+		<description>Arm system.</description>
+		<category>Alarm</category>
+		<state>
+			<options>
+				<option value="ARM_AWAY">Away</option>
+				<option value="ARM_STAY">Fire</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="alarmCommand">
+		<item-type>String</item-type>
+		<label>Trigger Alarm</label>
+		<description>Trigger an alarm on a partition</description>
+		<category>Alarm</category>
+		<state>
+			<options>
+				<option value="AUXILIARY">Auxiliary</option>
+				<option value="FIRE">Fire</option>
+				<option value="POLICE">Police</option>
+			</options>
+		</state>
+	</channel-type>
+</thing:thing-descriptions>

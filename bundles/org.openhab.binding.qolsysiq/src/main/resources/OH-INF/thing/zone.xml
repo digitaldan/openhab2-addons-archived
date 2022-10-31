@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="qolsysiq"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="zone">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="partition"/>
+		</supported-bridge-type-refs>
+		<label>Zone</label>
+		<description>A Qolsys IQ Zone</description>
+		<channels>
+			<channel id="state" typeId="zoneState"/>
+			<channel id="status" typeId="zoneStatus"/>
+		</channels>
+		<properties>
+			<property name="type"></property>
+			<property name="name"></property>
+			<property name="group"></property>
+			<property name="id"></property>
+			<property name="zonePhysicalType"></property>
+			<property name="zoneAlarmType"></property>
+			<property name="zoneType"></property>
+			<property name="partitionId"></property>
+		</properties>
+		<representation-property>id</representation-property>
+		<config-description>
+			<parameter name="zoneId" type="text" required="true">
+				<label>Zone ID</label>
+				<description>The Zone ID.</description>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<channel-type id="zoneStatus">
+		<item-type>String</item-type>
+		<label>Zone Status</label>
+		<description>Represents the zone status.</description>
+		<state readOnly="true">
+			<options>
+				<option value="ACTIVE">Active</option>
+				<option value="ACTIVATED">Activated</option>
+				<option value="CLOSED">Closed</option>
+				<option value="OPEN">Open</option>
+				<option value="IDlE">Idle</option>
+				<option value="NORMAL">Normal</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="state">
+		<item-type>Contact</item-type>
+		<label>Zone State</label>
+		<description>Zone contact state.</description>
+		<category>Contact</category>
+		<state readOnly="true"/>
+	</channel-type>
+</thing:thing-descriptions>
