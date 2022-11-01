@@ -26,7 +26,7 @@
 		</properties>
 		<representation-property>id</representation-property>
 		<config-description>
-			<parameter name="zoneId" type="text" required="true">
+			<parameter name="id" type="text" required="true">
 				<label>Zone ID</label>
 				<description>The Zone ID.</description>
 			</parameter>

@@ -37,17 +37,17 @@ import javax.net.ssl.X509TrustManager;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.qolsysiq.internal.client.dto.actions.Action;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.AlarmEvent;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.ArmingEvent;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.Event;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.EventType;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.InfoEventType;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.SecureArmInfoEvent;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.SummaryInfoEvent;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.ZoneActiveEvent;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.ZoneEventType;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.ZoneUpdateEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.action.Action;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.AlarmEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ArmingEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.Event;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.EventType;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.InfoEventType;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.SecureArmInfoEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.SummaryInfoEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneActiveEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneEventType;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneUpdateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

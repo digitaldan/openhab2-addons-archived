@@ -18,6 +18,9 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.qolsysiq.internal.handler.QolsysIQPanelHandler;
+import org.openhab.binding.qolsysiq.internal.handler.QolsysIQPartitionHandler;
+import org.openhab.binding.qolsysiq.internal.handler.QolsysIQZoneHandler;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;

@@ -13,12 +13,12 @@
 package org.openhab.binding.qolsysiq.internal.client;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.AlarmEvent;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.ArmingEvent;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.SecureArmInfoEvent;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.SummaryInfoEvent;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.ZoneActiveEvent;
-import org.openhab.binding.qolsysiq.internal.client.dto.events.ZoneUpdateEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.AlarmEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ArmingEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.SecureArmInfoEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.SummaryInfoEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneActiveEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneUpdateEvent;
 
 /**
  *

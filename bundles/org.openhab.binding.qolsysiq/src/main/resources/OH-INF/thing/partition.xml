@@ -22,7 +22,7 @@
 		</properties>
 		<representation-property>partitionId</representation-property>
 		<config-description>
-			<parameter name="partitionId" type="integer" required="true">
+			<parameter name="id" type="integer" required="true">
 				<label>Partition ID</label>
 				<description>The Partition ID.</description>
 			</parameter>
