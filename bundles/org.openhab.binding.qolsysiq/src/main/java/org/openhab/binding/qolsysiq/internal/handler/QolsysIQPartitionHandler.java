@@ -39,6 +39,7 @@ import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.binding.BaseBridgeHandler;
 import org.openhab.core.thing.binding.BridgeHandler;
@@ -67,6 +68,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     @Override
     public void initialize() {
         partitionId = getConfigAs(QolsysIQPartitionConfiguration.class).id;
+        updateStatus(ThingStatus.UNKNOWN);
     }
 
     @Override
@@ -92,7 +94,8 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
                 if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DISARM)) {
                     armingType = ArmingActionType.DISARM;
                     code = command.toString();
-                } else if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_ARM)) {
+                } else if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_ARM)
+                        || channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_STATUS)) {
                     String armingTypeName = command.toString();
                     if (armingTypeName.contains(":")) {
                         String[] split = armingTypeName.split(":");
@@ -133,6 +136,19 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         this.discoveryService = service;
     }
 
+    @Override
+    public void discoverChildDevices() {
+        zones.forEach((k, z) -> {
+            QolsysIQChildDiscoveryService discoveryService = this.discoveryService;
+            if (discoveryService != null) {
+                ThingUID bridgeUID = getThing().getUID();
+                ThingUID thingUID = new ThingUID(QolsysIQBindingConstants.THING_TYPE_ZONE, bridgeUID, z.zoneId + "");
+                discoveryService.discoverQolsysIQChildThing(thingUID, bridgeUID, String.valueOf(z.zoneId),
+                        "Qolsys IQ Zone: " + z.name);
+            }
+        });
+    }
+
     public int partitionId() {
         return partitionId;
     }
@@ -151,19 +167,21 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     public void updatePartition(Partition partition) {
+        logger.debug("updatePartition {}", partition.partitionId);
         zones.clear();
         partition.zoneList.forEach(z -> {
             zones.put(z.zoneId, z);
-            QolsysIQChildDiscoveryService discoveryService = this.discoveryService;
-            if (discoveryService != null) {
-                ThingUID bridgeUID = getThing().getUID();
-                ThingUID thingUID = new ThingUID(QolsysIQBindingConstants.THING_TYPE_ZONE, bridgeUID, z.zoneId + "");
-                discoveryService.discoverQolsysIQChildThing(thingUID, bridgeUID, String.valueOf(z.zoneId),
-                        "Qolsys IQ Zone: " + z.name);
+            QolsysIQZoneHandler zoneHandler = zoneHandler(z.zoneId);
+            if (zoneHandler != null) {
+                zoneHandler.updateZone(z);
             }
         });
+        discoverChildDevices();
         updatePartitionStatus(partition.status);
         setSecureArm(partition.secureArm);
+        if (getThing().getStatus() != ThingStatus.ONLINE) {
+            updateStatus(ThingStatus.ONLINE);
+        }
     }
 
     private void updatePartitionStatus(PartitionStatus status) {
@@ -178,5 +196,22 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("secureArm", secure);
         getThing().getConfiguration().setProperties(props);
+    }
+
+    private void updateExitDelay() {
+        // if exit delay is not null or > 0 start timer
+        // other wise kill timer, set to 0;
+    }
+
+    private @Nullable QolsysIQZoneHandler zoneHandler(int zoneId) {
+        for (Thing thing : getThing().getThings()) {
+            ThingHandler handler = thing.getHandler();
+            if (handler != null && handler instanceof QolsysIQZoneHandler) {
+                if (((QolsysIQZoneHandler) handler).zoneId() == zoneId) {
+                    return (QolsysIQZoneHandler) handler;
+                }
+            }
+        }
+        return null;
     }
 }

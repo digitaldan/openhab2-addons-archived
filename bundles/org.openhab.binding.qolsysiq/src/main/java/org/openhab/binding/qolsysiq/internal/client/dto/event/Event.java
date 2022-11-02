@@ -21,7 +21,6 @@ import com.google.gson.annotations.SerializedName;
 public abstract class Event {
     @SerializedName("event")
     public EventType eventType;
-    public String infoType;
     public String nonce;
     @SerializedName("requestID")
     public String requestID;

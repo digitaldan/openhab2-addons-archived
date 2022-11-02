@@ -16,11 +16,12 @@
 			<channel id="armCommand" typeId="armCommand"/>
 			<channel id="disarmComand" typeId="disarmComand"/>
 			<channel id="alarmCommand" typeId="alarmCommand"/>
+			<channel id="exitDelay" typeId="exitDelay"/>
 		</channels>
 		<properties>
 			<property name="secureArm">false</property>
 		</properties>
-		<representation-property>partitionId</representation-property>
+		<representation-property>id</representation-property>
 		<config-description>
 			<parameter name="id" type="integer" required="true">
 				<label>Partition ID</label>
@@ -34,16 +35,22 @@
 		<label>Partition Status</label>
 		<description>Represents the partition status.</description>
 		<category>Alarm</category>
-		<state readOnly="true">
+		<state>
 			<options>
-				<option value="ALARM">Alarm</option>
-				<option value="ARM_AWAY">Arm Away</option>
-				<option value="ARM_STAY">Arm Stay</option>
-				<option value="DISARM">Disarm</option>
+				<option value="ALARM">In Alarm</option>
+				<option value="ARM_AWAY">Armed Away</option>
+				<option value="ARM_STAY">Armed Stay</option>
+				<option value="DISARM">Disarmed</option>
 				<option value="ENTRY_DELAY">Entry Delay</option>
 				<option value="EXIT_DELAY">Exit Delay</option>
 			</options>
 		</state>
+		<command>
+			<options>
+				<option value="ARM_AWAY">Away</option>
+				<option value="ARM_STAY">Stay</option>
+			</options>
+		</command>
 	</channel-type>
 	<channel-type id="alarmState">
 		<item-type>String</item-type>
@@ -60,6 +67,14 @@
 			</options>
 		</state>
 	</channel-type>
+	
+	<channel-type id="exitDelay">
+        <item-type>Number</item-type>
+        <label>Partition Exit Delay</label>
+        <description>The alarm exit delay currently in progress</description>
+        <category>Alarm</category>
+        <state readOnly="true"></state>
+    </channel-type>
 
 	<channel-type id="disarmComand">
 		<item-type>String</item-type>
@@ -73,12 +88,12 @@
 		<label>Arm System</label>
 		<description>Arm system.</description>
 		<category>Alarm</category>
-		<state>
+		<command>
 			<options>
 				<option value="ARM_AWAY">Away</option>
-				<option value="ARM_STAY">Fire</option>
+				<option value="ARM_STAY">Stay</option>
 			</options>
-		</state>
+		</command>
 	</channel-type>
 
 	<channel-type id="alarmCommand">
@@ -86,12 +101,12 @@
 		<label>Trigger Alarm</label>
 		<description>Trigger an alarm on a partition</description>
 		<category>Alarm</category>
-		<state>
+		<command>
 			<options>
 				<option value="AUXILIARY">Auxiliary</option>
 				<option value="FIRE">Fire</option>
 				<option value="POLICE">Police</option>
 			</options>
-		</state>
+		</command>
 	</channel-type>
 </thing:thing-descriptions>

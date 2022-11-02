@@ -28,7 +28,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -107,8 +106,8 @@ public class QolsysiqClient {
         SSLSocketFactory sslsocketfactory;
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            sslContext.init(kmf.getKeyManagers(), acceptAlltrustManagers(), null);
+            // KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            sslContext.init(null, acceptAlltrustManagers(), null);
             sslsocketfactory = sslContext.getSocketFactory();
         } catch (KeyManagementException | NoSuchAlgorithmException e) {
             throw new IOException(e);

@@ -24,6 +24,7 @@ import org.openhab.binding.qolsysiq.internal.config.QolsysIQZoneConfiguration;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 
@@ -42,6 +43,7 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
     @Override
     public void initialize() {
         zoneId = getConfigAs(QolsysIQZoneConfiguration.class).id;
+        updateStatus(ThingStatus.UNKNOWN);
     }
 
     @Override
@@ -65,6 +67,9 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
         props.put("zoneType", zone.zoneType);
         props.put("partitionId", zone.partitionId);
         getThing().getConfiguration().setProperties(props);
+        if (getThing().getStatus() != ThingStatus.ONLINE) {
+            updateStatus(ThingStatus.ONLINE);
+        }
     }
 
     public void zoneActiveEvent(ZoneActiveEvent event) {

@@ -95,7 +95,13 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
     }
 
     @Override
+    public void dispose() {
+        disconnect();
+    }
+
+    @Override
     public void childHandlerInitialized(ThingHandler childHandler, Thing childThing) {
+        logger.debug("childHandlerInitialized {}", childThing.getUID());
         if (childHandler instanceof QolsysIQPartitionHandler) {
             QolsysIQPartitionHandler handler = (QolsysIQPartitionHandler) childHandler;
             Partition p = partitions.get(handler.partitionId());
@@ -113,6 +119,20 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
     @Override
     public void setDiscoveryService(QolsysIQChildDiscoveryService service) {
         this.discoveryService = service;
+    }
+
+    @Override
+    public void discoverChildDevices() {
+        partitions.forEach((k, p) -> {
+            QolsysIQChildDiscoveryService discoveryService = this.discoveryService;
+            if (discoveryService != null) {
+                ThingUID bridgeUID = getThing().getUID();
+                ThingUID thingUID = new ThingUID(QolsysIQBindingConstants.THING_TYPE_PARTITION, bridgeUID,
+                        p.partitionId + "");
+                discoveryService.discoverQolsysIQChildThing(thingUID, bridgeUID, String.valueOf(p.partitionId),
+                        "Qolsys IQ Partition: " + p.name);
+            }
+        });
     }
 
     @Override
@@ -146,15 +166,6 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
         partitions.clear();
         event.partitionList.forEach(p -> {
             partitions.put(p.partitionId, p);
-            QolsysIQChildDiscoveryService discoveryService = this.discoveryService;
-            if (discoveryService != null) {
-                ThingUID bridgeUID = getThing().getUID();
-                ThingUID thingUID = new ThingUID(QolsysIQBindingConstants.THING_TYPE_PARTITION, bridgeUID,
-                        p.partitionId + "");
-                discoveryService.discoverQolsysIQChildThing(thingUID, bridgeUID, String.valueOf(p.partitionId),
-                        "Qolsys IQ Partition: " + p.name);
-            }
-            // call discovery
             QolsysIQPartitionHandler handler = partitionHandler(p.partitionId);
             if (handler != null) {
                 handler.updatePartition(p);
@@ -166,6 +177,7 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
                 }
             });
         });
+        discoverChildDevices();
     }
 
     @Override
@@ -258,7 +270,7 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
     private void setOfflineAndReconnect(Exception reason) {
         logger.debug("setOfflineAndReconnect");
         ScheduledFuture<?> retryFuture = this.retryFuture;
-        if (retryFuture != null && !retryFuture.isDone()) {
+        if (retryFuture == null || retryFuture.isDone()) {
             disconnect();
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, reason.getMessage());
             startRetryFuture();

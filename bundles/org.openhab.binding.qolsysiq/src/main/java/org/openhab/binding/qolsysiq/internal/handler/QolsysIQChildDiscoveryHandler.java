@@ -23,4 +23,6 @@ import org.openhab.binding.qolsysiq.internal.discovery.QolsysIQChildDiscoverySer
 @NonNullByDefault
 public interface QolsysIQChildDiscoveryHandler {
     public void setDiscoveryService(QolsysIQChildDiscoveryService service);
+
+    public void discoverChildDevices();
 }

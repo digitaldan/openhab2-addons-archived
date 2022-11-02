@@ -21,6 +21,7 @@ import org.openhab.binding.qolsysiq.internal.client.dto.model.PartitionStatus;
 public class ArmingEvent extends Event {
     public PartitionStatus armingType;
     public Integer partitionId;
+    public Integer delay;
 
     public ArmingEvent() {
         super(EventType.ARMING);
