@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.qolsysiq.internal.QolsysIQBindingConstants;
-import org.openhab.binding.qolsysiq.internal.QolsysIQDiscoveryService;
 import org.openhab.binding.qolsysiq.internal.client.QolsysIQClientListener;
 import org.openhab.binding.qolsysiq.internal.client.QolsysiqClient;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.Action;
@@ -37,6 +36,7 @@ import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneActiveEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneUpdateEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.Partition;
 import org.openhab.binding.qolsysiq.internal.config.QolsysIQPanelConfiguration;
+import org.openhab.binding.qolsysiq.internal.discovery.QolsysIQChildDiscoveryService;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
@@ -59,14 +59,14 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class QolsysIQPanelHandler extends BaseBridgeHandler
-        implements QolsysIQClientListener, QolsysIQDiscoveryHandler {
+        implements QolsysIQClientListener, QolsysIQChildDiscoveryHandler {
 
     private final Logger logger = LoggerFactory.getLogger(QolsysIQPanelHandler.class);
     private static final int RETRY_SECONDS = 30;
 
     private @Nullable QolsysiqClient apiClient;
     private @Nullable ScheduledFuture<?> retryFuture;
-    private @Nullable QolsysIQDiscoveryService discoveryService;
+    private @Nullable QolsysIQChildDiscoveryService discoveryService;
 
     private String key = "";
     private Map<Integer, Partition> partitions = Collections.synchronizedMap(new HashMap<Integer, Partition>());
@@ -107,11 +107,11 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
 
     @Override
     public Collection<Class<? extends ThingHandlerService>> getServices() {
-        return Collections.singleton(QolsysIQDiscoveryService.class);
+        return Collections.singleton(QolsysIQChildDiscoveryService.class);
     }
 
     @Override
-    public void setDiscoveryService(QolsysIQDiscoveryService service) {
+    public void setDiscoveryService(QolsysIQChildDiscoveryService service) {
         this.discoveryService = service;
     }
 
@@ -146,12 +146,12 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
         partitions.clear();
         event.partitionList.forEach(p -> {
             partitions.put(p.partitionId, p);
-            QolsysIQDiscoveryService discoveryService = this.discoveryService;
+            QolsysIQChildDiscoveryService discoveryService = this.discoveryService;
             if (discoveryService != null) {
                 ThingUID bridgeUID = getThing().getUID();
                 ThingUID thingUID = new ThingUID(QolsysIQBindingConstants.THING_TYPE_PARTITION, bridgeUID,
                         p.partitionId + "");
-                discoveryService.discoverQolsysIQThing(thingUID, bridgeUID, String.valueOf(p.partitionId),
+                discoveryService.discoverQolsysIQChildThing(thingUID, bridgeUID, String.valueOf(p.partitionId),
                         "Qolsys IQ Partition: " + p.name);
             }
             // call discovery

@@ -1,10 +1,23 @@
-package org.openhab.binding.qolsysiq.internal;
+/**
+ * Copyright (c) 2010-2022 Contributors to the openHAB project
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package org.openhab.binding.qolsysiq.internal.discovery;
 
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.qolsysiq.internal.handler.QolsysIQDiscoveryHandler;
+import org.openhab.binding.qolsysiq.internal.QolsysIQBindingConstants;
+import org.openhab.binding.qolsysiq.internal.handler.QolsysIQChildDiscoveryHandler;
 import org.openhab.core.config.discovery.AbstractDiscoveryService;
 import org.openhab.core.config.discovery.DiscoveryResult;
 import org.openhab.core.config.discovery.DiscoveryResultBuilder;
@@ -22,24 +35,24 @@ import org.slf4j.LoggerFactory;
  *
  */
 @NonNullByDefault
-public class QolsysIQDiscoveryService extends AbstractDiscoveryService
+public class QolsysIQChildDiscoveryService extends AbstractDiscoveryService
         implements DiscoveryService, ThingHandlerService {
-    private final Logger logger = LoggerFactory.getLogger(QolsysIQDiscoveryService.class);
+    private final Logger logger = LoggerFactory.getLogger(QolsysIQChildDiscoveryService.class);
 
     private static final Set<ThingTypeUID> SUPPORTED_DISCOVERY_THING_TYPES_UIDS = Set
             .of(QolsysIQBindingConstants.THING_TYPE_PARTITION, QolsysIQBindingConstants.THING_TYPE_ZONE);
 
     private @Nullable ThingHandler thingHandler;
 
-    public QolsysIQDiscoveryService() throws IllegalArgumentException {
+    public QolsysIQChildDiscoveryService() throws IllegalArgumentException {
         super(SUPPORTED_DISCOVERY_THING_TYPES_UIDS, 0, false);
     }
 
     @Override
     public void setThingHandler(ThingHandler handler) {
         logger.debug("setThingHandler {}", handler.getThing());
-        if (handler instanceof QolsysIQDiscoveryHandler) {
-            ((QolsysIQDiscoveryHandler) handler).setDiscoveryService(this);
+        if (handler instanceof QolsysIQChildDiscoveryHandler) {
+            ((QolsysIQChildDiscoveryHandler) handler).setDiscoveryService(this);
             this.thingHandler = handler;
         }
     }
@@ -51,7 +64,6 @@ public class QolsysIQDiscoveryService extends AbstractDiscoveryService
 
     @Override
     protected void startScan() {
-
     }
 
     @Override
@@ -64,33 +76,9 @@ public class QolsysIQDiscoveryService extends AbstractDiscoveryService
         super.deactivate();
     }
 
-    public void discoverQolsysIQThing(ThingUID thingUID, ThingUID bridgeUID, String id, String label) {
+    public void discoverQolsysIQChildThing(ThingUID thingUID, ThingUID bridgeUID, String id, String label) {
         DiscoveryResult result = DiscoveryResultBuilder.create(thingUID).withLabel(label).withProperty("id", id)
                 .withRepresentationProperty("id").withBridge(bridgeUID).build();
         thingDiscovered(result);
     }
-    // public void discoverPartitions(List<Partition> paritions, Bridge bridge) {
-    // paritions.forEach(partition -> {
-    // ThingUID thingUID = new ThingUID(QolsysIQBindingConstants.THING_TYPE_PARTITION, bridge.getUID(),
-    // partition.partitionId + "");
-    // DiscoveryResult result = DiscoveryResultBuilder.create(thingUID)
-    // .withLabel("Qolsys IQ Partition: " + partition.name)
-    // .withProperty(Thing.PROPERTY_SERIAL_NUMBER, partition.partitionId)
-    // .withRepresentationProperty(Thing.PROPERTY_SERIAL_NUMBER).withBridge(bridge.getUID()).build();
-    // thingDiscovered(result);
-    // });
-    //
-    // }
-    //
-    // public void discoverZones(List<Zone> zones, Bridge bridge) {
-    // zones.forEach(zone -> {
-    // ThingUID thingUID = new ThingUID(QolsysIQBindingConstants.THING_TYPE_ZONE, bridge.getUID(),
-    // zone.partitionId + "");
-    // DiscoveryResult result = DiscoveryResultBuilder.create(thingUID).withLabel("Qolsys IQ Zone: " + zone.name)
-    // .withProperty(Thing.PROPERTY_SERIAL_NUMBER, zone.zoneId)
-    // .withRepresentationProperty(Thing.PROPERTY_SERIAL_NUMBER).withBridge(bridge.getUID()).build();
-    // thingDiscovered(result);
-    // });
-    // }
-
 }

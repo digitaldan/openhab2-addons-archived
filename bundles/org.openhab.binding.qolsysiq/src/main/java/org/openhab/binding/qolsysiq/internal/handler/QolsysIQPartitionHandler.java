@@ -20,7 +20,6 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.qolsysiq.internal.QolsysIQBindingConstants;
-import org.openhab.binding.qolsysiq.internal.QolsysIQDiscoveryService;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.AlarmAction;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.AlarmActionType;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.ArmingAction;
@@ -35,6 +34,7 @@ import org.openhab.binding.qolsysiq.internal.client.dto.model.Partition;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.PartitionStatus;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.Zone;
 import org.openhab.binding.qolsysiq.internal.config.QolsysIQPartitionConfiguration;
+import org.openhab.binding.qolsysiq.internal.discovery.QolsysIQChildDiscoveryService;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
@@ -54,10 +54,10 @@ import org.slf4j.LoggerFactory;
  * @author Dan Cunningham - Initial contribution
  */
 @NonNullByDefault
-public class QolsysIQPartitionHandler extends BaseBridgeHandler implements QolsysIQDiscoveryHandler {
+public class QolsysIQPartitionHandler extends BaseBridgeHandler implements QolsysIQChildDiscoveryHandler {
     private final Logger logger = LoggerFactory.getLogger(QolsysIQPartitionHandler.class);
     private Map<Integer, Zone> zones = Collections.synchronizedMap(new HashMap<Integer, Zone>());
-    private @Nullable QolsysIQDiscoveryService discoveryService;
+    private @Nullable QolsysIQChildDiscoveryService discoveryService;
     private int partitionId;
 
     public QolsysIQPartitionHandler(Bridge bridge) {
@@ -125,11 +125,11 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     @Override
     public Collection<Class<? extends ThingHandlerService>> getServices() {
-        return Collections.singleton(QolsysIQDiscoveryService.class);
+        return Collections.singleton(QolsysIQChildDiscoveryService.class);
     }
 
     @Override
-    public void setDiscoveryService(QolsysIQDiscoveryService service) {
+    public void setDiscoveryService(QolsysIQChildDiscoveryService service) {
         this.discoveryService = service;
     }
 
@@ -154,11 +154,11 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         zones.clear();
         partition.zoneList.forEach(z -> {
             zones.put(z.zoneId, z);
-            QolsysIQDiscoveryService discoveryService = this.discoveryService;
+            QolsysIQChildDiscoveryService discoveryService = this.discoveryService;
             if (discoveryService != null) {
                 ThingUID bridgeUID = getThing().getUID();
                 ThingUID thingUID = new ThingUID(QolsysIQBindingConstants.THING_TYPE_ZONE, bridgeUID, z.zoneId + "");
-                discoveryService.discoverQolsysIQThing(thingUID, bridgeUID, String.valueOf(z.zoneId),
+                discoveryService.discoverQolsysIQChildThing(thingUID, bridgeUID, String.valueOf(z.zoneId),
                         "Qolsys IQ Zone: " + z.name);
             }
         });
