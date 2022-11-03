@@ -67,14 +67,14 @@
 			</options>
 		</state>
 	</channel-type>
-	
+
 	<channel-type id="exitDelay">
-        <item-type>Number</item-type>
-        <label>Partition Exit Delay</label>
-        <description>The alarm exit delay currently in progress</description>
-        <category>Alarm</category>
-        <state readOnly="true"></state>
-    </channel-type>
+		<item-type>Number</item-type>
+		<label>Partition Exit Delay</label>
+		<description>The alarm exit delay currently in progress</description>
+		<category>Alarm</category>
+		<state readOnly="true"></state>
+	</channel-type>
 
 	<channel-type id="disarmComand">
 		<item-type>String</item-type>

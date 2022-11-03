@@ -16,6 +16,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -35,6 +37,7 @@ import org.openhab.binding.qolsysiq.internal.client.dto.model.PartitionStatus;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.Zone;
 import org.openhab.binding.qolsysiq.internal.config.QolsysIQPartitionConfiguration;
 import org.openhab.binding.qolsysiq.internal.discovery.QolsysIQChildDiscoveryService;
+import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
@@ -59,6 +62,8 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     private final Logger logger = LoggerFactory.getLogger(QolsysIQPartitionHandler.class);
     private Map<Integer, Zone> zones = Collections.synchronizedMap(new HashMap<Integer, Zone>());
     private @Nullable QolsysIQChildDiscoveryService discoveryService;
+    private @Nullable ScheduledFuture<?> delayFuture;
+
     private int partitionId;
 
     public QolsysIQPartitionHandler(Bridge bridge) {
@@ -160,6 +165,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     public void armingEvent(ArmingEvent event) {
         updatePartitionStatus(event.armingType);
+        updateDelay(event.delay == null ? 0 : event.delay);
     }
 
     public void secureArmInfoEvent(SecureArmInfoEvent event) {
@@ -198,9 +204,30 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         getThing().getConfiguration().setProperties(props);
     }
 
-    private void updateExitDelay() {
-        // if exit delay is not null or > 0 start timer
-        // other wise kill timer, set to 0;
+    private void updateDelay(Integer delay) {
+        cancelExitDelayJob();
+        if (delay <= 0) {
+            updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY, new DecimalType(0));
+            return;
+        }
+        final long startTime = System.currentTimeMillis();
+        final long endTime = startTime + (delay * 1000);
+        delayFuture = scheduler.schedule(() -> {
+            long remaining = endTime - startTime;
+            if (remaining <= 0) {
+                updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY, new DecimalType(0));
+            } else {
+                updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY,
+                        new DecimalType(remaining / 1000));
+            }
+        }, 1, TimeUnit.SECONDS);
+    }
+
+    private void cancelExitDelayJob() {
+        ScheduledFuture<?> delayFuture = this.delayFuture;
+        if (delayFuture != null && !delayFuture.isDone()) {
+            delayFuture.cancel(false);
+        }
     }
 
     private @Nullable QolsysIQZoneHandler zoneHandler(int zoneId) {
