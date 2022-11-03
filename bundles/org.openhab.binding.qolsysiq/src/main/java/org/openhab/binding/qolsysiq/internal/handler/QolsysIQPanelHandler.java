@@ -261,7 +261,7 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
     private void startRetryFuture() {
         logger.debug("startRetryFuture");
         ScheduledFuture<?> retryFuture = this.retryFuture;
-        if (retryFuture != null && retryFuture.isDone()) {
+        if (retryFuture == null || retryFuture.isDone()) {
             this.retryFuture = scheduler.schedule(this::connect, RETRY_SECONDS, TimeUnit.SECONDS);
         } else {
             logger.debug("startRetryFuture: retry job already scheduled");
