@@ -16,7 +16,7 @@
 			<channel id="armCommand" typeId="armCommand"/>
 			<channel id="disarmComand" typeId="disarmComand"/>
 			<channel id="alarmCommand" typeId="alarmCommand"/>
-			<channel id="exitDelay" typeId="exitDelay"/>
+			<channel id="armingDelay" typeId="armingDelay"/>
 		</channels>
 		<properties>
 			<property name="secureArm">false</property>
@@ -68,10 +68,10 @@
 		</state>
 	</channel-type>
 
-	<channel-type id="exitDelay">
+	<channel-type id="armingDelay">
 		<item-type>Number</item-type>
-		<label>Partition Exit Delay</label>
-		<description>The alarm exit delay currently in progress</description>
+		<label>Partition Arming Delay</label>
+		<description>The arming delay currently in progress</description>
 		<category>Alarm</category>
 		<state readOnly="true"></state>
 	</channel-type>

@@ -77,6 +77,7 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
+        logger.debug("handleCommand {}", command);
         if (command instanceof RefreshType) {
             sendAction(new InfoAction(InfoActionType.SUMMARY, key));
         }
@@ -87,6 +88,7 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
         updateStatus(ThingStatus.UNKNOWN);
         QolsysIQPanelConfiguration config = getConfigAs(QolsysIQPanelConfiguration.class);
         key = config.key;
+        stopRetryFuture();
         disconnect();
         apiClient = new QolsysiqClient(config.hostname, config.port, config.heartbeatInterval, scheduler);
         scheduler.execute(() -> {
@@ -97,6 +99,7 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
     @Override
     public void dispose() {
         disconnect();
+        stopRetryFuture();
     }
 
     @Override
@@ -170,12 +173,12 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
             if (handler != null) {
                 handler.updatePartition(p);
             }
-            p.zoneList.forEach(z -> {
-                QolsysIQZoneHandler zoneHandler = zoneHandler(z.zoneId);
-                if (zoneHandler != null) {
-                    zoneHandler.updateZone(z);
-                }
-            });
+            // p.zoneList.forEach(z -> {
+            // QolsysIQZoneHandler zoneHandler = zoneHandler(z.zoneId);
+            // if (zoneHandler != null) {
+            // zoneHandler.updateZone(z);
+            // }
+            // });
         });
         discoverChildDevices();
     }
@@ -225,9 +228,11 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
         }
     }
 
-    private void connect() {
-        stopRetryFuture();
-        disconnect();
+    private synchronized void connect() {
+        if (getThing().getStatus() == ThingStatus.ONLINE) {
+            logger.debug("connect: Bridge is already connected");
+            return;
+        }
         QolsysIQPanelConfiguration config = getConfigAs(QolsysIQPanelConfiguration.class);
         key = config.key;
         QolsysiqClient apiClient = new QolsysiqClient(config.hostname, config.port, config.heartbeatInterval,
@@ -255,8 +260,12 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
 
     private void startRetryFuture() {
         logger.debug("startRetryFuture");
-        stopRetryFuture();
-        this.retryFuture = scheduler.schedule(this::connect, RETRY_SECONDS, TimeUnit.SECONDS);
+        ScheduledFuture<?> retryFuture = this.retryFuture;
+        if (retryFuture != null && retryFuture.isDone()) {
+            this.retryFuture = scheduler.schedule(this::connect, RETRY_SECONDS, TimeUnit.SECONDS);
+        } else {
+            logger.debug("startRetryFuture: retry job already scheduled");
+        }
     }
 
     private void stopRetryFuture() {

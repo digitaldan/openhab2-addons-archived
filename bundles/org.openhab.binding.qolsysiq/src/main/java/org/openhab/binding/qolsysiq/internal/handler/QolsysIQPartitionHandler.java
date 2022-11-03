@@ -77,6 +77,11 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     @Override
+    public void dispose() {
+        cancelExitDelayJob();
+    }
+
+    @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         Bridge bridge = getBridge();
         if (bridge != null) {
@@ -122,6 +127,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     @Override
     public void childHandlerInitialized(ThingHandler childHandler, Thing childThing) {
+        logger.debug("childHandlerInitialized {}", childThing.getUID());
         if (childHandler instanceof QolsysIQZoneHandler) {
             QolsysIQZoneHandler handler = (QolsysIQZoneHandler) childHandler;
             Zone z = zones.get(handler.zoneId());
@@ -195,6 +201,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         if (status == PartitionStatus.DISARM) {
             updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE,
                     new StringType(AlarmType.NONE.toString()));
+            updateDelay(0);
         }
     }
 
@@ -205,6 +212,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     private void updateDelay(Integer delay) {
+        logger.debug("updateDelay {}", delay);
         cancelExitDelayJob();
         if (delay <= 0) {
             updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY, new DecimalType(0));
@@ -212,15 +220,17 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         }
         final long startTime = System.currentTimeMillis();
         final long endTime = startTime + (delay * 1000);
-        delayFuture = scheduler.schedule(() -> {
-            long remaining = endTime - startTime;
+        delayFuture = scheduler.scheduleAtFixedRate(() -> {
+            long remaining = endTime - System.currentTimeMillis();
+            logger.debug("updateDelay remaining {}", remaining / 1000);
             if (remaining <= 0) {
                 updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY, new DecimalType(0));
+                cancelExitDelayJob();
             } else {
                 updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY,
                         new DecimalType(remaining / 1000));
             }
-        }, 1, TimeUnit.SECONDS);
+        }, 2, 1, TimeUnit.SECONDS);
     }
 
     private void cancelExitDelayJob() {

@@ -178,6 +178,7 @@ public class QolsysiqClient {
     }
 
     public void sendAction(Action action) throws IOException {
+        logger.debug("sendAction {}", action.type);
         writeMessage(gson.toJson(action));
     }
 
@@ -194,6 +195,7 @@ public class QolsysiqClient {
     }
 
     public synchronized void writeMessage(String message) throws IOException {
+        logger.trace("writeMessage: {}", message);
         BufferedWriter writer = this.writer;
         if (writer != null) {
             writer.write(message);

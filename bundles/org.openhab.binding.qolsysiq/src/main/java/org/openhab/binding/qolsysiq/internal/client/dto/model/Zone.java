@@ -22,7 +22,7 @@ public class Zone {
     public String name;
     public String group;
     public ZoneStatus status;
-    public ZoneState state;
+    public Integer state;
     public Integer zoneId;
     public Integer zonePhysicalType;
     // public ZoneAlarmType zoneAlarmType;

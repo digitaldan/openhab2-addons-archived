@@ -18,5 +18,5 @@ package org.openhab.binding.qolsysiq.internal.client.dto.model;
  */
 public class ZoneActiveState {
     public Integer zoneId;
-    public ZoneState status;
+    public ZoneStatus status;
 }

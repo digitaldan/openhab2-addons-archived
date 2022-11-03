@@ -34,26 +34,17 @@
 	</thing-type>
 
 	<channel-type id="zoneStatus">
-		<item-type>String</item-type>
+		<item-type>Contact</item-type>
 		<label>Zone Status</label>
-		<description>Represents the zone status.</description>
-		<state readOnly="true">
-			<options>
-				<option value="ACTIVE">Active</option>
-				<option value="ACTIVATED">Activated</option>
-				<option value="CLOSED">Closed</option>
-				<option value="OPEN">Open</option>
-				<option value="IDlE">Idle</option>
-				<option value="NORMAL">Normal</option>
-			</options>
-		</state>
+		<description>The zone contact status.</description>
+		<category>Contact</category>
+		<state readOnly="true"></state>
 	</channel-type>
 
-	<channel-type id="state">
-		<item-type>Contact</item-type>
+	<channel-type id="zoneState">
+		<item-type>Number</item-type>
 		<label>Zone State</label>
-		<description>Zone contact state.</description>
-		<category>Contact</category>
+		<description>The zone state.</description>
 		<state readOnly="true"/>
 	</channel-type>
 </thing:thing-descriptions>

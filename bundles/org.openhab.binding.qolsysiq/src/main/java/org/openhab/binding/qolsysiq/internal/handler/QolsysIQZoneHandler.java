@@ -20,13 +20,17 @@ import org.openhab.binding.qolsysiq.internal.QolsysIQBindingConstants;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneActiveEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneUpdateEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.Zone;
+import org.openhab.binding.qolsysiq.internal.client.dto.model.ZoneStatus;
 import org.openhab.binding.qolsysiq.internal.config.QolsysIQZoneConfiguration;
+import org.openhab.core.library.types.OpenClosedType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -34,6 +38,8 @@ import org.openhab.core.types.Command;
  */
 @NonNullByDefault
 public class QolsysIQZoneHandler extends BaseThingHandler {
+    private final Logger logger = LoggerFactory.getLogger(QolsysIQZoneHandler.class);
+
     private int zoneId;
 
     public QolsysIQZoneHandler(Thing thing) {
@@ -56,15 +62,17 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
     }
 
     public void updateZone(Zone zone) {
+        logger.debug("updateZone {}", zone.zoneId);
         updateState(QolsysIQBindingConstants.CHANNEL_ZONE_STATE, new StringType(zone.state.toString()));
-        updateState(QolsysIQBindingConstants.CHANNEL_ZONE_STATUS, new StringType(zone.status.toString()));
+        updateState(QolsysIQBindingConstants.CHANNEL_ZONE_STATUS,
+                zone.status == ZoneStatus.OPEN ? OpenClosedType.OPEN : OpenClosedType.CLOSED);
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("type", zone.type);
         props.put("name", zone.name);
         props.put("id", zone.id);
         props.put("zonePhysicalType", zone.zonePhysicalType);
         props.put("zoneAlarmType", zone.zoneAlarmType);
-        props.put("zoneType", zone.zoneType);
+        props.put("zoneType", zone.zoneType.toString());
         props.put("partitionId", zone.partitionId);
         getThing().getConfiguration().setProperties(props);
         if (getThing().getStatus() != ThingStatus.ONLINE) {

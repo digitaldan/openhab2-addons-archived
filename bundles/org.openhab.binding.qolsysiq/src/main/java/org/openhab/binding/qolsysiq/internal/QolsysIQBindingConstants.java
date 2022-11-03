@@ -33,7 +33,7 @@ public class QolsysIQBindingConstants {
     public static final String CHANNEL_PARTITION_STATUS = "status";
     public static final String CHANNEL_PARTITION_ALARM_STATE = "alarmState";
     public static final String CHANNEL_PARTITION_COMMAND_ARM = "armCommand";
-    public static final String CHANNEL_PARTITION_COMMAND_DELAY = "armCommand";
+    public static final String CHANNEL_PARTITION_COMMAND_DELAY = "armingDelay";
     public static final String CHANNEL_PARTITION_COMMAND_DISARM = "disarmCommand";
     public static final String CHANNEL_PARTITION_COMMAND_ALARM = "alarmCommand";
 

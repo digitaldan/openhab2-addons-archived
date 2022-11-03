@@ -12,21 +12,15 @@
  */
 package org.openhab.binding.qolsysiq.internal.client.dto.model;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  *
  * @author Dan Cunningham - Initial contribution
  */
 public enum ZoneStatus {
-    ACTIVE("Active"),
-    ACTIVATED("Activated"),
-    CLOSED("Closed"),
-    OPEN("Open"),
-    IDlE("Idle"),
-    NORMAL("Normal");
-
-    String status;
-
-    ZoneStatus(String status) {
-        this.status = status;
-    }
+    @SerializedName("Closed")
+    CLOSED,
+    @SerializedName("Open")
+    OPEN;
 }
