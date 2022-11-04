@@ -173,12 +173,6 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
             if (handler != null) {
                 handler.updatePartition(p);
             }
-            // p.zoneList.forEach(z -> {
-            // QolsysIQZoneHandler zoneHandler = zoneHandler(z.zoneId);
-            // if (zoneHandler != null) {
-            // zoneHandler.updateZone(z);
-            // }
-            // });
         });
         discoverChildDevices();
     }
@@ -283,6 +277,8 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
             disconnect();
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, reason.getMessage());
             startRetryFuture();
+        } else {
+            logger.debug("setOfflineAndReconnect: retry job already scheduled");
         }
     }
 
