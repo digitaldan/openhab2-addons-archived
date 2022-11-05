@@ -25,7 +25,6 @@ public class Zone {
     public Integer state;
     public Integer zoneId;
     public Integer zonePhysicalType;
-    // public ZoneAlarmType zoneAlarmType;
     public Integer zoneAlarmType;
     public ZoneType zoneType;
     public Integer partitionId;

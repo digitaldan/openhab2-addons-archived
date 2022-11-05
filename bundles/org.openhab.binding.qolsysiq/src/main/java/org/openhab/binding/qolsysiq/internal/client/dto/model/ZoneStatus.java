@@ -18,9 +18,18 @@ import com.google.gson.annotations.SerializedName;
  *
  * @author Dan Cunningham - Initial contribution
  */
+// Open, Close, Active, Idle, Tamper, Failure
 public enum ZoneStatus {
+    @SerializedName("Active")
+    ACTIVE,
     @SerializedName("Closed")
     CLOSED,
     @SerializedName("Open")
-    OPEN;
+    OPEN,
+    @SerializedName("Failure")
+    FAILURE,
+    @SerializedName("Idle")
+    IDlE,
+    @SerializedName("Tamper")
+    TAMPER;
 }

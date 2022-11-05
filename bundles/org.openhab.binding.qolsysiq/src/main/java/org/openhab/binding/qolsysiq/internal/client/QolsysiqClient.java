@@ -82,6 +82,7 @@ public class QolsysiqClient {
     private String host;
     private int port;
     private int heartbeatSeconds;
+    private long lastResponseTime;
     private ScheduledExecutorService scheduler;
     private @Nullable ScheduledFuture<?> heartbeatFuture;
 
@@ -124,9 +125,14 @@ public class QolsysiqClient {
         readerThread.start();
         this.readerThread = readerThread;
         connected = true;
+        // send an initial message to confirm a connection and record a response time
+        writeMessage("");
         heartbeatFuture = scheduler.scheduleWithFixedDelay(() -> {
             if (connected) {
                 try {
+                    if (System.currentTimeMillis() - lastResponseTime > (heartbeatSeconds + 10) * 1000) {
+                        throw new IOException("No responses received");
+                    }
                     writeMessage("");
                 } catch (IOException e) {
                     logger.debug("Problem sending heartbeat", e);
@@ -210,6 +216,7 @@ public class QolsysiqClient {
         try {
             while (connected && reader != null && (message = reader.readLine()) != null) {
                 logger.trace("Message: {}", message);
+                lastResponseTime = System.currentTimeMillis();
                 if (MESSAGE_ACK.equals(message)) {
                     continue;
                 }

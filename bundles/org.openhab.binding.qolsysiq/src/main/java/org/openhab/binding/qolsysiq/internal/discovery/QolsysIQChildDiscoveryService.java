@@ -64,6 +64,10 @@ public class QolsysIQChildDiscoveryService extends AbstractDiscoveryService
 
     @Override
     protected void startScan() {
+        ThingHandler handler = this.thingHandler;
+        if (handler != null) {
+            ((QolsysIQChildDiscoveryHandler) handler).startDiscovery();
+        }
     }
 
     @Override
@@ -76,7 +80,8 @@ public class QolsysIQChildDiscoveryService extends AbstractDiscoveryService
         super.deactivate();
     }
 
-    public void discoverQolsysIQChildThing(ThingUID thingUID, ThingUID bridgeUID, String id, String label) {
+    public void discoverQolsysIQChildThing(ThingUID thingUID, ThingUID bridgeUID, Integer id, String label) {
+        logger.trace("discoverQolsysIQChildThing: {} {} {} {}", thingUID, bridgeUID, id, label);
         DiscoveryResult result = DiscoveryResultBuilder.create(thingUID).withLabel(label).withProperty("id", id)
                 .withRepresentationProperty("id").withBridge(bridgeUID).build();
         thingDiscovered(result);

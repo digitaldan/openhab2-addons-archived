@@ -31,12 +31,10 @@ public class QolsysIQBindingConstants {
     public static final ThingTypeUID THING_TYPE_ZONE = new ThingTypeUID(BINDING_ID, "zone");
 
     public static final String CHANNEL_PARTITION_STATUS = "status";
-    public static final String CHANNEL_PARTITION_ALARM_STATE = "alarmState";
-    public static final String CHANNEL_PARTITION_COMMAND_ARM = "armCommand";
+    public static final String CHANNEL_PARTITION_ALARM_STATE = "alarm";
     public static final String CHANNEL_PARTITION_COMMAND_DELAY = "armingDelay";
     public static final String CHANNEL_PARTITION_COMMAND_DISARM = "disarmCommand";
-    public static final String CHANNEL_PARTITION_COMMAND_ALARM = "alarmCommand";
-
     public static final String CHANNEL_ZONE_STATE = "state";
     public static final String CHANNEL_ZONE_STATUS = "status";
+    public static final String CHANNEL_ZONE_CONTACT = "contact";
 }

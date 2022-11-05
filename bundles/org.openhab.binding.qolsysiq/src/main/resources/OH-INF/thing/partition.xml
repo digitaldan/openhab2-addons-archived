@@ -8,14 +8,12 @@
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="panel"/>
 		</supported-bridge-type-refs>
-		<label>Partion</label>
+		<label>Partition</label>
 		<description>A Qolsys IQ Partition</description>
 		<channels>
 			<channel id="status" typeId="partitionStatus"/>
-			<channel id="alarmState" typeId="alarmState"/>
-			<channel id="armCommand" typeId="armCommand"/>
-			<channel id="disarmComand" typeId="disarmComand"/>
-			<channel id="alarmCommand" typeId="alarmCommand"/>
+			<channel id="alarm" typeId="alarmState"/>
+			<channel id="disarmCommand" typeId="disarmCommand"/>
 			<channel id="armingDelay" typeId="armingDelay"/>
 		</channels>
 		<properties>
@@ -47,8 +45,9 @@
 		</state>
 		<command>
 			<options>
-				<option value="ARM_AWAY">Away</option>
-				<option value="ARM_STAY">Stay</option>
+				<option value="ARM_AWAY">Arm Away</option>
+				<option value="ARM_STAY">Arm Stay</option>
+				<option value="DISARM">Disarm with Code</option>
 			</options>
 		</command>
 	</channel-type>
@@ -66,6 +65,13 @@
 				<option value="NONE">None</option>
 			</options>
 		</state>
+		<command>
+			<options>
+				<option value="AUXILIARY">Auxiliary</option>
+				<option value="FIRE">Fire</option>
+				<option value="POLICE">Police</option>
+			</options>
+		</command>
 	</channel-type>
 
 	<channel-type id="armingDelay">
@@ -76,37 +82,11 @@
 		<state readOnly="true"></state>
 	</channel-type>
 
-	<channel-type id="disarmComand">
+	<channel-type id="disarmCommand">
 		<item-type>String</item-type>
 		<label>Disarm System</label>
 		<description>Disarm system with user code</description>
 		<category>Alarm</category>
 	</channel-type>
 
-	<channel-type id="armCommand">
-		<item-type>String</item-type>
-		<label>Arm System</label>
-		<description>Arm system.</description>
-		<category>Alarm</category>
-		<command>
-			<options>
-				<option value="ARM_AWAY">Away</option>
-				<option value="ARM_STAY">Stay</option>
-			</options>
-		</command>
-	</channel-type>
-
-	<channel-type id="alarmCommand">
-		<item-type>String</item-type>
-		<label>Trigger Alarm</label>
-		<description>Trigger an alarm on a partition</description>
-		<category>Alarm</category>
-		<command>
-			<options>
-				<option value="AUXILIARY">Auxiliary</option>
-				<option value="FIRE">Fire</option>
-				<option value="POLICE">Police</option>
-			</options>
-		</command>
-	</channel-type>
 </thing:thing-descriptions>

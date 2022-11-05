@@ -15,6 +15,8 @@ package org.openhab.binding.qolsysiq.internal.handler;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -26,8 +28,6 @@ import org.openhab.binding.qolsysiq.internal.client.dto.action.AlarmAction;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.AlarmActionType;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.ArmingAction;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.ArmingActionType;
-import org.openhab.binding.qolsysiq.internal.client.dto.action.InfoAction;
-import org.openhab.binding.qolsysiq.internal.client.dto.action.InfoActionType;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.AlarmEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ArmingEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.SecureArmInfoEvent;
@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class QolsysIQPartitionHandler extends BaseBridgeHandler implements QolsysIQChildDiscoveryHandler {
     private final Logger logger = LoggerFactory.getLogger(QolsysIQPartitionHandler.class);
-    private Map<Integer, Zone> zones = Collections.synchronizedMap(new HashMap<Integer, Zone>());
+    private List<Zone> zones = Collections.synchronizedList(new LinkedList<Zone>());
     private @Nullable QolsysIQChildDiscoveryService discoveryService;
     private @Nullable ScheduledFuture<?> delayFuture;
 
@@ -72,8 +72,10 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     @Override
     public void initialize() {
+        logger.debug("initialize");
         partitionId = getConfigAs(QolsysIQPartitionConfiguration.class).id;
-        updateStatus(ThingStatus.UNKNOWN);
+        logger.debug("initialize partition {}", partitionId);
+        refresh();
     }
 
     @Override
@@ -83,56 +85,38 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        Bridge bridge = getBridge();
-        if (bridge != null) {
-            BridgeHandler handler = bridge.getHandler();
-            if (handler != null && handler instanceof QolsysIQPanelHandler) {
-                QolsysIQPanelHandler panel = (QolsysIQPanelHandler) handler;
-                if (command instanceof RefreshType) {
-                    panel.sendAction(new InfoAction(InfoActionType.SUMMARY, ""));
-                    return;
-                }
+        if (command instanceof RefreshType) {
+            refresh();
+            return;
+        }
 
-                if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_ALARM)) {
-                    panel.sendAction(new AlarmAction(AlarmActionType.valueOf(command.toString()), ""));
-                    return;
-                }
-
-                ArmingActionType armingType = null;
-                String code = null;
-
-                if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DISARM)) {
-                    armingType = ArmingActionType.DISARM;
-                    code = command.toString();
-                } else if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_ARM)
-                        || channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_STATUS)) {
-                    String armingTypeName = command.toString();
-                    if (armingTypeName.contains(":")) {
-                        String[] split = armingTypeName.split(":");
-                        armingTypeName = split[0];
-                        code = split[1];
-                    }
-                    armingType = ArmingActionType.valueOf(armingTypeName);
-                }
-
-                if (armingType != null) {
-                    panel.sendAction(new ArmingAction(armingType, "", partitionId(), code));
-                } else {
-                    logger.debug("Unknown arm command {} to channel {}", command, channelUID);
-                }
+        QolsysIQPanelHandler panel = panelHandler();
+        if (panel != null) {
+            if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE)) {
+                panel.sendAction(new AlarmAction(AlarmActionType.valueOf(command.toString()), ""));
+                return;
             }
 
-        }
-    }
+            ArmingActionType armingType = null;
+            String code = null;
 
-    @Override
-    public void childHandlerInitialized(ThingHandler childHandler, Thing childThing) {
-        logger.debug("childHandlerInitialized {}", childThing.getUID());
-        if (childHandler instanceof QolsysIQZoneHandler) {
-            QolsysIQZoneHandler handler = (QolsysIQZoneHandler) childHandler;
-            Zone z = zones.get(handler.zoneId());
-            if (z != null) {
-                handler.updateZone(z);
+            if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DISARM)) {
+                armingType = ArmingActionType.DISARM;
+                code = command.toString();
+            } else if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_STATUS)) {
+                String armingTypeName = command.toString();
+                if (armingTypeName.contains(":")) {
+                    String[] split = armingTypeName.split(":");
+                    armingTypeName = split[0];
+                    code = split[1];
+                }
+                armingType = ArmingActionType.valueOf(armingTypeName);
+            }
+
+            if (armingType != null) {
+                panel.sendAction(new ArmingAction(armingType, "", partitionId(), code));
+            } else {
+                logger.debug("Unknown arm command {} to channel {}", command, channelUID);
             }
         }
     }
@@ -148,16 +132,23 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     @Override
+    public void startDiscovery() {
+        refresh();
+    }
+
     public void discoverChildDevices() {
-        zones.forEach((k, z) -> {
-            QolsysIQChildDiscoveryService discoveryService = this.discoveryService;
-            if (discoveryService != null) {
-                ThingUID bridgeUID = getThing().getUID();
-                ThingUID thingUID = new ThingUID(QolsysIQBindingConstants.THING_TYPE_ZONE, bridgeUID, z.zoneId + "");
-                discoveryService.discoverQolsysIQChildThing(thingUID, bridgeUID, String.valueOf(z.zoneId),
-                        "Qolsys IQ Zone: " + z.name);
-            }
-        });
+        synchronized (zones) {
+            zones.forEach(z -> {
+                QolsysIQChildDiscoveryService discoveryService = this.discoveryService;
+                if (discoveryService != null) {
+                    ThingUID bridgeUID = getThing().getUID();
+                    ThingUID thingUID = new ThingUID(QolsysIQBindingConstants.THING_TYPE_ZONE, bridgeUID,
+                            String.valueOf(z.zoneId));
+                    discoveryService.discoverQolsysIQChildThing(thingUID, bridgeUID, z.zoneId,
+                            "Qolsys IQ Zone: " + z.name);
+                }
+            });
+        }
     }
 
     public int partitionId() {
@@ -179,20 +170,28 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     public void updatePartition(Partition partition) {
-        logger.debug("updatePartition {}", partition.partitionId);
-        zones.clear();
-        partition.zoneList.forEach(z -> {
-            zones.put(z.zoneId, z);
-            QolsysIQZoneHandler zoneHandler = zoneHandler(z.zoneId);
-            if (zoneHandler != null) {
-                zoneHandler.updateZone(z);
-            }
-        });
-        discoverChildDevices();
-        updatePartitionStatus(partition.status);
-        setSecureArm(partition.secureArm);
         if (getThing().getStatus() != ThingStatus.ONLINE) {
             updateStatus(ThingStatus.ONLINE);
+        }
+        updatePartitionStatus(partition.status);
+        setSecureArm(partition.secureArm);
+        synchronized (zones) {
+            zones.clear();
+            zones.addAll(partition.zoneList);
+            zones.forEach(z -> {
+                QolsysIQZoneHandler zoneHandler = zoneHandler(z.zoneId);
+                if (zoneHandler != null) {
+                    zoneHandler.updateZone(z);
+                }
+            });
+        }
+        discoverChildDevices();
+    }
+
+    protected void refresh() {
+        QolsysIQPanelHandler panel = panelHandler();
+        if (panel != null) {
+            panel.refresh();
         }
     }
 
@@ -206,9 +205,9 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     private void setSecureArm(Boolean secure) {
-        Map<String, Object> props = new HashMap<String, Object>();
-        props.put("secureArm", secure);
-        getThing().getConfiguration().setProperties(props);
+        Map<String, String> props = new HashMap<String, String>();
+        props.put("secureArm", String.valueOf(secure));
+        getThing().setProperties(props);
     }
 
     private void updateDelay(Integer delay) {
@@ -230,7 +229,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
                 updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY,
                         new DecimalType(remaining / 1000));
             }
-        }, 2, 1, TimeUnit.SECONDS);
+        }, 1, 1, TimeUnit.SECONDS);
     }
 
     private void cancelExitDelayJob() {
@@ -247,6 +246,17 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
                 if (((QolsysIQZoneHandler) handler).zoneId() == zoneId) {
                     return (QolsysIQZoneHandler) handler;
                 }
+            }
+        }
+        return null;
+    }
+
+    private @Nullable QolsysIQPanelHandler panelHandler() {
+        Bridge bridge = getBridge();
+        if (bridge != null) {
+            BridgeHandler handler = bridge.getHandler();
+            if (handler != null && handler instanceof QolsysIQPanelHandler) {
+                return (QolsysIQPanelHandler) handler;
             }
         }
         return null;

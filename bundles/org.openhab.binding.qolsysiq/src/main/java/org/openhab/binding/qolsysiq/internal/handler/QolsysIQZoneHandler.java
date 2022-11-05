@@ -16,19 +16,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.qolsysiq.internal.QolsysIQBindingConstants;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneActiveEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneUpdateEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.Zone;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.ZoneStatus;
 import org.openhab.binding.qolsysiq.internal.config.QolsysIQZoneConfiguration;
+import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OpenClosedType;
 import org.openhab.core.library.types.StringType;
+import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.thing.binding.BridgeHandler;
 import org.openhab.core.types.Command;
+import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +53,16 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
+        logger.debug("initialize");
         zoneId = getConfigAs(QolsysIQZoneConfiguration.class).id;
-        updateStatus(ThingStatus.UNKNOWN);
+        refresh();
     }
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        // No commands
+        if (command instanceof RefreshType) {
+            refresh();
+        }
     }
 
     public int zoneId() {
@@ -63,18 +71,17 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
 
     public void updateZone(Zone zone) {
         logger.debug("updateZone {}", zone.zoneId);
-        updateState(QolsysIQBindingConstants.CHANNEL_ZONE_STATE, new StringType(zone.state.toString()));
-        updateState(QolsysIQBindingConstants.CHANNEL_ZONE_STATUS,
-                zone.status == ZoneStatus.OPEN ? OpenClosedType.OPEN : OpenClosedType.CLOSED);
-        Map<String, Object> props = new HashMap<String, Object>();
+        updateState(QolsysIQBindingConstants.CHANNEL_ZONE_STATE, new DecimalType(zone.state));
+        updateZoneStatus(zone.status);
+        Map<String, String> props = new HashMap<String, String>();
         props.put("type", zone.type);
         props.put("name", zone.name);
-        props.put("id", zone.id);
-        props.put("zonePhysicalType", zone.zonePhysicalType);
-        props.put("zoneAlarmType", zone.zoneAlarmType);
+        props.put("zoneID", zone.id);
+        props.put("zonePhysicalType", String.valueOf(zone.zonePhysicalType));
+        props.put("zoneAlarmType", String.valueOf(zone.zoneAlarmType));
         props.put("zoneType", zone.zoneType.toString());
-        props.put("partitionId", zone.partitionId);
-        getThing().getConfiguration().setProperties(props);
+        props.put("partitionId", String.valueOf(zone.partitionId));
+        getThing().setProperties(props);
         if (getThing().getStatus() != ThingStatus.ONLINE) {
             updateStatus(ThingStatus.ONLINE);
         }
@@ -82,13 +89,34 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
 
     public void zoneActiveEvent(ZoneActiveEvent event) {
         if (event.zone.zoneId == zoneId()) {
-            updateState(QolsysIQBindingConstants.CHANNEL_ZONE_STATE, new StringType(event.zone.status.toString()));
+            updateZoneStatus(event.zone.status);
         }
     }
 
     public void zoneUpdateEvent(ZoneUpdateEvent event) {
         if (event.zone.zoneId == zoneId()) {
             updateZone(event.zone);
+        }
+    }
+
+    private void updateZoneStatus(@Nullable ZoneStatus status) {
+        if (status != null) {
+            updateState(QolsysIQBindingConstants.CHANNEL_ZONE_STATUS, new StringType(status.toString()));
+            updateState(QolsysIQBindingConstants.CHANNEL_ZONE_CONTACT,
+                    status == ZoneStatus.CLOSED || status == ZoneStatus.IDlE ? OpenClosedType.CLOSED
+                            : OpenClosedType.OPEN);
+        } else {
+            logger.debug("updateZoneStatus: null status");
+        }
+    }
+
+    private void refresh() {
+        Bridge bridge = getBridge();
+        if (bridge != null) {
+            BridgeHandler handler = bridge.getHandler();
+            if (handler != null && handler instanceof QolsysIQPartitionHandler) {
+                ((QolsysIQPartitionHandler) handler).refresh();
+            }
         }
     }
 }
