@@ -24,5 +24,5 @@ public enum AlarmType {
     POLCIE,
     @SerializedName("")
     ZONEOPEN,
-    NONE
+    NONE;
 }

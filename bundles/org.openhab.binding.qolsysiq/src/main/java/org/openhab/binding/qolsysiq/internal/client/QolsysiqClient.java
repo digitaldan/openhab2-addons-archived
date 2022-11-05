@@ -66,18 +66,15 @@ import com.google.gson.JsonSyntaxException;
  */
 @NonNullByDefault
 public class QolsysiqClient {
-    private final Logger logger = LoggerFactory.getLogger(QolsysiqClient.class);
-
     private final static String MESSAGE_ACK = "ACK";
-
+    private final Logger logger = LoggerFactory.getLogger(QolsysiqClient.class);
+    private final Gson gson = new GsonBuilder().registerTypeAdapter(Event.class, new EventDeserializer())
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
     private List<QolsysIQClientListener> listeners = Collections.synchronizedList(new ArrayList<>());
     private @Nullable SSLSocket socket;
     private @Nullable BufferedReader reader;
     private @Nullable BufferedWriter writer;
     private @Nullable Thread readerThread;
-
-    private Gson gson = new GsonBuilder().registerTypeAdapter(Event.class, new EventDeserializer())
-            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
     private boolean connected;
     private String host;
     private int port;
@@ -107,7 +104,6 @@ public class QolsysiqClient {
         SSLSocketFactory sslsocketfactory;
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            // KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             sslContext.init(null, acceptAlltrustManagers(), null);
             sslsocketfactory = sslContext.getSocketFactory();
         } catch (KeyManagementException | NoSuchAlgorithmException e) {
@@ -120,7 +116,7 @@ public class QolsysiqClient {
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.socket = socket;
 
-        Thread readerThread = new Thread(this::readEvents, "QolsysiqClient read thread");
+        Thread readerThread = new Thread(this::readEvents, "QolsysiqClient reader thread");
         readerThread.setDaemon(true);
         readerThread.start();
         this.readerThread = readerThread;
@@ -240,7 +236,6 @@ public class QolsysiqClient {
                         } else if (event instanceof ZoneUpdateEvent) {
                             listeners.forEach(listener -> listener.zoneUpdateEvent((ZoneUpdateEvent) event));
                         }
-
                     }
                 } catch (JsonSyntaxException e) {
                     logger.debug("Could not parse messge", e);
@@ -294,7 +289,6 @@ public class QolsysiqClient {
                     case ARMING:
                         return context.deserialize(jsonObject, ArmingEvent.class);
                     case INFO:
-
                         JsonElement infoType = jsonObject.get("info_type");
                         if (infoType != null) {
                             switch (InfoEventType.valueOf(infoType.getAsString())) {
@@ -315,12 +309,10 @@ public class QolsysiqClient {
                                     return context.deserialize(jsonObject, ZoneUpdateEvent.class);
                                 default:
                                     break;
-
                             }
                         }
                 }
             }
-
             return null;
         }
     }

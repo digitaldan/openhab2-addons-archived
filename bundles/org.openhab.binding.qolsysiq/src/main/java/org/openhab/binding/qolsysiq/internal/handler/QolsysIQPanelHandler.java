@@ -60,18 +60,15 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class QolsysIQPanelHandler extends BaseBridgeHandler
         implements QolsysIQClientListener, QolsysIQChildDiscoveryHandler {
-
     private final Logger logger = LoggerFactory.getLogger(QolsysIQPanelHandler.class);
     private static final int RETRY_SECONDS = 30;
     private static final int CACHE_TIME_MILLS = 50000;
-
     private @Nullable QolsysiqClient apiClient;
     private @Nullable ScheduledFuture<?> retryFuture;
     private @Nullable QolsysIQChildDiscoveryService discoveryService;
-
-    private String key = "";
     private List<Partition> partitions = Collections.synchronizedList(new LinkedList<Partition>());
     private long lastRefreshTime;
+    private String key = "";
 
     public QolsysIQPanelHandler(Bridge bridge) {
         super(bridge);

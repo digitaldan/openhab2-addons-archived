@@ -18,5 +18,5 @@ package org.openhab.binding.qolsysiq.internal.client.dto.event;
  */
 public enum InfoEventType {
     SUMMARY,
-    SECURE_ARM
+    SECURE_ARM;
 }

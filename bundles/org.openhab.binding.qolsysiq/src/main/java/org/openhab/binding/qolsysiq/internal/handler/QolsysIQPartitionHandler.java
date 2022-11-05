@@ -28,6 +28,8 @@ import org.openhab.binding.qolsysiq.internal.client.dto.action.AlarmAction;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.AlarmActionType;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.ArmingAction;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.ArmingActionType;
+import org.openhab.binding.qolsysiq.internal.client.dto.action.InfoAction;
+import org.openhab.binding.qolsysiq.internal.client.dto.action.InfoActionType;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.AlarmEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ArmingEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.SecureArmInfoEvent;
@@ -115,6 +117,8 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
             if (armingType != null) {
                 panel.sendAction(new ArmingAction(armingType, "", partitionId(), code));
+                panel.sendAction(new InfoAction(InfoActionType.SUMMARY, ""));
+
             } else {
                 logger.debug("Unknown arm command {} to channel {}", command, channelUID);
             }
@@ -155,21 +159,21 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         return partitionId;
     }
 
-    public void alarmEvent(AlarmEvent event) {
+    protected void alarmEvent(AlarmEvent event) {
         updatePartitionStatus(PartitionStatus.ALARM);
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE, new StringType(event.alarmType.toString()));
     }
 
-    public void armingEvent(ArmingEvent event) {
+    protected void armingEvent(ArmingEvent event) {
         updatePartitionStatus(event.armingType);
         updateDelay(event.delay == null ? 0 : event.delay);
     }
 
-    public void secureArmInfoEvent(SecureArmInfoEvent event) {
+    protected void secureArmInfoEvent(SecureArmInfoEvent event) {
         setSecureArm(event.value);
     }
 
-    public void updatePartition(Partition partition) {
+    protected void updatePartition(Partition partition) {
         if (getThing().getStatus() != ThingStatus.ONLINE) {
             updateStatus(ThingStatus.ONLINE);
         }

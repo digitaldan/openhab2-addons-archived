@@ -69,7 +69,7 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
         return zoneId;
     }
 
-    public void updateZone(Zone zone) {
+    protected void updateZone(Zone zone) {
         logger.debug("updateZone {}", zone.zoneId);
         updateState(QolsysIQBindingConstants.CHANNEL_ZONE_STATE, new DecimalType(zone.state));
         updateZoneStatus(zone.status);
@@ -87,13 +87,13 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
         }
     }
 
-    public void zoneActiveEvent(ZoneActiveEvent event) {
+    protected void zoneActiveEvent(ZoneActiveEvent event) {
         if (event.zone.zoneId == zoneId()) {
             updateZoneStatus(event.zone.status);
         }
     }
 
-    public void zoneUpdateEvent(ZoneUpdateEvent event) {
+    protected void zoneUpdateEvent(ZoneUpdateEvent event) {
         if (event.zone.zoneId == zoneId()) {
             updateZone(event.zone);
         }
