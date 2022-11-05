@@ -3,7 +3,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
-
 	<bridge-type id="panel">
 		<label>Qolsys IQ Panel</label>
 		<description>A Qolsys IQ Panel Bridge</description>
@@ -26,7 +25,7 @@
 			</parameter>
 			<parameter name="heartbeatInterval" type="integer" unit="s" min="10">
 				<label>Heart Beat Interval</label>
-				<description>Interval to send a heart beat in sec.</description>
+				<description>Interval to send a heart beat in seconds.</description>
 				<default>30</default>
 				<advanced>true</advanced>
 			</parameter>

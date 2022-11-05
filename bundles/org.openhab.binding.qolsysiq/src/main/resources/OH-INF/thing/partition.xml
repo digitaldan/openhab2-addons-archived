@@ -3,7 +3,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
-
 	<bridge-type id="partition">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="panel"/>
@@ -27,7 +26,6 @@
 			</parameter>
 		</config-description>
 	</bridge-type>
-
 	<channel-type id="partitionStatus">
 		<item-type>String</item-type>
 		<label>Partition Status</label>
@@ -73,7 +71,6 @@
 			</options>
 		</command>
 	</channel-type>
-
 	<channel-type id="armingDelay">
 		<item-type>Number</item-type>
 		<label>Partition Arming Delay</label>
@@ -81,12 +78,10 @@
 		<category>Alarm</category>
 		<state readOnly="true"></state>
 	</channel-type>
-
 	<channel-type id="disarmCommand">
 		<item-type>String</item-type>
 		<label>Disarm System</label>
 		<description>Disarm system with user code</description>
 		<category>Alarm</category>
 	</channel-type>
-
 </thing:thing-descriptions>

@@ -3,7 +3,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
-
 	<thing-type id="zone">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="partition"/>
@@ -13,6 +12,7 @@
 		<channels>
 			<channel id="state" typeId="zoneState"/>
 			<channel id="status" typeId="zoneStatus"/>
+			<channel id="contact" typeId="contact"/>
 		</channels>
 		<properties>
 			<property name="type"></property>
@@ -32,7 +32,6 @@
 			</parameter>
 		</config-description>
 	</thing-type>
-
 	<channel-type id="zoneStatus">
 		<item-type>String</item-type>
 		<label>Zone Status</label>
@@ -48,7 +47,6 @@
 			</options>
 		</state>
 	</channel-type>
-
 	<channel-type id="zoneState" advanced="true">
 		<item-type>Number</item-type>
 		<label>Zone State</label>
