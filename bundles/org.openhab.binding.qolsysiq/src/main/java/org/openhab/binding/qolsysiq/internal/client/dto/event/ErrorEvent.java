@@ -16,10 +16,12 @@ package org.openhab.binding.qolsysiq.internal.client.dto.event;
  *
  * @author Dan Cunningham - Initial contribution
  */
-public enum EventType {
-    ALARM,
-    ARMING,
-    ERROR,
-    INFO,
-    ZONE_EVENT;
+public class ErrorEvent extends Event {
+    public String errorType;
+    public String description;
+    public Integer partitionId;
+
+    public ErrorEvent() {
+        super(EventType.ERROR);
+    }
 }

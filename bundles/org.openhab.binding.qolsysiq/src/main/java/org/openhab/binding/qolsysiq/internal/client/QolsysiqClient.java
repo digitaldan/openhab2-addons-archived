@@ -39,6 +39,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.Action;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.AlarmEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ArmingEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ErrorEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.Event;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.EventType;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.InfoEventType;
@@ -75,6 +76,8 @@ public class QolsysiqClient {
     private @Nullable BufferedReader reader;
     private @Nullable BufferedWriter writer;
     private @Nullable Thread readerThread;
+    private Object writeLock = new Object();
+    private boolean hasACK = false;
     private boolean connected;
     private String host;
     private int port;
@@ -196,13 +199,24 @@ public class QolsysiqClient {
         }
     }
 
-    public synchronized void writeMessage(String message) throws IOException {
-        logger.trace("writeMessage: {}", message);
-        BufferedWriter writer = this.writer;
-        if (writer != null) {
-            writer.write(message);
-            writer.newLine();
-            writer.flush();
+    public void writeMessage(String message) throws IOException {
+        synchronized (writeLock) {
+            hasACK = false;
+            logger.trace("writeMessage: {}", message);
+            BufferedWriter writer = this.writer;
+            if (writer != null) {
+                writer.write(message);
+                writer.newLine();
+                writer.flush();
+            }
+            try {
+                writeLock.wait(5000);
+            } catch (InterruptedException e) {
+                logger.debug("write wait interupted");
+            }
+            if (!hasACK) {
+                throw new IOException("No response to message");
+            }
         }
     }
 
@@ -214,6 +228,10 @@ public class QolsysiqClient {
                 logger.trace("Message: {}", message);
                 lastResponseTime = System.currentTimeMillis();
                 if (MESSAGE_ACK.equals(message)) {
+                    synchronized (writeLock) {
+                        hasACK = true;
+                        writeLock.notify();
+                    }
                     continue;
                 }
                 try {
@@ -227,6 +245,8 @@ public class QolsysiqClient {
                             listeners.forEach(listener -> listener.alarmEvent((AlarmEvent) event));
                         } else if (event instanceof ArmingEvent) {
                             listeners.forEach(listener -> listener.armingEvent((ArmingEvent) event));
+                        } else if (event instanceof ErrorEvent) {
+                            listeners.forEach(listener -> listener.errorEvent((ErrorEvent) event));
                         } else if (event instanceof SecureArmInfoEvent) {
                             listeners.forEach(listener -> listener.secureArmInfoEvent((SecureArmInfoEvent) event));
                         } else if (event instanceof SummaryInfoEvent) {
@@ -288,6 +308,8 @@ public class QolsysiqClient {
                         return context.deserialize(jsonObject, AlarmEvent.class);
                     case ARMING:
                         return context.deserialize(jsonObject, ArmingEvent.class);
+                    case ERROR:
+                        return context.deserialize(jsonObject, ErrorEvent.class);
                     case INFO:
                         JsonElement infoType = jsonObject.get("info_type");
                         if (infoType != null) {

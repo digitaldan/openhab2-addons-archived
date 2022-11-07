@@ -28,10 +28,9 @@ import org.openhab.binding.qolsysiq.internal.client.dto.action.AlarmAction;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.AlarmActionType;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.ArmingAction;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.ArmingActionType;
-import org.openhab.binding.qolsysiq.internal.client.dto.action.InfoAction;
-import org.openhab.binding.qolsysiq.internal.client.dto.action.InfoActionType;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.AlarmEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ArmingEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ErrorEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.SecureArmInfoEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.AlarmType;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.Partition;
@@ -45,6 +44,7 @@ import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusInfo;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.binding.BaseBridgeHandler;
 import org.openhab.core.thing.binding.BridgeHandler;
@@ -52,6 +52,7 @@ import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerService;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
+import org.openhab.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +87,14 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        super.bridgeStatusChanged(bridgeStatusInfo);
+        if (bridgeStatusInfo.getStatus() == ThingStatus.OFFLINE) {
+            cancelExitDelayJob();
+        }
+    }
+
+    @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (command instanceof RefreshType) {
             refresh();
@@ -105,6 +114,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
             if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DISARM)) {
                 armingType = ArmingActionType.DISARM;
                 code = command.toString();
+                updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DISARM, UnDefType.NULL);
             } else if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_STATUS)) {
                 String armingTypeName = command.toString();
                 if (armingTypeName.contains(":")) {
@@ -116,9 +126,8 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
             }
 
             if (armingType != null) {
+                updateState(channelUID, new StringType(armingType.toString()));
                 panel.sendAction(new ArmingAction(armingType, "", partitionId(), code));
-                panel.sendAction(new InfoAction(InfoActionType.SUMMARY, ""));
-
             } else {
                 logger.debug("Unknown arm command {} to channel {}", command, channelUID);
             }
@@ -167,6 +176,9 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     protected void armingEvent(ArmingEvent event) {
         updatePartitionStatus(event.armingType);
         updateDelay(event.delay == null ? 0 : event.delay);
+    }
+
+    protected void errorEvent(ErrorEvent event) {
     }
 
     protected void secureArmInfoEvent(SecureArmInfoEvent event) {

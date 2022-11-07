@@ -15,6 +15,7 @@ package org.openhab.binding.qolsysiq.internal.client;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.AlarmEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ArmingEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ErrorEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.SecureArmInfoEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.SummaryInfoEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneActiveEvent;
@@ -32,6 +33,8 @@ public interface QolsysIQClientListener {
     void alarmEvent(AlarmEvent event);
 
     void armingEvent(ArmingEvent event);
+
+    void errorEvent(ErrorEvent event);
 
     void summaryInfoEvent(SummaryInfoEvent event);
 

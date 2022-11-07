@@ -30,6 +30,7 @@ import org.openhab.binding.qolsysiq.internal.client.dto.action.InfoAction;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.InfoActionType;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.AlarmEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ArmingEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ErrorEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.SecureArmInfoEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.SummaryInfoEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneActiveEvent;
@@ -61,8 +62,8 @@ import org.slf4j.LoggerFactory;
 public class QolsysIQPanelHandler extends BaseBridgeHandler
         implements QolsysIQClientListener, QolsysIQChildDiscoveryHandler {
     private final Logger logger = LoggerFactory.getLogger(QolsysIQPanelHandler.class);
-    private static final int RETRY_SECONDS = 30;
-    private static final int CACHE_TIME_MILLS = 50000;
+    private static final int RETRY_SECONDS = 10;
+    private static final int CACHE_TIME_MILLS = 5000;
     private @Nullable QolsysiqClient apiClient;
     private @Nullable ScheduledFuture<?> retryFuture;
     private @Nullable QolsysIQChildDiscoveryService discoveryService;
@@ -138,6 +139,15 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
         QolsysIQPartitionHandler handler = partitionHandler(event.partitionId);
         if (handler != null) {
             handler.armingEvent(event);
+        }
+    }
+
+    @Override
+    public void errorEvent(ErrorEvent event) {
+        logger.debug("ErrorEvent {}", event.partitionId);
+        QolsysIQPartitionHandler handler = partitionHandler(event.partitionId);
+        if (handler != null) {
+            handler.errorEvent(event);
         }
     }
 
