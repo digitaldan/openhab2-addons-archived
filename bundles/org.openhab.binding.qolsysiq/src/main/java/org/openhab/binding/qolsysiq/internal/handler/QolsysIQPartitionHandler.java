@@ -28,6 +28,8 @@ import org.openhab.binding.qolsysiq.internal.client.dto.action.AlarmAction;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.AlarmActionType;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.ArmingAction;
 import org.openhab.binding.qolsysiq.internal.client.dto.action.ArmingActionType;
+import org.openhab.binding.qolsysiq.internal.client.dto.action.InfoAction;
+import org.openhab.binding.qolsysiq.internal.client.dto.action.InfoActionType;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.AlarmEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ArmingEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ErrorEvent;
@@ -128,6 +130,8 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
             if (armingType != null) {
                 updateState(channelUID, new StringType(armingType.toString()));
                 panel.sendAction(new ArmingAction(armingType, "", partitionId(), code));
+                scheduler.schedule(() -> panel.sendAction(new InfoAction(InfoActionType.SUMMARY, "")), 1,
+                        TimeUnit.SECONDS);
             } else {
                 logger.debug("Unknown arm command {} to channel {}", command, channelUID);
             }
