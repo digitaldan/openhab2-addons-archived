@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author Dan Cunningham
+ * @author Dan Cunningham - Initial contribution
  *
  */
 @NonNullByDefault
@@ -50,7 +50,6 @@ public class QolsysIQChildDiscoveryService extends AbstractDiscoveryService
 
     @Override
     public void setThingHandler(ThingHandler handler) {
-        logger.debug("setThingHandler {}", handler.getThing());
         if (handler instanceof QolsysIQChildDiscoveryHandler) {
             ((QolsysIQChildDiscoveryHandler) handler).setDiscoveryService(this);
             this.thingHandler = handler;

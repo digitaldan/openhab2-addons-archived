@@ -65,13 +65,10 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
     private static final int QUICK_RETRY_SECONDS = 1;
     private static final int LONG_RETRY_SECONDS = 30;
 
-    // the panel connection breaks when calling for an info message to quickly, so cache a little
-    private static final int CACHE_TIME_MILLS = 5000;
     private @Nullable QolsysiqClient apiClient;
     private @Nullable ScheduledFuture<?> retryFuture;
     private @Nullable QolsysIQChildDiscoveryService discoveryService;
     private List<Partition> partitions = Collections.synchronizedList(new LinkedList<Partition>());
-    private long lastRefreshTime;
     private String key = "";
 
     public QolsysIQPanelHandler(Bridge bridge) {
@@ -209,16 +206,7 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
         }
     }
 
-    /**
-     * Refreshes the state of the panel and updates child things. Refreshes are slightly cached to avoid load.
-     *
-     */
     protected synchronized void refresh() {
-        // if (System.currentTimeMillis() > lastRefreshTime + CACHE_TIME_MILLS) {
-        // sendAction(new InfoAction(InfoActionType.SUMMARY, ""));
-        // } else {
-        // updatePartitions();
-        // }
         sendAction(new InfoAction(InfoActionType.SUMMARY, ""));
     }
 
@@ -256,7 +244,6 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
             apiClient.removeListener(this);
             apiClient.disconnect();
         }
-        lastRefreshTime = 0;
     }
 
     private void startRetryFuture(int seconds) {

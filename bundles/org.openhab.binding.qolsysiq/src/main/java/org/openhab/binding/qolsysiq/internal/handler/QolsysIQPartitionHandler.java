@@ -67,6 +67,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     private @Nullable QolsysIQChildDiscoveryService discoveryService;
     private @Nullable ScheduledFuture<?> delayFuture;
     private @Nullable Partition partitionCache;
+    private AlarmType alarmStateCache = AlarmType.NONE;
     private int partitionId;
 
     public QolsysIQPartitionHandler(Bridge bridge) {
@@ -75,7 +76,6 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     @Override
     public void initialize() {
-        logger.debug("initialize");
         partitionId = getConfigAs(QolsysIQPartitionConfiguration.class).id;
         logger.debug("initialize partition {}", partitionId);
         refresh();
@@ -91,6 +91,8 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         super.bridgeStatusChanged(bridgeStatusInfo);
         if (bridgeStatusInfo.getStatus() == ThingStatus.OFFLINE) {
             cancelExitDelayJob();
+            // reset cached alarm state until updated later.
+            alarmStateCache = AlarmType.NONE;
         }
     }
 
@@ -104,13 +106,15 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         QolsysIQPanelHandler panel = panelHandler();
         if (panel != null) {
             if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE)) {
+                // reset to last known state, the system will send an update if successful
+                updateState(channelUID, new StringType(alarmStateCache.toString()));
                 panel.sendAction(new AlarmAction(AlarmActionType.valueOf(command.toString()), ""));
                 return;
             }
 
             ArmingActionType armingType = null;
             String code = null;
-
+            // this needs to be a trigger channel
             if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DISARM)) {
                 armingType = ArmingActionType.DISARM;
                 code = command.toString();
@@ -177,6 +181,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     protected void alarmEvent(AlarmEvent event) {
+        alarmStateCache = event.alarmType;
         updatePartitionStatus(PartitionStatus.ALARM);
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE, new StringType(event.alarmType.toString()));
     }
@@ -234,7 +239,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_STATUS, new StringType(status.toString()));
         if (status == PartitionStatus.DISARM) {
             updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE,
-                    new StringType(AlarmType.NONE.toString()));
+                    new StringType(alarmStateCache.toString()));
             updateDelay(0);
         }
     }
@@ -252,8 +257,8 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
             updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY, new DecimalType(0));
             return;
         }
-        final long startTime = System.currentTimeMillis();
-        final long endTime = startTime + (delay * 1000);
+
+        final long endTime = System.currentTimeMillis() + (delay * 1000);
         delayFuture = scheduler.scheduleAtFixedRate(() -> {
             long remaining = endTime - System.currentTimeMillis();
             logger.debug("updateDelay remaining {}", remaining / 1000);

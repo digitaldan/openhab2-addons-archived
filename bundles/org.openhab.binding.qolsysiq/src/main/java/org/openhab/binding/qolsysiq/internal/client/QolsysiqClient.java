@@ -67,7 +67,7 @@ import com.google.gson.JsonSyntaxException;
  */
 @NonNullByDefault
 public class QolsysiqClient {
-    private final static String MESSAGE_ACK = "ACK";
+    private static final String MESSAGE_ACK = "ACK";
     private final Logger logger = LoggerFactory.getLogger(QolsysiqClient.class);
     private final Gson gson = new GsonBuilder().registerTypeAdapter(Event.class, new EventDeserializer())
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
@@ -83,7 +83,6 @@ public class QolsysiqClient {
     private int port;
     private int heartbeatSeconds;
     private long lastResponseTime;
-    private long lastSentTime;
     private ScheduledExecutorService scheduler;
     private @Nullable ScheduledFuture<?> heartBeatFuture;
 
@@ -271,7 +270,6 @@ public class QolsysiqClient {
             if (connected) {
                 throw new IOException("socket disconencted");
             }
-
         } catch (IOException e) {
             disconnectAndNotify(e);
         }

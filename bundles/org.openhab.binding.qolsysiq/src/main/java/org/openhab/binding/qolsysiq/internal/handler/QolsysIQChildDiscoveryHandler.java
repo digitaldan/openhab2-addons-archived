@@ -17,7 +17,7 @@ import org.openhab.binding.qolsysiq.internal.discovery.QolsysIQChildDiscoverySer
 
 /**
  *
- * @author Dan Cunningham
+ * @author Dan Cunningham - Initial contribution
  *
  */
 @NonNullByDefault
