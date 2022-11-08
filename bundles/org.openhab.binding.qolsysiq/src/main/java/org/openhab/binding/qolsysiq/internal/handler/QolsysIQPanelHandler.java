@@ -62,7 +62,10 @@ import org.slf4j.LoggerFactory;
 public class QolsysIQPanelHandler extends BaseBridgeHandler
         implements QolsysIQClientListener, QolsysIQChildDiscoveryHandler {
     private final Logger logger = LoggerFactory.getLogger(QolsysIQPanelHandler.class);
-    private static final int RETRY_SECONDS = 10;
+    private static final int QUICK_RETRY_SECONDS = 1;
+    private static final int LONG_RETRY_SECONDS = 30;
+
+    // the panel connection breaks when calling for an info message to quickly, so cache a little
     private static final int CACHE_TIME_MILLS = 5000;
     private @Nullable QolsysiqClient apiClient;
     private @Nullable ScheduledFuture<?> retryFuture;
@@ -79,7 +82,7 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
     public void handleCommand(ChannelUID channelUID, Command command) {
         logger.debug("handleCommand {}", command);
         if (command instanceof RefreshType) {
-            sendAction(new InfoAction(InfoActionType.SUMMARY, key));
+            refresh();
         }
     }
 
@@ -114,14 +117,13 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
 
     @Override
     public void startDiscovery() {
-        sendAction(new InfoAction(InfoActionType.SUMMARY, ""));
+        refresh();
     }
 
     @Override
     public void disconnected(Exception reason) {
         logger.debug("disconnected", reason);
-        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, reason.getMessage());
-        startRetryFuture();
+        setOfflineAndReconnect(reason, QUICK_RETRY_SECONDS);
     }
 
     @Override
@@ -159,7 +161,6 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
             partitions.addAll(event.partitionList);
         }
         updatePartitions();
-        lastRefreshTime = System.currentTimeMillis();
         discoverChildDevices();
     }
 
@@ -203,19 +204,27 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
                 client.sendAction(action);
             } catch (IOException e) {
                 logger.debug("Could not send action", e);
-                setOfflineAndReconnect(e);
+                setOfflineAndReconnect(e, QUICK_RETRY_SECONDS);
             }
         }
     }
 
-    protected void refresh() {
-        if (System.currentTimeMillis() > lastRefreshTime + CACHE_TIME_MILLS) {
-            sendAction(new InfoAction(InfoActionType.SUMMARY, ""));
-        } else {
-            updatePartitions();
-        }
+    /**
+     * Refreshes the state of the panel and updates child things. Refreshes are slightly cached to avoid load.
+     *
+     */
+    protected synchronized void refresh() {
+        // if (System.currentTimeMillis() > lastRefreshTime + CACHE_TIME_MILLS) {
+        // sendAction(new InfoAction(InfoActionType.SUMMARY, ""));
+        // } else {
+        // updatePartitions();
+        // }
+        sendAction(new InfoAction(InfoActionType.SUMMARY, ""));
     }
 
+    /**
+     * Connect the client
+     */
     private synchronized void connect() {
         if (getThing().getStatus() == ThingStatus.ONLINE) {
             logger.debug("connect: Bridge is already connected");
@@ -229,14 +238,17 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
             apiClient.connect();
             apiClient.addListener(this);
             this.apiClient = apiClient;
-            sendAction(new InfoAction(InfoActionType.SUMMARY, key));
+            refresh();
             updateStatus(ThingStatus.ONLINE);
         } catch (IOException e) {
             logger.debug("Could not connect");
-            setOfflineAndReconnect(e);
+            setOfflineAndReconnect(e, LONG_RETRY_SECONDS);
         }
     }
 
+    /**
+     * Disconnects the client and removes listeners
+     */
     private void disconnect() {
         logger.debug("disconnect");
         QolsysiqClient apiClient = this.apiClient;
@@ -244,12 +256,13 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
             apiClient.removeListener(this);
             apiClient.disconnect();
         }
+        lastRefreshTime = 0;
     }
 
-    private void startRetryFuture() {
+    private void startRetryFuture(int seconds) {
         stopRetryFuture();
         logger.debug("startRetryFuture");
-        this.retryFuture = scheduler.schedule(this::connect, RETRY_SECONDS, TimeUnit.SECONDS);
+        this.retryFuture = scheduler.schedule(this::connect, seconds, TimeUnit.SECONDS);
     }
 
     private void stopRetryFuture() {
@@ -260,11 +273,11 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
         }
     }
 
-    private void setOfflineAndReconnect(Exception reason) {
+    private void setOfflineAndReconnect(Exception reason, int seconds) {
         logger.debug("setOfflineAndReconnect");
         disconnect();
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, reason.getMessage());
-        startRetryFuture();
+        startRetryFuture(seconds);
     }
 
     private void updatePartitions() {

@@ -33,7 +33,6 @@ import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.thing.binding.BridgeHandler;
 import org.openhab.core.types.Command;
-import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,14 +54,20 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
     public void initialize() {
         logger.debug("initialize");
         zoneId = getConfigAs(QolsysIQZoneConfiguration.class).id;
-        refresh();
+        Bridge bridge = getBridge();
+        if (bridge != null) {
+            BridgeHandler handler = bridge.getHandler();
+            if (handler != null && handler instanceof QolsysIQPartitionHandler) {
+                Zone z = ((QolsysIQPartitionHandler) handler).getZone(zoneId());
+                if (z != null) {
+                    updateZone(z);
+                }
+            }
+        }
     }
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (command instanceof RefreshType) {
-            refresh();
-        }
     }
 
     public int zoneId() {
@@ -107,16 +112,6 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
                             : OpenClosedType.OPEN);
         } else {
             logger.debug("updateZoneStatus: null status");
-        }
-    }
-
-    private void refresh() {
-        Bridge bridge = getBridge();
-        if (bridge != null) {
-            BridgeHandler handler = bridge.getHandler();
-            if (handler != null && handler instanceof QolsysIQPartitionHandler) {
-                ((QolsysIQPartitionHandler) handler).refresh();
-            }
         }
     }
 }

@@ -83,8 +83,9 @@ public class QolsysiqClient {
     private int port;
     private int heartbeatSeconds;
     private long lastResponseTime;
+    private long lastSentTime;
     private ScheduledExecutorService scheduler;
-    private @Nullable ScheduledFuture<?> heartbeatFuture;
+    private @Nullable ScheduledFuture<?> heartBeatFuture;
 
     /**
      *
@@ -101,6 +102,7 @@ public class QolsysiqClient {
     }
 
     public void connect() throws IOException {
+        logger.debug("connect");
         if (connected) {
             throw new IOException("Already Connected");
         }
@@ -126,10 +128,10 @@ public class QolsysiqClient {
         connected = true;
         // send an initial message to confirm a connection and record a response time
         writeMessage("");
-        heartbeatFuture = scheduler.scheduleWithFixedDelay(() -> {
+        heartBeatFuture = scheduler.scheduleWithFixedDelay(() -> {
             if (connected) {
                 try {
-                    if (System.currentTimeMillis() - lastResponseTime > (heartbeatSeconds + 10) * 1000) {
+                    if (System.currentTimeMillis() - lastResponseTime > (heartbeatSeconds + 5) * 1000) {
                         throw new IOException("No responses received");
                     }
                     writeMessage("");
@@ -144,7 +146,7 @@ public class QolsysiqClient {
     public void disconnect() {
         connected = false;
 
-        ScheduledFuture<?> heartbeatFuture = this.heartbeatFuture;
+        ScheduledFuture<?> heartbeatFuture = this.heartBeatFuture;
         if (heartbeatFuture != null && !heartbeatFuture.isDone()) {
             heartbeatFuture.cancel(true);
         }
@@ -199,7 +201,11 @@ public class QolsysiqClient {
         }
     }
 
-    public void writeMessage(String message) throws IOException {
+    public synchronized void writeMessage(String message) throws IOException {
+        if (!connected) {
+            logger.debug("writeMessage: not connected, ignoring {}", message);
+            return;
+        }
         synchronized (writeLock) {
             hasACK = false;
             logger.trace("writeMessage: {}", message);
@@ -208,14 +214,15 @@ public class QolsysiqClient {
                 writer.write(message);
                 writer.newLine();
                 writer.flush();
-            }
-            try {
-                writeLock.wait(5000);
-            } catch (InterruptedException e) {
-                logger.debug("write wait interupted");
-            }
-            if (!hasACK) {
-                throw new IOException("No response to message");
+                try {
+                    writeLock.wait(5000);
+                } catch (InterruptedException e) {
+                    logger.debug("write lock interupted");
+                }
+                if (!hasACK) {
+                    logger.trace("writeMessage: no ACK for {}", message);
+                    throw new IOException("No response to message: " + message);
+                }
             }
         }
     }

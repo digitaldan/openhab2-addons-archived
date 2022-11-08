@@ -12,12 +12,16 @@
  */
 package org.openhab.binding.qolsysiq.internal.client.dto.event;
 
+import org.openhab.binding.qolsysiq.internal.client.dto.model.Zone;
+
 /**
  *
  * @author Dan Cunningham - Initial contribution
  */
-public enum ZoneEventType {
-    ZONE_ACTIVE,
-    ZONE_ADD,
-    ZONE_UPDATE;
+public class ZoneAddEvent extends ZoneEvent {
+    public Zone zone;
+
+    public ZoneAddEvent() {
+        super(ZoneEventType.ZONE_ADD);
+    }
 }
