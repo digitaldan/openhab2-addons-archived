@@ -22,4 +22,5 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public class QolsysIQPartitionConfiguration {
     public int id = 0;
+    public String armCode = "";
 }

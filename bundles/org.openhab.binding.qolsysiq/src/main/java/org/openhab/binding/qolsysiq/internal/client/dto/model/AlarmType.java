@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName;
 public enum AlarmType {
     AUXILIARY,
     FIRE,
-    POLCIE,
+    POLICE,
     @SerializedName("")
     ZONEOPEN,
     NONE;
