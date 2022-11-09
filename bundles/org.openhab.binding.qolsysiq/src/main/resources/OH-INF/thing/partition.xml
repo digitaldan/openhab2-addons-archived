@@ -10,10 +10,8 @@
 		<label>Partition</label>
 		<description>A Qolsys IQ Partition</description>
 		<channels>
-			<channel id="status" typeId="partitionStatus"/>
-			<channel id="command" typeId="partitionCommand"/>
+			<channel id="armState" typeId="armState"/>
 			<channel id="alarmState" typeId="alarmState"/>
-			<channel id="alarmCommand" typeId="alarmCommand"/>
 			<channel id="armingDelay" typeId="armingDelay"/>
 			<channel id="alarmPolice" typeId="alarmContact">
 				<label>Police Alarm Active</label>
@@ -53,10 +51,10 @@
 			</parameter>
 		</config-description>
 	</bridge-type>
-	<channel-type id="partitionStatus">
+	<channel-type id="armState">
 		<item-type>String</item-type>
-		<label>Partition Status</label>
-		<description>Represents the partition status.</description>
+		<label>Partition State</label>
+		<description>Represents the partition state.</description>
 		<category>Alarm</category>
 		<state readOnly="true">
 			<options>
@@ -68,12 +66,6 @@
 				<option value="EXIT_DELAY">Exit Delay</option>
 			</options>
 		</state>
-	</channel-type>
-	<channel-type id="partitionCommand">
-		<item-type>String</item-type>
-		<label>Partition Command</label>
-		<description>Arm or disarm the system.</description>
-		<category>Alarm</category>
 		<command>
 			<options>
 				<option value="ARM_AWAY">Arm Away</option>
@@ -96,12 +88,6 @@
 				<option value="NONE">None</option>
 			</options>
 		</state>
-	</channel-type>
-	<channel-type id="alarmCommand">
-		<item-type>String</item-type>
-		<label>Partition Command</label>
-		<description>Arm or disarm the system.</description>
-		<category>Alarm</category>
 		<command>
 			<options>
 				<option value="AUXILIARY">Auxiliary</option>

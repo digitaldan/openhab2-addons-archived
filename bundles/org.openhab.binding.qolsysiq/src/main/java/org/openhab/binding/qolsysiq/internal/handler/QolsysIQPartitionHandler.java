@@ -53,7 +53,6 @@ import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerService;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
-import org.openhab.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,8 +71,10 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
             QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_ZONE);
     private @Nullable QolsysIQChildDiscoveryService discoveryService;
     private @Nullable ScheduledFuture<?> delayFuture;
+    private @Nullable ScheduledFuture<?> armStateFuture;
     private @Nullable Partition partitionCache;
     private @Nullable String armCode;
+    private AlarmType alarmCache = AlarmType.NONE;
     private List<Zone> zones = Collections.synchronizedList(new LinkedList<Zone>());
     private int partitionId;
 
@@ -93,6 +94,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     @Override
     public void dispose() {
         cancelExitDelayJob();
+        cancelArmStateRefresh();
     }
 
     @Override
@@ -105,25 +107,30 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (command instanceof RefreshType || "REFRESH".equals(command.toString())) {
+        if (command instanceof RefreshType) {
             refresh();
             return;
         }
 
         QolsysIQPanelHandler panel = panelHandler();
         if (panel != null) {
-            if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_ALARM)) {
-                // reset to last known state, the system will send an update if successful
-                updateState(channelUID, UnDefType.UNDEF);
-                panel.sendAction(new AlarmAction(AlarmActionType.valueOf(command.toString()), ""));
+            if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE)) {
+                try {
+                    panel.sendAction(new AlarmAction(AlarmActionType.valueOf(command.toString()), ""));
+                } catch (IllegalArgumentException e) {
+                    logger.debug("Unknown alarm type {} to channel {}", command, channelUID);
+                }
                 return;
             }
 
-            ArmingActionType armingType = null;
-            String code = armCode;
-            // this needs to be a trigger channel
-            if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_ARM)) {
+            // support ARM_AWAY and ARM_AWAY:123456 , same for other arm / disarm modes
+            if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_ARM_STATE)) {
+
+                // if we don't get an update quickly, we need to reset the channel to the last known state
+                startArmStateRefresh();
+
                 String armingTypeName = command.toString();
+                String code = armCode;
                 if (armingTypeName.contains(":")) {
                     String[] split = armingTypeName.split(":");
                     armingTypeName = split[0];
@@ -132,19 +139,13 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
                     }
                 }
 
-                armingType = ArmingActionType.valueOf(armingTypeName);
-
-                // reset channel to last known state until we get an update from the panel
-                Partition partitionCache = this.partitionCache;
-                if (partitionCache != null) {
-                    updateState(channelUID, new StringType(partitionCache.status.toString()));
+                try {
+                    ArmingActionType armingType = ArmingActionType.valueOf(armingTypeName);
+                    updateState(channelUID, new StringType(armingType.toString()));
+                    panel.sendAction(new ArmingAction(armingType, "", partitionId(), code));
+                } catch (IllegalArgumentException e) {
+                    logger.debug("Unknown arm type {} to channel {}", armingTypeName, channelUID);
                 }
-            }
-
-            if (armingType != null) {
-                panel.sendAction(new ArmingAction(armingType, "", partitionId(), code));
-            } else {
-                logger.debug("Unknown arm command {} to channel {}", command, channelUID);
             }
         }
     }
@@ -235,7 +236,8 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     private void updatePartitionStatus(PartitionStatus status) {
-        updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_STATUS, new StringType(status.toString()));
+        cancelArmStateRefresh();
+        updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ARM_STATE, new StringType(status.toString()));
         if (status == PartitionStatus.DISARM) {
             updateAlarmState(AlarmType.NONE);
             updateDelay(0);
@@ -270,9 +272,9 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     private void updateAlarmState(AlarmType alarmType) {
+        alarmCache = alarmType;
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE, new StringType(alarmType.toString()));
         ALARMTYPE_CHANNELS.forEach((type, channel) -> {
-            logger.debug("updateAlarmState: channel {} -> {}  current state {} ", channel, type, alarmType);
             updateState(channel, type == alarmType ? OnOffType.ON : OnOffType.OFF);
         });
     }
@@ -283,6 +285,28 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
             delayFuture.cancel(false);
         }
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY, new DecimalType(0));
+    }
+
+    private void startArmStateRefresh() {
+        ScheduledFuture<?> armStateRefreshFuture = this.armStateFuture;
+        if (armStateRefreshFuture == null || armStateRefreshFuture.isDone()) {
+            this.armStateFuture = scheduler.schedule(() -> {
+                Partition p = this.partitionCache;
+                if (p != null) {
+                    updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ARM_STATE,
+                            new StringType(p.status.toString()));
+
+                }
+            }, 2, TimeUnit.SECONDS);
+
+        }
+    }
+
+    private void cancelArmStateRefresh() {
+        ScheduledFuture<?> armStateRefreshFuture = this.armStateFuture;
+        if (armStateRefreshFuture != null && !armStateRefreshFuture.isDone()) {
+            armStateRefreshFuture.cancel(false);
+        }
     }
 
     private void discoverChildDevices() {
