@@ -13,8 +13,23 @@ _Note that it is planned to generate some part of this based on the XML files wi
 
 ## Discovery
 
-_Describe the available auto-discovery features here._
-_Mention for what it works and what needs to be kept in mind when using it._
+### Qolsys IQ Panel (Bridge) Discovery
+
+The Qolsys IQ Panel must be manually added using a host name or ip address along with a secure access token from the panel settings.  To enable 3rd party control and retrieve the access token follow the following steps on the security panel:
+
+Settings --> Advanced Settings --> Installation --> Dealer Settings -> 6 Digit User Code (enabled)
+
+Settings --> Advanced Settings --> Installation --> Devices --> Wi-Fi Devices --> Control4 (enabled)
+
+Panel will reboot
+
+Settings --> Advanced Settings --> Installation --> Devices --> Wi-Fi Devices --> Reveal Secure Token (token to use)
+
+### Partitions (Bridge) and Zones (Thing) Discovery
+
+Once a panel is added, partitions will be automatically discovered and appear in the inbox.
+
+Zones will be automatically discovered and appear in the inbox once thier parent partition has been added.
 
 ## Binding Configuration
 

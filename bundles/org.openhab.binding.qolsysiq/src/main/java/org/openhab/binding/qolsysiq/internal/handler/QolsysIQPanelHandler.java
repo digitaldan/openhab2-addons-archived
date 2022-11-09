@@ -173,19 +173,27 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
     @Override
     public void zoneActiveEvent(ZoneActiveEvent event) {
         logger.debug("ZoneActiveEvent {} {}", event.zone.zoneId, event.zone.status);
-        QolsysIQZoneHandler handler = zoneHandler(event.zone.zoneId);
-        if (handler != null) {
-            handler.zoneActiveEvent(event);
-        }
+        partitions.forEach(p -> {
+            if (p.zoneList.stream().filter(z -> z.zoneId.equals(event.zone.zoneId)).findAny().isPresent()) {
+                QolsysIQPartitionHandler handler = partitionHandler(p.partitionId);
+                if (handler != null) {
+                    handler.zoneActiveEvent(event);
+                }
+            }
+        });
     }
 
     @Override
     public void zoneUpdateEvent(ZoneUpdateEvent event) {
         logger.debug("ZoneUpdateEvent {}", event.zone.name);
-        QolsysIQZoneHandler handler = zoneHandler(event.zone.zoneId);
-        if (handler != null) {
-            handler.zoneUpdateEvent(event);
-        }
+        partitions.forEach(p -> {
+            if (p.zoneList.stream().filter(z -> z.zoneId.equals(event.zone.zoneId)).findAny().isPresent()) {
+                QolsysIQPartitionHandler handler = partitionHandler(p.partitionId);
+                if (handler != null) {
+                    handler.zoneUpdateEvent(event);
+                }
+            }
+        });
     }
 
     /**
@@ -300,18 +308,6 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
             if (handler != null && handler instanceof QolsysIQPartitionHandler) {
                 if (((QolsysIQPartitionHandler) handler).partitionId() == partitionId) {
                     return (QolsysIQPartitionHandler) handler;
-                }
-            }
-        }
-        return null;
-    }
-
-    private @Nullable QolsysIQZoneHandler zoneHandler(int zoneId) {
-        for (Thing thing : getThing().getThings()) {
-            ThingHandler handler = thing.getHandler();
-            if (handler != null && handler instanceof QolsysIQZoneHandler) {
-                if (((QolsysIQZoneHandler) handler).zoneId() == zoneId) {
-                    return (QolsysIQZoneHandler) handler;
                 }
             }
         }

@@ -32,6 +32,8 @@ import org.openhab.binding.qolsysiq.internal.client.dto.event.AlarmEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ArmingEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.ErrorEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.event.SecureArmInfoEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneActiveEvent;
+import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneUpdateEvent;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.AlarmType;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.Partition;
 import org.openhab.binding.qolsysiq.internal.client.dto.model.PartitionStatus;
@@ -74,7 +76,6 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     private @Nullable ScheduledFuture<?> armStateFuture;
     private @Nullable Partition partitionCache;
     private @Nullable String armCode;
-    private AlarmType alarmCache = AlarmType.NONE;
     private List<Zone> zones = Collections.synchronizedList(new LinkedList<Zone>());
     private int partitionId;
 
@@ -125,10 +126,6 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
             // support ARM_AWAY and ARM_AWAY:123456 , same for other arm / disarm modes
             if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_ARM_STATE)) {
-
-                // if we don't get an update quickly, we need to reset the channel to the last known state
-                startArmStateRefresh();
-
                 String armingTypeName = command.toString();
                 String code = armCode;
                 if (armingTypeName.contains(":")) {
@@ -138,7 +135,8 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
                         code = split[1];
                     }
                 }
-
+                // if we don't get an update quickly, we need to reset the channel to the last known state
+                startArmStateRefresh();
                 try {
                     ArmingActionType armingType = ArmingActionType.valueOf(armingTypeName);
                     updateState(channelUID, new StringType(armingType.toString()));
@@ -197,6 +195,20 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     protected void secureArmInfoEvent(SecureArmInfoEvent event) {
         setSecureArm(event.value);
+    }
+
+    public void zoneActiveEvent(ZoneActiveEvent event) {
+        QolsysIQZoneHandler handler = zoneHandler(event.zone.zoneId);
+        if (handler != null) {
+            handler.zoneActiveEvent(event);
+        }
+    }
+
+    public void zoneUpdateEvent(ZoneUpdateEvent event) {
+        QolsysIQZoneHandler handler = zoneHandler(event.zone.zoneId);
+        if (handler != null) {
+            handler.zoneUpdateEvent(event);
+        }
     }
 
     protected void updatePartition(Partition partition) {
@@ -272,7 +284,6 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     private void updateAlarmState(AlarmType alarmType) {
-        alarmCache = alarmType;
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE, new StringType(alarmType.toString()));
         ALARMTYPE_CHANNELS.forEach((type, channel) -> {
             updateState(channel, type == alarmType ? OnOffType.ON : OnOffType.OFF);

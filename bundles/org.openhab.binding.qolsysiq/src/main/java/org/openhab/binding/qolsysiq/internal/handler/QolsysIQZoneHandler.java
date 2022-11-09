@@ -105,6 +105,7 @@ public class QolsysIQZoneHandler extends BaseThingHandler {
     }
 
     private void updateZoneStatus(@Nullable ZoneStatus status) {
+        logger.debug("updateZoneStatus {}", status);
         if (status != null) {
             updateState(QolsysIQBindingConstants.CHANNEL_ZONE_STATUS, new StringType(status.toString()));
             updateState(QolsysIQBindingConstants.CHANNEL_ZONE_CONTACT,
