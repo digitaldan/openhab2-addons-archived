@@ -53,10 +53,12 @@
 	</bridge-type>
 	<channel-type id="armState">
 		<item-type>String</item-type>
-		<label>Partition State</label>
-		<description>Represents the partition state.</description>
+		<label>Partition Arm State</label>
+		<description>Reports the current partition arm state or sends a arm or disarm command to the system. For security
+			codes, append the 6 digit code to the command
+			separated by a colon (e.g. 'DISARM:123456')</description>
 		<category>Alarm</category>
-		<state readOnly="true">
+		<state>
 			<options>
 				<option value="ALARM">In Alarm</option>
 				<option value="ARM_AWAY">Armed Away</option>
@@ -73,11 +75,12 @@
 				<option value="DISARM">Disarm</option>
 			</options>
 		</command>
+		<autoUpdatePolicy>veto</autoUpdatePolicy>
 	</channel-type>
 	<channel-type id="alarmState">
 		<item-type>String</item-type>
 		<label>Partition Alarm State</label>
-		<description>The alarm state that the partition is currently in</description>
+		<description>Reports on the current alarm state, or triggers an instant alarm.</description>
 		<category>Alarm</category>
 		<state readOnly="true">
 			<options>
@@ -95,6 +98,7 @@
 				<option value="POLICE">Police</option>
 			</options>
 		</command>
+		<autoUpdatePolicy>veto</autoUpdatePolicy>
 	</channel-type>
 	<channel-type id="armingDelay">
 		<item-type>Number</item-type>

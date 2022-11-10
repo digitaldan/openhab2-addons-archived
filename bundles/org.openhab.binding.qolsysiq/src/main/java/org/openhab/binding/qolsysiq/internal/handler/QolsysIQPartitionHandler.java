@@ -73,7 +73,6 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
             QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_ZONE);
     private @Nullable QolsysIQChildDiscoveryService discoveryService;
     private @Nullable ScheduledFuture<?> delayFuture;
-    private @Nullable ScheduledFuture<?> armStateFuture;
     private @Nullable Partition partitionCache;
     private @Nullable String armCode;
     private List<Zone> zones = Collections.synchronizedList(new LinkedList<Zone>());
@@ -95,7 +94,6 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     @Override
     public void dispose() {
         cancelExitDelayJob();
-        cancelArmStateRefresh();
     }
 
     @Override
@@ -135,11 +133,8 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
                         code = split[1];
                     }
                 }
-                // if we don't get an update quickly, we need to reset the channel to the last known state
-                startArmStateRefresh();
                 try {
                     ArmingActionType armingType = ArmingActionType.valueOf(armingTypeName);
-                    updateState(channelUID, new StringType(armingType.toString()));
                     panel.sendAction(new ArmingAction(armingType, "", partitionId(), code));
                 } catch (IllegalArgumentException e) {
                     logger.debug("Unknown arm type {} to channel {}", armingTypeName, channelUID);
@@ -248,7 +243,6 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     }
 
     private void updatePartitionStatus(PartitionStatus status) {
-        cancelArmStateRefresh();
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ARM_STATE, new StringType(status.toString()));
         if (status == PartitionStatus.DISARM) {
             updateAlarmState(AlarmType.NONE);
@@ -296,28 +290,6 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
             delayFuture.cancel(false);
         }
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY, new DecimalType(0));
-    }
-
-    private void startArmStateRefresh() {
-        ScheduledFuture<?> armStateRefreshFuture = this.armStateFuture;
-        if (armStateRefreshFuture == null || armStateRefreshFuture.isDone()) {
-            this.armStateFuture = scheduler.schedule(() -> {
-                Partition p = this.partitionCache;
-                if (p != null) {
-                    updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ARM_STATE,
-                            new StringType(p.status.toString()));
-
-                }
-            }, 2, TimeUnit.SECONDS);
-
-        }
-    }
-
-    private void cancelArmStateRefresh() {
-        ScheduledFuture<?> armStateRefreshFuture = this.armStateFuture;
-        if (armStateRefreshFuture != null && !armStateRefreshFuture.isDone()) {
-            armStateRefreshFuture.cancel(false);
-        }
     }
 
     private void discoverChildDevices() {
