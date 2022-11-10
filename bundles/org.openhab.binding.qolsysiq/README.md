@@ -1,86 +1,126 @@
 # Qolsys IQ Binding
 
-This binding controls a [Qolsys IQ] (https://qolsys.com/security/) panel.  This allows both monitoring of alarms and zone status as well as arming, disarming and triggering alarms.
+This binding directly controls a [Qolsys IQ](https://qolsys.com/security/) security panel.  This allows both local monitoring of alarms and zone status as well as arming, disarming and triggering alarms.
+
+![Qolsys IQ 4](doc/qolsysiq4.png)
 
 ## Supported Things
 
-_Please describe the different supported things / devices including their ThingTypeUID within this section._
-_Which different types are supported, which models were tested etc.?_
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
-
-- `bridge`: Short description of the Bridge, if any
-- `sample`: Short description of the Thing with the ThingTypeUID `sample`
+- `Qolsys IQ Panel Bridge`: A Qolsys panel (all current models, which is 2 and 4 at the time of writing). Uses the ThingTypeUID `panel`
+- `Qolsys IQ Partition Bridge`: A logical partition which can be armed, disarmed, and is responsible for managing zones. Uses the ThingTypeUID `partition`
+- `Qolsys IQ Zone Thing`: A generic zone sensor.  Uses the ThingTypeUID `zone`
 
 ## Discovery
 
-### Qolsys IQ Panel (Bridge) Discovery
+### Qolsys IQ Panel (Bridge)
 
-The Qolsys IQ Panel must be manually added using a host name or ip address along with a secure access token from the panel settings.  To enable 3rd party control and retrieve the access token follow the following steps on the security panel:
+The Qolsys IQ Panel must be manually added using a host name or ip address along with a secure access token from the panel settings.  To enable 3rd party control and retrieve the access token follow the following steps on the security panel touch screen:
 
-Settings --> Advanced Settings --> Installation --> Dealer Settings -> 6 Digit User Code (enabled)
+`Settings` --> `Advanced Settings` --> `Installation` --> `Dealer Settings` -> `6 Digit User Code` (set to enabled)
 
-Settings --> Advanced Settings --> Installation --> Devices --> Wi-Fi Devices --> Control4 (enabled)
+`Settings` --> `Advanced Settings` --> `Installation` --> `Devices` --> `Wi-Fi Devices` --> `Control4` (set to enabled)
 
 Panel will reboot
 
-Settings --> Advanced Settings --> Installation --> Devices --> Wi-Fi Devices --> Reveal Secure Token (token to use)
+`Settings` --> `Advanced Settings` --> `Installation` --> `Devices` --> `Wi-Fi Devices` --> `Reveal Secure Token` (copy token to use in panel configuration)
 
-### Partitions (Bridge) and Zones (Thing) Discovery
+### Partition (Bridge)
 
 Once a panel is added, partitions will be automatically discovered and appear in the inbox.
 
-Zones will be automatically discovered and appear in the inbox once thier parent partition has been added.
+### Zone (Thing)
 
-## Binding Configuration
-
-_If your binding requires or supports general configuration settings, please create a folder ```cfg``` and place the configuration file ```<bindingId>.cfg``` inside it._
-_In this section, you should link to this file and provide some information about the options._
-_The file could e.g. look like:_
-
-```
-# Configuration for the QolsysIQ Binding
-#
-# Default secret key for the pairing of the QolsysIQ Thing.
-# It has to be between 10-40 (alphanumeric) characters.
-# This may be changed by the user for security reasons.
-secret=openHABSecret
-```
-
-_Note that it is planned to generate some part of this based on the information that is available within ```src/main/resources/OH-INF/binding``` of your binding._
-
-_If your binding does not offer any generic configurations, you can remove this section completely._
+Zones will be automatically discovered and appear in the inbox once their parent partition has been added.
 
 ## Thing Configuration
 
-_Describe what is needed to manually configure a thing, either through the UI or via a thing-file._
-_This should be mainly about its mandatory and optional configuration parameters._
+### `panel` Thing Configuration
 
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+| Name              | Type    | Description                                         | Default | Required | Advanced |
+|-------------------|---------|-----------------------------------------------------|---------|----------|----------|
+| hostname          | text    | Hostname or IP address of the device                | N/A     | yes      | no       |
+| port              | integer | Port the device is listening on                     | 12345   | yes      | no       |
+| key               | text    | Access token / key found in the panel settings menu | N/A     | yes      | no       |
+| heartbeatInterval | integer | Interval we send heart beat messages in seconds     | 30      | yes      | yes      |
 
-### `sample` Thing Configuration
+### `partition` Thing Configuration
 
-| Name            | Type    | Description                           | Default | Required | Advanced |
-|-----------------|---------|---------------------------------------|---------|----------|----------|
-| hostname        | text    | Hostname or IP address of the device  | N/A     | yes      | no       |
-| password        | text    | Password to access the device         | N/A     | yes      | no       |
-| refreshInterval | integer | Interval the device is polled in sec. | 600     | no       | yes      |
+| Name    | Type    | Description                                                                                               | Default | Required | Advanced |
+|---------|---------|-----------------------------------------------------------------------------------------------------------|---------|----------|----------|
+| id      | integer | Partition id of the panel, staring with '0' for the first partition                                       | N/A     | yes      | no       |
+| armCode | text    | Optional Arm / Disarm code to use when receiving commands without a code.  Leave blank to require a code  | blank   | no       | no       |
+
+### `zone` Thing Configuration
+
+| Name    | Type    | Description                                                                                             | Default | Required | Advanced |
+|---------|---------|---------------------------------------------------------------------------------------------------------|---------|----------|----------|
+| id      | integer | Zone id of the zone, staring with '1' for the first zone                                                | N/A     | yes      | no       |
 
 ## Channels
 
-_Here you should provide information about available channel types, what their meaning is and how they can be used._
+### Panel Channels
 
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+None.
 
-| Channel | Type   | Read/Write | Description                 |
-|---------|--------|------------|-----------------------------|
-| control | Switch | RW         | This is the control channel |
+### Partition Channels
+
+| Channel        | Type    | Read/Write | Description                                                                                                                                                                           | State Options                                              | Command Options            |
+|----------------|---------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|----------------------------|
+| armState       | String  | RW         | Reports the current partition arm state or sends an arm or disarm command to the system. Security codes can be appended to the command using a colon delimiter (e.g. 'DISARM:123456') | ALARM, ARM_AWAY, ARM_STAY, DISARM, ENTRY_DELAY, EXIT_DELAY | ARM_AWAY, ARM_STAY, DISARM |
+| alarmState     | String  | RW         | Reports on the current alarm state, or triggers an instant alarm                                                                                                                      | AUXILIARY, FIRE, POLICE, ZONEOPEN, NONE                    | AUXILIARY, FIRE, POLICE    |
+| armingDelay    | Number  | R          | The arming delay currently in progress                                                                                                                                                | Seconds remaining                                          |                            |
+| alarmPolice    | Contact | R          | On if police alarm is active                                                                                                                                                          | ON, OFF                                                    |                            |
+| alarmFire      | Contact | R          | On if fire alarm is active                                                                                                                                                            | ON, OFF                                                    |                            |
+| alarmNone      | Contact | R          | On if no alarm is active                                                                                                                                                              | ON, OFF                                                    |                            |
+| alarmAuxiliary | Contact | R          | On if auxiliary alarm is active                                                                                                                                                       | ON, OFF                                                    |                            |
+| alarmZone      | Contact | R          | On if zone alarm is active                                                                                                                                                            | ON, OFF                                                    |                            |
+
+### Zone Channels
+
+| Channel | Type    | Read/Write | Description            | State Options                               | 
+|---------|---------|------------|------------------------|---------------------------------------------|
+| status  | String  | R          | The zone status        | ACTIVE, CLOSED, OPEN, FAILURE, IDLE, TAMPER |
+| state   | Number  | R          | The zone state         | Number of state                             |
+| contact | Contact | R          | The zone contact state | OPEN, CLOSED                                |
 
 ## Full Example
 
-_Provide a full usage example based on textual configuration files._
-_*.things, *.items examples are mandatory as textual configuration is well used by many users._
-_*.sitemap examples are optional._
+### qolsysiq.things
 
-## Any custom content here!
+```
+Bridge qolsysiq:panel:home "Home Security Panel" [ hostname="192.168.3.123", port=12345, key="AAABBB00", heartbeatInterval=30 ] {
+    Bridge partition 0 "Partition Main" [ id=0, armCode="123456" ] {
+        Thing zone 0 "Window" [ id="0" ]
+        Thing zone 1 "Motion" [ id="1" ]
+    }
+}
+```
 
-_Feel free to add additional sections for whatever you think should also be mentioned about your binding!_
+### qolsysiq.items
+
+Sample items file with both Alexa and Homekit voice control
+
+```
+Group:Contact:OR(OPEN, CLOSED)    QolsysIQPartitionMain_ZoneContacts               "Alarm System Contacts"
+
+Group                             QolsysIQPartitionMain                            "Alarm System"                                                                                                                     ["Equipment"]    {alexa="SecurityPanel", homekit = "SecuritySystem"}
+
+String                            QolsysIQPartitionMain_PartitionArmState          "Partition Arm State"                        <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:armState", alexa="ArmState" [DISARMED="DISARM",ARMED_STAY="ARM_STAY",ARMED_AWAY="ARM_AWAY:EXIT_DELAY"], homekit = "SecuritySystem.CurrentSecuritySystemState,SecuritySystem.TargetSecuritySystemState" [STAY_ARM="ARM_STAY", AWAY_ARM="ARM_AWAY", DISARM="DISARM", DISARMED="DISARM", TRIGGERED="ALARM"]}
+String                            QolsysIQPartitionMain_PartitionAlarmState        "Partition Alarm State"                      <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmState"}
+Number                            QolsysIQPartitionMain_PartitionArmingDelay       "Partition Arming Delay"                     <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:armingDelay"}
+Switch                            QolsysIQPartitionMain_PoliceAlarmActive          "Police Alarm Active"                        <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmPolice", alexa="BurglaryAlarm"}
+Switch                            QolsysIQPartitionMain_FireAlarmActive            "Fire Alarm Active"                          <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmFire", alexa="FireAlarm"}
+Switch                            QolsysIQPartitionMain_NoAlarmActive              "No Alarm Active"                            <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmNone"}
+Switch                            QolsysIQPartitionMain_AuxiliaryAlarmActive       "Auxiliary Alarm Active"                     <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmAuxiliary", alexa="AlarmAlert"}
+Switch                            QolsysIQPartitionMain_ZoneAlarmActive            "Zone Alarm Active"                          <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmZone", alexa="ZonesAlert"}
+
+Group                             QolsysIQZoneKitchenWindows                       "Qolsys IQ Zone: Kitchen Windows"                                                                                                  ["Equipment"]
+Number                            QolsysIQZoneKitchenWindows_ZoneState             "Kitchen Windows Zone State"                            (QolsysIQZoneKitchenWindows)                                               ["Point"]        {channel="qolsysiq:zone:home:0:1:state"}
+String                            QolsysIQZoneKitchenWindows_ZoneStatus            "Kitchen Windows Zone Status"                           (QolsysIQZoneKitchenWindows)                                               ["Point"]        {channel="qolsysiq:zone:home:0:1:status"}
+Contact                           QolsysIQZoneKitchenWindows_ZoneContact           "Kitchen Windows Zone Contact"                          (QolsysIQZoneKitchenWindows, QolsysIQPartitionMain_ZoneContacts)           ["Point"]        {channel="qolsysiq:zone:home:0:1:contact"}
+
+Group                             QolsysIQZoneMotionDetector1                      "Motion Detector 1"                                                                                                                ["Equipment"]
+Number                            QolsysIQZoneMotionDetector_ZoneState1            "Motion Detector 1 Zone State"                          (QolsysIQZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:state"}
+String                            QolsysIQZoneMotionDetector_ZoneStatus1           "Motion Detector 1 Zone Status"                         (QolsysIQZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:status"}
+Contact    
+```

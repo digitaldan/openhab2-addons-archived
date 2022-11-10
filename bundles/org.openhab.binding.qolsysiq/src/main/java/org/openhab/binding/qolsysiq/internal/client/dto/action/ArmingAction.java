@@ -21,6 +21,14 @@ public class ArmingAction extends Action {
     public Integer partitionId;
     public String usercode;
 
+    public ArmingAction(ArmingActionType armingType, Integer partitionId) {
+        this(armingType, "", partitionId, null);
+    }
+
+    public ArmingAction(ArmingActionType armingType, Integer partitionId, String usercode) {
+        this(armingType, "", partitionId, usercode);
+    }
+
     public ArmingAction(ArmingActionType armingType, String token, Integer partitionId) {
         this(armingType, token, partitionId, null);
     }

@@ -25,6 +25,10 @@ public abstract class Action {
     public String source = "C4";
     public String token;
 
+    public Action(ActionType type) {
+        this(type, "");
+    }
+
     public Action(ActionType type, String token) {
         this.type = type;
         this.token = token;

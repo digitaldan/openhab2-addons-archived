@@ -115,7 +115,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         if (panel != null) {
             if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE)) {
                 try {
-                    panel.sendAction(new AlarmAction(AlarmActionType.valueOf(command.toString()), ""));
+                    panel.sendAction(new AlarmAction(AlarmActionType.valueOf(command.toString())));
                 } catch (IllegalArgumentException e) {
                     logger.debug("Unknown alarm type {} to channel {}", command, channelUID);
                 }
@@ -135,7 +135,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
                 }
                 try {
                     ArmingActionType armingType = ArmingActionType.valueOf(armingTypeName);
-                    panel.sendAction(new ArmingAction(armingType, "", partitionId(), code));
+                    panel.sendAction(new ArmingAction(armingType, partitionId(), code));
                 } catch (IllegalArgumentException e) {
                     logger.debug("Unknown arm type {} to channel {}", armingTypeName, channelUID);
                 }

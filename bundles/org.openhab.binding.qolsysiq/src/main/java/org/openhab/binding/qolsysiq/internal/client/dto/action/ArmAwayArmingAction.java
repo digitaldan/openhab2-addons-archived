@@ -27,4 +27,12 @@ public class ArmAwayArmingAction extends ArmingAction {
     public ArmAwayArmingAction(String token, Integer partitionId) {
         this(token, partitionId, null);
     }
+
+    public ArmAwayArmingAction(Integer partitionId) {
+        this("", partitionId, null);
+    }
+
+    public ArmAwayArmingAction(Integer partitionId, Integer delay) {
+        this("", partitionId, delay);
+    }
 }

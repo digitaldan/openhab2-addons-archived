@@ -215,7 +215,7 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
     }
 
     protected synchronized void refresh() {
-        sendAction(new InfoAction(InfoActionType.SUMMARY, ""));
+        sendAction(new InfoAction(InfoActionType.SUMMARY));
     }
 
     /**

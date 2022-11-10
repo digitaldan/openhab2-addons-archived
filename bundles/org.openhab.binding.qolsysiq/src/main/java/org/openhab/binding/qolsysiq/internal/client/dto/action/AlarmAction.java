@@ -19,6 +19,10 @@ package org.openhab.binding.qolsysiq.internal.client.dto.action;
 public class AlarmAction extends Action {
     public AlarmActionType alarmType;
 
+    public AlarmAction(AlarmActionType alarmType) {
+        this(alarmType, "");
+    }
+
     public AlarmAction(AlarmActionType alarmType, String token) {
         super(ActionType.ALARM, token);
         this.alarmType = alarmType;

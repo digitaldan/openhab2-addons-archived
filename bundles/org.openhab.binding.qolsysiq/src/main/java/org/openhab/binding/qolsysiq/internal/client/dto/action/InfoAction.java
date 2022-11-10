@@ -19,6 +19,10 @@ package org.openhab.binding.qolsysiq.internal.client.dto.action;
 public class InfoAction extends Action {
     public InfoActionType infoType;
 
+    public InfoAction(InfoActionType infoType) {
+        this(infoType, "");
+    }
+
     public InfoAction(InfoActionType infoType, String token) {
         super(ActionType.INFO, token);
         this.infoType = infoType;
