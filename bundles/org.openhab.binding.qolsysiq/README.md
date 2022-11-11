@@ -1,6 +1,6 @@
 # Qolsys IQ Binding
 
-This binding directly controls a [Qolsys IQ](https://qolsys.com/security/) security panel.  
+This binding directly controls a [Qolsys IQ](https://qolsys.com/security/) security panel.
 This allows for local monitoring of alarm and zone statuses as well as arming, disarming and triggering alarms.
 
 ![Qolsys IQ 4](doc/qolsysiq4.png)
