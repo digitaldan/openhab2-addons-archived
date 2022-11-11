@@ -53,8 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link QolsysIQPanelHandler} is responsible for handling commands, which are
- * sent to one of the channels.
+ * The {@link QolsysIQPanelHandler} connects to a security panel and routes messages to child partitions.
  *
  * @author Dan Cunningham - Initial contribution
  */

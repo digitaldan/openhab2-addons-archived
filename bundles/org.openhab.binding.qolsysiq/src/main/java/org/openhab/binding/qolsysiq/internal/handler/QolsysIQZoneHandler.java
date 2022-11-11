@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * The {@link QolsysIQZoneHandler} manages security zones.
  *
  * @author Dan Cunningham - Initial contribution
  */

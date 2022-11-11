@@ -59,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * The {@link QolsysIQPartitionHandler} manages security partitions
  *
  * @author Dan Cunningham - Initial contribution
  */
