@@ -92,8 +92,8 @@ None.
 ```
 Bridge qolsysiq:panel:home "Home Security Panel" [ hostname="192.168.3.123", port=12345, key="AAABBB00", heartbeatInterval=30 ] {
     Bridge partition 0 "Partition Main" [ id=0, armCode="123456" ] {
-        Thing zone 0 "Window" [ id=0 ]
-        Thing zone 1 "Motion" [ id=1 ]
+        Thing zone 0 "Window" [ id=1 ]
+        Thing zone 1 "Motion" [ id=2 ]
     }
 }
 ```
