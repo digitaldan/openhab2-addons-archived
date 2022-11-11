@@ -96,20 +96,17 @@ Bridge qolsysiq:panel:home "Home Security Panel" [ hostname="192.168.3.123", por
 Sample items file with both Alexa and Homekit voice control
 
 ```
-Group:Contact:OR(OPEN, CLOSED)    PartitionMain_ZoneContacts               "Alarm System Contacts"
+Group      PartitionMain                         "Alarm System"                                                           ["Equipment"]    {alexa="SecurityPanel", homekit = "SecuritySystem"}
+String     PartitionMain_PartitionArmState       "Partition Arm State"                <Alarm>    (PartitionMain)          ["Point"]        {channel="qolsysiq:partition:home:0:armState", alexa="ArmState" [DISARMED="DISARM",ARMED_STAY="ARM_STAY",ARMED_AWAY="ARM_AWAY:EXIT_DELAY"], homekit = "SecuritySystem.CurrentSecuritySystemState,SecuritySystem.TargetSecuritySystemState" [STAY_ARM="ARM_STAY", AWAY_ARM="ARM_AWAY", DISARM="DISARM", DISARMED="DISARM", TRIGGERED="ALARM"]}
+String     PartitionMain_PartitionAlarmState     "Partition Alarm State"              <Alarm>    (PartitionMain)          ["Point"]        {channel="qolsysiq:partition:home:0:alarmState"}
+Number     PartitionMain_PartitionArmingDelay    "Partition Arming Delay"                        (PartitionMain)          ["Point"]        {channel="qolsysiq:partition:home:0:armingDelay"}
 
-Group                             PartitionMain                            "Alarm System"                                                                                                                     ["Equipment"]    {alexa="SecurityPanel", homekit = "SecuritySystem"}
+Group      ZoneKitchenWindows                    "Qolsys IQ Zone: Kitchen Windows"                                        ["Equipment"]
+Number     ZoneKitchenWindows_ZoneState          "Kitchen Windows Zone State"                    (ZoneKitchenWindows)     ["Point"]        {channel="qolsysiq:zone:home:0:1:state"}
+String     ZoneKitchenWindows_ZoneStatus         "Kitchen Windows Zone Status"                   (ZoneKitchenWindows)     ["Point"]        {channel="qolsysiq:zone:home:0:1:status"}
+Contact    ZoneKitchenWindows_ZoneContact        "Kitchen Windows Zone Contact"                  (ZoneKitchenWindows)     ["Point"]        {channel="qolsysiq:zone:home:0:1:contact"}
 
-String                            PartitionMain_PartitionArmState          "Partition Arm State"                        <Alarm>    (PartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:armState", alexa="ArmState" [DISARMED="DISARM",ARMED_STAY="ARM_STAY",ARMED_AWAY="ARM_AWAY:EXIT_DELAY"], homekit = "SecuritySystem.CurrentSecuritySystemState,SecuritySystem.TargetSecuritySystemState" [STAY_ARM="ARM_STAY", AWAY_ARM="ARM_AWAY", DISARM="DISARM", DISARMED="DISARM", TRIGGERED="ALARM"]}
-String                            PartitionMain_PartitionAlarmState        "Partition Alarm State"                      <Alarm>    (PartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmState"}
-Number                            PartitionMain_PartitionArmingDelay       "Partition Arming Delay"                     <Alarm>    (PartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:armingDelay"}
-
-Group                             ZoneKitchenWindows                       "Qolsys IQ Zone: Kitchen Windows"                                                                                                  ["Equipment"]
-Number                            ZoneKitchenWindows_ZoneState             "Kitchen Windows Zone State"                            (ZoneKitchenWindows)                                               ["Point"]        {channel="qolsysiq:zone:home:0:1:state"}
-String                            ZoneKitchenWindows_ZoneStatus            "Kitchen Windows Zone Status"                           (ZoneKitchenWindows)                                               ["Point"]        {channel="qolsysiq:zone:home:0:1:status"}
-Contact                           ZoneKitchenWindows_ZoneContact           "Kitchen Windows Zone Contact"                          (ZoneKitchenWindows, PartitionMain_ZoneContacts)           ["Point"]        {channel="qolsysiq:zone:home:0:1:contact"}
-
-Group                             ZoneMotionDetector1                      "Motion Detector 1"                                                                                                                ["Equipment"]
-Number                            ZoneMotionDetector_ZoneState1            "Motion Detector 1 Zone State"                          (ZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:state"}
-String                            ZoneMotionDetector_ZoneStatus1           "Motion Detector 1 Zone Status"                         (ZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:status"}    
+Group      ZoneMotionDetector1                   "Motion Detector 1"                                                      ["Equipment"]
+Number     ZoneMotionDetector_ZoneState1         "Motion Detector 1 Zone State"                  (ZoneMotionDetector1)    ["Point"]        {channel="qolsysiq:zone:home:0:2:state"}
+String     ZoneMotionDetector_ZoneStatus1        "Motion Detector 1 Zone Status"                 (ZoneMotionDetector1)    ["Point"]        {channel="qolsysiq:zone:home:0:2:status"} 
 ```
