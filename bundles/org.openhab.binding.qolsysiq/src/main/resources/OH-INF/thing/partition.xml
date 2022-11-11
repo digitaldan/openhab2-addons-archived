@@ -13,26 +13,6 @@
 			<channel id="armState" typeId="armState"/>
 			<channel id="alarmState" typeId="alarmState"/>
 			<channel id="armingDelay" typeId="armingDelay"/>
-			<channel id="alarmPolice" typeId="alarmSwitch">
-				<label>Police Alarm Active</label>
-				<description>On if police alarm is active</description>
-			</channel>
-			<channel id="alarmFire" typeId="alarmSwitch">
-				<label>Fire Alarm Active</label>
-				<description>On if fire alarm is active</description>
-			</channel>
-			<channel id="alarmNone" typeId="alarmSwitch">
-				<label>No Alarm Active</label>
-				<description>On if no alarm is active</description>
-			</channel>
-			<channel id="alarmAuxiliary" typeId="alarmSwitch">
-				<label>Auxiliary Alarm Active</label>
-				<description>On if auxiliary alarm is active</description>
-			</channel>
-			<channel id="alarmZone" typeId="alarmSwitch">
-				<label>Zone Alarm Active</label>
-				<description>On if zone is open during arm</description>
-			</channel>
 		</channels>
 		<properties>
 			<property name="secureArm">false</property>
@@ -46,8 +26,7 @@
 			<parameter name="armCode" type="text" required="false">
 				<default></default>
 				<label>Arm / Disarm Code</label>
-				<description>Set to allow arming or disarming without a code if required by panel. Leave blank to always require a
-					code if required.</description>
+				<description>Optional Arm / Disarm code to use when receiving commands without a code.  Leave blank to always require a code (if required by panel settings)</description>
 			</parameter>
 		</config-description>
 	</bridge-type>
@@ -104,13 +83,6 @@
 		<item-type>Number</item-type>
 		<label>Partition Arming Delay</label>
 		<description>The arming delay currently in progress</description>
-		<category>Alarm</category>
-		<state readOnly="true"></state>
-	</channel-type>
-	<channel-type id="alarmSwitch">
-		<item-type>Switch</item-type>
-		<label>Alarm Switch</label>
-		<description>Alarm Switch</description>
 		<category>Alarm</category>
 		<state readOnly="true"></state>
 	</channel-type>

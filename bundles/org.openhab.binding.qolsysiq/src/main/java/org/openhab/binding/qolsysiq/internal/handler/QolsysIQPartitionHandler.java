@@ -41,7 +41,6 @@ import org.openhab.binding.qolsysiq.internal.client.dto.model.Zone;
 import org.openhab.binding.qolsysiq.internal.config.QolsysIQPartitionConfiguration;
 import org.openhab.binding.qolsysiq.internal.discovery.QolsysIQChildDiscoveryService;
 import org.openhab.core.library.types.DecimalType;
-import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
@@ -65,12 +64,6 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class QolsysIQPartitionHandler extends BaseBridgeHandler implements QolsysIQChildDiscoveryHandler {
     private final Logger logger = LoggerFactory.getLogger(QolsysIQPartitionHandler.class);
-    private final static Map<AlarmType, String> ALARMTYPE_CHANNELS = Map.of(AlarmType.AUXILIARY,
-            QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_AUXILIARY, AlarmType.FIRE,
-            QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_FIRE, AlarmType.NONE,
-            QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_NONE, AlarmType.POLICE,
-            QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_POLICE, AlarmType.ZONEOPEN,
-            QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_ZONE);
     private @Nullable QolsysIQChildDiscoveryService discoveryService;
     private @Nullable ScheduledFuture<?> delayFuture;
     private @Nullable Partition partitionCache;
@@ -279,9 +272,6 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     private void updateAlarmState(AlarmType alarmType) {
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE, new StringType(alarmType.toString()));
-        ALARMTYPE_CHANNELS.forEach((type, channel) -> {
-            updateState(channel, type == alarmType ? OnOffType.ON : OnOffType.OFF);
-        });
     }
 
     private void cancelExitDelayJob() {

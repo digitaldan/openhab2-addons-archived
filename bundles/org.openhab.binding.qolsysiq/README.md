@@ -1,6 +1,6 @@
 # Qolsys IQ Binding
 
-This binding directly controls a [Qolsys IQ](https://qolsys.com/security/) security panel.  This allows both local monitoring of alarms and zone status as well as arming, disarming and triggering alarms.
+This binding directly controls a [Qolsys IQ](https://qolsys.com/security/) security panel.  This allows for local monitoring of alarm and zone statuses as well as arming, disarming and triggering alarms.
 
 ![Qolsys IQ 4](doc/qolsysiq4.png)
 
@@ -64,16 +64,11 @@ None.
 
 ### Partition Channels
 
-| Channel        | Type    | Read/Write | Description                                                                                                                                                                           | State Options                                              | Command Options            |
-|----------------|---------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|----------------------------|
-| armState       | String  | RW         | Reports the current partition arm state or sends an arm or disarm command to the system. Security codes can be appended to the command using a colon delimiter (e.g. 'DISARM:123456') | ALARM, ARM_AWAY, ARM_STAY, DISARM, ENTRY_DELAY, EXIT_DELAY | ARM_AWAY, ARM_STAY, DISARM |
-| alarmState     | String  | RW         | Reports on the current alarm state, or triggers an instant alarm                                                                                                                      | AUXILIARY, FIRE, POLICE, ZONEOPEN, NONE                    | AUXILIARY, FIRE, POLICE    |
-| armingDelay    | Number  | R          | The arming delay currently in progress                                                                                                                                                | Seconds remaining                                          |                            |
-| alarmPolice    | Contact | R          | On if police alarm is active                                                                                                                                                          | ON, OFF                                                    |                            |
-| alarmFire      | Contact | R          | On if fire alarm is active                                                                                                                                                            | ON, OFF                                                    |                            |
-| alarmNone      | Contact | R          | On if no alarm is active                                                                                                                                                              | ON, OFF                                                    |                            |
-| alarmAuxiliary | Contact | R          | On if auxiliary alarm is active                                                                                                                                                       | ON, OFF                                                    |                            |
-| alarmZone      | Contact | R          | On if zone alarm is active                                                                                                                                                            | ON, OFF                                                    |                            |
+| Channel     | Type   | Read/Write | Description                                                                                                                                                                           | State Options                                              | Command Options            |
+|-------------|--------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|----------------------------|
+| armState    | String | RW         | Reports the current partition arm state or sends an arm or disarm command to the system. Security codes can be appended to the command using a colon delimiter (e.g. 'DISARM:123456') | ALARM, ARM_AWAY, ARM_STAY, DISARM, ENTRY_DELAY, EXIT_DELAY | ARM_AWAY, ARM_STAY, DISARM |
+| alarmState  | String | RW         | Reports on the current alarm state, or triggers an instant alarm                                                                                                                      | AUXILIARY, FIRE, POLICE, ZONEOPEN, NONE                    | AUXILIARY, FIRE, POLICE    |
+| armingDelay | Number | R          | The arming delay countdown currently in progress                                                                                                                                      | Seconds remaining                                          | N/A                        |
 
 ### Zone Channels
 
@@ -101,26 +96,21 @@ Bridge qolsysiq:panel:home "Home Security Panel" [ hostname="192.168.3.123", por
 Sample items file with both Alexa and Homekit voice control
 
 ```
-Group:Contact:OR(OPEN, CLOSED)    QolsysIQPartitionMain_ZoneContacts               "Alarm System Contacts"
+Group:Contact:OR(OPEN, CLOSED)    PartitionMain_ZoneContacts               "Alarm System Contacts"
 
-Group                             QolsysIQPartitionMain                            "Alarm System"                                                                                                                     ["Equipment"]    {alexa="SecurityPanel", homekit = "SecuritySystem"}
+Group                             PartitionMain                            "Alarm System"                                                                                                                     ["Equipment"]    {alexa="SecurityPanel", homekit = "SecuritySystem"}
 
-String                            QolsysIQPartitionMain_PartitionArmState          "Partition Arm State"                        <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:armState", alexa="ArmState" [DISARMED="DISARM",ARMED_STAY="ARM_STAY",ARMED_AWAY="ARM_AWAY:EXIT_DELAY"], homekit = "SecuritySystem.CurrentSecuritySystemState,SecuritySystem.TargetSecuritySystemState" [STAY_ARM="ARM_STAY", AWAY_ARM="ARM_AWAY", DISARM="DISARM", DISARMED="DISARM", TRIGGERED="ALARM"]}
-String                            QolsysIQPartitionMain_PartitionAlarmState        "Partition Alarm State"                      <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmState"}
-Number                            QolsysIQPartitionMain_PartitionArmingDelay       "Partition Arming Delay"                     <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:armingDelay"}
-Switch                            QolsysIQPartitionMain_PoliceAlarmActive          "Police Alarm Active"                        <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmPolice", alexa="BurglaryAlarm"}
-Switch                            QolsysIQPartitionMain_FireAlarmActive            "Fire Alarm Active"                          <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmFire", alexa="FireAlarm"}
-Switch                            QolsysIQPartitionMain_NoAlarmActive              "No Alarm Active"                            <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmNone"}
-Switch                            QolsysIQPartitionMain_AuxiliaryAlarmActive       "Auxiliary Alarm Active"                     <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmAuxiliary", alexa="AlarmAlert"}
-Switch                            QolsysIQPartitionMain_ZoneAlarmActive            "Zone Alarm Active"                          <Alarm>    (QolsysIQPartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmZone", alexa="ZonesAlert"}
+String                            PartitionMain_PartitionArmState          "Partition Arm State"                        <Alarm>    (PartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:armState", alexa="ArmState" [DISARMED="DISARM",ARMED_STAY="ARM_STAY",ARMED_AWAY="ARM_AWAY:EXIT_DELAY"], homekit = "SecuritySystem.CurrentSecuritySystemState,SecuritySystem.TargetSecuritySystemState" [STAY_ARM="ARM_STAY", AWAY_ARM="ARM_AWAY", DISARM="DISARM", DISARMED="DISARM", TRIGGERED="ALARM"]}
+String                            PartitionMain_PartitionAlarmState        "Partition Alarm State"                      <Alarm>    (PartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:alarmState"}
+Number                            PartitionMain_PartitionArmingDelay       "Partition Arming Delay"                     <Alarm>    (PartitionMain)                                                    ["Point"]        {channel="qolsysiq:partition:home:0:armingDelay"}
 
-Group                             QolsysIQZoneKitchenWindows                       "Qolsys IQ Zone: Kitchen Windows"                                                                                                  ["Equipment"]
-Number                            QolsysIQZoneKitchenWindows_ZoneState             "Kitchen Windows Zone State"                            (QolsysIQZoneKitchenWindows)                                               ["Point"]        {channel="qolsysiq:zone:home:0:1:state"}
-String                            QolsysIQZoneKitchenWindows_ZoneStatus            "Kitchen Windows Zone Status"                           (QolsysIQZoneKitchenWindows)                                               ["Point"]        {channel="qolsysiq:zone:home:0:1:status"}
-Contact                           QolsysIQZoneKitchenWindows_ZoneContact           "Kitchen Windows Zone Contact"                          (QolsysIQZoneKitchenWindows, QolsysIQPartitionMain_ZoneContacts)           ["Point"]        {channel="qolsysiq:zone:home:0:1:contact"}
+Group                             ZoneKitchenWindows                       "Qolsys IQ Zone: Kitchen Windows"                                                                                                  ["Equipment"]
+Number                            ZoneKitchenWindows_ZoneState             "Kitchen Windows Zone State"                            (ZoneKitchenWindows)                                               ["Point"]        {channel="qolsysiq:zone:home:0:1:state"}
+String                            ZoneKitchenWindows_ZoneStatus            "Kitchen Windows Zone Status"                           (ZoneKitchenWindows)                                               ["Point"]        {channel="qolsysiq:zone:home:0:1:status"}
+Contact                           ZoneKitchenWindows_ZoneContact           "Kitchen Windows Zone Contact"                          (ZoneKitchenWindows, PartitionMain_ZoneContacts)           ["Point"]        {channel="qolsysiq:zone:home:0:1:contact"}
 
-Group                             QolsysIQZoneMotionDetector1                      "Motion Detector 1"                                                                                                                ["Equipment"]
-Number                            QolsysIQZoneMotionDetector_ZoneState1            "Motion Detector 1 Zone State"                          (QolsysIQZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:state"}
-String                            QolsysIQZoneMotionDetector_ZoneStatus1           "Motion Detector 1 Zone Status"                         (QolsysIQZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:status"}
+Group                             ZoneMotionDetector1                      "Motion Detector 1"                                                                                                                ["Equipment"]
+Number                            ZoneMotionDetector_ZoneState1            "Motion Detector 1 Zone State"                          (ZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:state"}
+String                            ZoneMotionDetector_ZoneStatus1           "Motion Detector 1 Zone Status"                         (ZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:status"}
 Contact    
 ```
