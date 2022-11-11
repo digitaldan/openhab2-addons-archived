@@ -1,28 +1,35 @@
 # Qolsys IQ Binding
 
-This binding directly controls a [Qolsys IQ](https://qolsys.com/security/) security panel.  This allows for local monitoring of alarm and zone statuses as well as arming, disarming and triggering alarms.
+This binding directly controls a [Qolsys IQ](https://qolsys.com/security/) security panel.  
+This allows for local monitoring of alarm and zone statuses as well as arming, disarming and triggering alarms.
 
 ![Qolsys IQ 4](doc/qolsysiq4.png)
 
 ## Supported Things
 
-- `Qolsys IQ Panel Bridge`: A Qolsys panel (all current models, which is 2 and 4 at the time of writing). Uses the ThingTypeUID `panel`
-- `Qolsys IQ Partition Bridge`: A logical partition which can be armed, disarmed, and is responsible for managing zones. Uses the ThingTypeUID `partition`
-- `Qolsys IQ Zone Thing`: A generic zone sensor.  Uses the ThingTypeUID `zone`
+- `Qolsys IQ Panel Bridge`: A Qolsys panel (all current models, which is 2 and 4 at the time of writing). 
+Uses the ThingTypeUID `panel`
+- `Qolsys IQ Partition Bridge`: A logical partition which can be armed, disarmed, and is responsible for managing zones. 
+Uses the ThingTypeUID `partition`
+- `Qolsys IQ Zone Thing`: A generic zone sensor.
+Uses the ThingTypeUID `zone`
 
 ## Discovery
 
 ### Qolsys IQ Panel (Bridge)
 
-The Qolsys IQ Panel must be manually added using a host name or ip address along with a secure access token from the panel settings.  To enable 3rd party control and retrieve the access token follow the following steps on the security panel touch screen:
+The Qolsys IQ Panel must be manually added using a host name or ip address along with a secure access token from the panel settings.
+To enable 3rd party control and retrieve the access token follow the following steps on the security panel touch screen:
 
 `Settings` --> `Advanced Settings` --> `Installation` --> `Dealer Settings` -> `6 Digit User Code` (set to enabled)
 
 `Settings` --> `Advanced Settings` --> `Installation` --> `Devices` --> `Wi-Fi Devices` --> `Control4` (set to enabled)
 
-Panel will reboot
+ *Panel will reboot*
 
 `Settings` --> `Advanced Settings` --> `Installation` --> `Devices` --> `Wi-Fi Devices` --> `Reveal Secure Token` (copy token to use in panel configuration)
+
+At this point you may add the panel thing in openHAB using the secure token along with the IP or host name of the panel.  
 
 ### Partition (Bridge)
 
@@ -30,7 +37,7 @@ Once a panel is added, partitions will be automatically discovered and appear in
 
 ### Zone (Thing)
 
-Zones will be automatically discovered and appear in the inbox once their parent partition has been added.
+Once a partition is added, zones will be automatically discovered and appear in the inbox.
 
 ## Thing Configuration
 
