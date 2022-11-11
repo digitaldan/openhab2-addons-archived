@@ -35,7 +35,7 @@
 	<channel-type id="zoneStatus">
 		<item-type>String</item-type>
 		<label>Zone Status</label>
-		<description>Represents the zone status.</description>
+		<description>The zone status.</description>
 		<state readOnly="true">
 			<options>
 				<option value="ACTIVE">Active</option>
