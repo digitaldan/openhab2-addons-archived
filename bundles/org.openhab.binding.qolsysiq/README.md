@@ -109,7 +109,7 @@ Group      PartitionMain                         "Alarm System"                 
 String     PartitionMain_PartitionArmState       "Partition Arm State"                <Alarm>    (PartitionMain)          ["Point"]        {channel="qolsysiq:partition:home:0:armState", alexa="ArmState" [DISARMED="DISARM",ARMED_STAY="ARM_STAY",ARMED_AWAY="ARM_AWAY:EXIT_DELAY"], homekit = "SecuritySystem.CurrentSecuritySystemState,SecuritySystem.TargetSecuritySystemState" [STAY_ARM="ARM_STAY", AWAY_ARM="ARM_AWAY", DISARM="DISARM", DISARMED="DISARM", TRIGGERED="ALARM"]}
 String     PartitionMain_PartitionAlarmState     "Partition Alarm State"              <Alarm>    (PartitionMain)          ["Point"]        {channel="qolsysiq:partition:home:0:alarmState"}
 Number     PartitionMain_PartitionArmingDelay    "Partition Arming Delay"                        (PartitionMain)          ["Point"]        {channel="qolsysiq:partition:home:0:armingDelay"}
-String     PartitionMain_ErrorEvent              "Error Event"                                   (PartitionMain)          ["Point"]                                         {channel="qolsysiq:partition:home:0:errorEvent" }
+String     PartitionMain_ErrorEvent              "Error Event"                                   (PartitionMain)          ["Point"]        {channel="qolsysiq:partition:home:0:errorEvent" }
 
 Group      ZoneKitchenWindows                    "Qolsys IQ Zone: Kitchen Windows"                                        ["Equipment"]
 Number     ZoneKitchenWindows_ZoneState          "Kitchen Windows Zone State"                    (ZoneKitchenWindows)     ["Point"]        {channel="qolsysiq:zone:home:0:1:state"}
