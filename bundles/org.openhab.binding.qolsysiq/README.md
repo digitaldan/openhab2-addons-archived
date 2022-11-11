@@ -82,7 +82,7 @@ None.
 | Channel | Type    | Read/Write | Description            | State Options                               | 
 |---------|---------|------------|------------------------|---------------------------------------------|
 | status  | String  | R          | The zone status        | ACTIVE, CLOSED, OPEN, FAILURE, IDLE, TAMPER |
-| state   | Number  | R          | The zone state         | Number of state                             |
+| state   | Number  | R          | The zone state         | Number                                      |
 | contact | Contact | R          | The zone contact state | OPEN, CLOSED                                |
 
 ## Full Example
