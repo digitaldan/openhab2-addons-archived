@@ -97,8 +97,8 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
 
     @Override
     public void dispose() {
-        disconnect();
         stopRetryFuture();
+        disconnect();
     }
 
     @Override

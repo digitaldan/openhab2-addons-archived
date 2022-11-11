@@ -54,6 +54,7 @@ import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerService;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
+import org.openhab.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,10 +65,13 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class QolsysIQPartitionHandler extends BaseBridgeHandler implements QolsysIQChildDiscoveryHandler {
     private final Logger logger = LoggerFactory.getLogger(QolsysIQPartitionHandler.class);
+    private static final int CLEAR_ERROR_MESSSAGE_TIME = 30;
     private @Nullable QolsysIQChildDiscoveryService discoveryService;
     private @Nullable ScheduledFuture<?> delayFuture;
+    private @Nullable ScheduledFuture<?> errorFuture;
     private @Nullable Partition partitionCache;
     private @Nullable String armCode;
+    private @Nullable String disarmCode;
     private List<Zone> zones = Collections.synchronizedList(new LinkedList<Zone>());
     private int partitionId;
 
@@ -80,6 +84,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         QolsysIQPartitionConfiguration config = getConfigAs(QolsysIQPartitionConfiguration.class);
         partitionId = config.id;
         armCode = config.armCode.strip().length() == 0 ? null : config.armCode;
+        disarmCode = config.disarmCode.strip().length() == 0 ? null : config.disarmCode;
         logger.debug("initialize partition {}", partitionId);
         refresh();
     }
@@ -87,6 +92,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
     @Override
     public void dispose() {
         cancelExitDelayJob();
+        cancelErrorDelayJob();
     }
 
     @Override
@@ -94,6 +100,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         super.bridgeStatusChanged(bridgeStatusInfo);
         if (bridgeStatusInfo.getStatus() == ThingStatus.OFFLINE) {
             cancelExitDelayJob();
+            cancelErrorDelayJob();
         }
     }
 
@@ -118,7 +125,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
             // support ARM_AWAY and ARM_AWAY:123456 , same for other arm / disarm modes
             if (channelUID.getId().equals(QolsysIQBindingConstants.CHANNEL_PARTITION_ARM_STATE)) {
                 String armingTypeName = command.toString();
-                String code = armCode;
+                String code = null;
                 if (armingTypeName.contains(":")) {
                     String[] split = armingTypeName.split(":");
                     armingTypeName = split[0];
@@ -128,6 +135,13 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
                 }
                 try {
                     ArmingActionType armingType = ArmingActionType.valueOf(armingTypeName);
+                    if (code == null) {
+                        if (armingType == ArmingActionType.DISARM) {
+                            code = disarmCode;
+                        } else {
+                            code = armCode;
+                        }
+                    }
                     panel.sendAction(new ArmingAction(armingType, partitionId(), code));
                 } catch (IllegalArgumentException e) {
                     logger.debug("Unknown arm type {} to channel {}", armingTypeName, channelUID);
@@ -193,6 +207,9 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     protected void errorEvent(ErrorEvent event) {
         logger.debug("error event: {}", event);
+        cancelErrorDelayJob();
+        updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ERROR_EVENT, new StringType(event.description));
+        errorFuture = scheduler.schedule(this::clearErrorEvent, CLEAR_ERROR_MESSSAGE_TIME, TimeUnit.SECONDS);
     }
 
     protected void secureArmInfoEvent(SecureArmInfoEvent event) {
@@ -237,6 +254,7 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     private void updatePartitionStatus(PartitionStatus status) {
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ARM_STATE, new StringType(status.toString()));
+        cancelErrorDelayJob();
         if (status == PartitionStatus.DISARM) {
             updateAlarmState(AlarmType.NONE);
             updateDelay(0);
@@ -274,12 +292,24 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ALARM_STATE, new StringType(alarmType.toString()));
     }
 
+    private void clearErrorEvent() {
+        updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_ERROR_EVENT, UnDefType.NULL);
+    }
+
     private void cancelExitDelayJob() {
         ScheduledFuture<?> delayFuture = this.delayFuture;
         if (delayFuture != null && !delayFuture.isDone()) {
             delayFuture.cancel(false);
         }
         updateState(QolsysIQBindingConstants.CHANNEL_PARTITION_COMMAND_DELAY, new DecimalType(0));
+    }
+
+    private void cancelErrorDelayJob() {
+        ScheduledFuture<?> errorFuture = this.errorFuture;
+        if (errorFuture != null && !errorFuture.isDone()) {
+            errorFuture.cancel(false);
+        }
+        clearErrorEvent();
     }
 
     private void discoverChildDevices() {

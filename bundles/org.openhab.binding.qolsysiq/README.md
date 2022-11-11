@@ -52,16 +52,17 @@ Once a partition is added, zones will be automatically discovered and appear in 
 
 ### `partition` Thing Configuration
 
-| Name    | Type    | Description                                                                                               | Default | Required | Advanced |
-|---------|---------|-----------------------------------------------------------------------------------------------------------|---------|----------|----------|
-| id      | integer | Partition id of the panel, staring with '0' for the first partition                                       | N/A     | yes      | no       |
-| armCode | text    | Optional Arm / Disarm code to use when receiving commands without a code.  Leave blank to require a code  | blank   | no       | no       |
+| Name       | Type    | Description                                                                                                                                                                                                 | Default | Required | Advanced |
+|------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|----------|----------|
+| id         | integer | Partition id of the panel, staring with '0' for the first partition                                                                                                                                         | N/A     | yes      | no       |
+| disarmCode | text    | Optional disarm code to use when receiving a disarm command without a code. Required for integrations like Alexa and Homekit who do not provide codes when disarming.  Leave blank to always require a code | blank   | no       | no       |
+| armCode    | text    | Optional arm code to use when receiving arm commands without a code.  Only required if the panel has been configured to require arm codes.  Leave blank to always require a code                            | blank   | no       | yes      |
 
 ### `zone` Thing Configuration
 
 | Name    | Type    | Description                                                                                             | Default | Required | Advanced |
 |---------|---------|---------------------------------------------------------------------------------------------------------|---------|----------|----------|
-| id      | integer | Zone id of the zone, staring with '1' for the first zone                                                | N/A     | yes      | no       |
+| id      | integer | Id of the zone, staring with '1' for the first zone                                                | N/A     | yes      | no       |
 
 ## Channels
 
@@ -71,11 +72,12 @@ None.
 
 ### Partition Channels
 
-| Channel     | Type   | Read/Write | Description                                                                                                                                                                           | State Options                                              | Command Options            |
-|-------------|--------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|----------------------------|
-| armState    | String | RW         | Reports the current partition arm state or sends an arm or disarm command to the system. Security codes can be appended to the command using a colon delimiter (e.g. 'DISARM:123456') | ALARM, ARM_AWAY, ARM_STAY, DISARM, ENTRY_DELAY, EXIT_DELAY | ARM_AWAY, ARM_STAY, DISARM |
-| alarmState  | String | RW         | Reports on the current alarm state, or triggers an instant alarm                                                                                                                      | AUXILIARY, FIRE, POLICE, ZONEOPEN, NONE                    | AUXILIARY, FIRE, POLICE    |
-| armingDelay | Number | R          | The arming delay countdown currently in progress                                                                                                                                      | Seconds remaining                                          | N/A                        |
+| Channel     | Type   | Read/Write | Description                                                                                                                                                                                                                                                                                | State Options                                              | Command Options            |
+|-------------|--------|------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|----------------------------|
+| armState    | String | RW         | Reports the current partition arm state or sends an arm or disarm command to the system. Security codes can be appended to the command using a colon delimiter (e.g. 'DISARM:123456'). Codes appended to the command will be used in place of the `armCode` configuration property if set. | ALARM, ARM_AWAY, ARM_STAY, DISARM, ENTRY_DELAY, EXIT_DELAY | ARM_AWAY, ARM_STAY, DISARM |
+| alarmState  | String | RW         | Reports on the current alarm state, or triggers an instant alarm                                                                                                                                                                                                                           | AUXILIARY, FIRE, POLICE, ZONEOPEN, NONE                    | AUXILIARY, FIRE, POLICE    |
+| armingDelay | Number | R          | The arming delay countdown currently in progress                                                                                                                                                                                                                                           | Seconds remaining                                          | N/A                        |
+| errorEvent  | String | R          | Last error event message reported by the partition. Clears after 30 seconds                                                                                                                                                                                                                | Error text                                                 | N/A                        |
 
 ### Zone Channels
 
@@ -107,6 +109,7 @@ Group      PartitionMain                         "Alarm System"                 
 String     PartitionMain_PartitionArmState       "Partition Arm State"                <Alarm>    (PartitionMain)          ["Point"]        {channel="qolsysiq:partition:home:0:armState", alexa="ArmState" [DISARMED="DISARM",ARMED_STAY="ARM_STAY",ARMED_AWAY="ARM_AWAY:EXIT_DELAY"], homekit = "SecuritySystem.CurrentSecuritySystemState,SecuritySystem.TargetSecuritySystemState" [STAY_ARM="ARM_STAY", AWAY_ARM="ARM_AWAY", DISARM="DISARM", DISARMED="DISARM", TRIGGERED="ALARM"]}
 String     PartitionMain_PartitionAlarmState     "Partition Alarm State"              <Alarm>    (PartitionMain)          ["Point"]        {channel="qolsysiq:partition:home:0:alarmState"}
 Number     PartitionMain_PartitionArmingDelay    "Partition Arming Delay"                        (PartitionMain)          ["Point"]        {channel="qolsysiq:partition:home:0:armingDelay"}
+String     PartitionMain_ErrorEvent              "Error Event"                                   (PartitionMain)          ["Point"]                                         {channel="qolsysiq:partition:home:0:errorEvent" }
 
 Group      ZoneKitchenWindows                    "Qolsys IQ Zone: Kitchen Windows"                                        ["Equipment"]
 Number     ZoneKitchenWindows_ZoneState          "Kitchen Windows Zone State"                    (ZoneKitchenWindows)     ["Point"]        {channel="qolsysiq:zone:home:0:1:state"}
