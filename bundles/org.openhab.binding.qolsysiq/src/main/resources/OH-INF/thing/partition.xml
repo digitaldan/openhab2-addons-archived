@@ -26,7 +26,8 @@
 			<parameter name="armCode" type="text" required="false">
 				<default></default>
 				<label>Arm / Disarm Code</label>
-				<description>Optional Arm / Disarm code to use when receiving commands without a code.  Leave blank to always require a code (if required by panel settings)</description>
+				<description>Optional Arm / Disarm code to use when receiving commands without a code. Leave blank to always require
+					a code (if required by panel settings)</description>
 			</parameter>
 		</config-description>
 	</bridge-type>

@@ -62,6 +62,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
 /**
+ * A client that can communicate with a Qolsys IQ Panel
  *
  * @author Dan Cunningham - Initial contribution
  */
@@ -76,22 +77,23 @@ public class QolsysiqClient {
     private @Nullable BufferedReader reader;
     private @Nullable BufferedWriter writer;
     private @Nullable Thread readerThread;
+    private @Nullable ScheduledFuture<?> heartBeatFuture;
+    private ScheduledExecutorService scheduler;
     private Object writeLock = new Object();
+    private long lastResponseTime;
     private boolean hasACK = false;
     private boolean connected;
     private String host;
     private int port;
     private int heartbeatSeconds;
-    private long lastResponseTime;
-    private ScheduledExecutorService scheduler;
-    private @Nullable ScheduledFuture<?> heartBeatFuture;
 
     /**
+     * Creates a new QolsysiqClient
      *
      * @param host
      * @param port
      * @param heartbeatSeconds
-     * @param scheduler for the hearbeat task
+     * @param scheduler for the heart beat task
      */
     public QolsysiqClient(String host, int port, int heartbeatSeconds, ScheduledExecutorService scheduler) {
         this.host = host;
@@ -100,10 +102,16 @@ public class QolsysiqClient {
         this.scheduler = scheduler;
     }
 
-    public void connect() throws IOException {
+    /**
+     * Connects to the panel
+     *
+     * @throws IOException
+     */
+    public synchronized void connect() throws IOException {
         logger.debug("connect");
         if (connected) {
-            throw new IOException("Already Connected");
+            logger.debug("connect: already connected, ignoring");
+            return;
         }
         SSLSocketFactory sslsocketfactory;
         try {
@@ -125,8 +133,14 @@ public class QolsysiqClient {
         readerThread.start();
         this.readerThread = readerThread;
         connected = true;
-        // send an initial message to confirm a connection and record a response time
-        writeMessage("");
+        try {
+            // send an initial message to confirm a connection and record a response time
+            writeMessage("");
+        } catch (IOException e) {
+            // clean up before bubbling up exception
+            disconnect();
+            throw e;
+        }
         heartBeatFuture = scheduler.scheduleWithFixedDelay(() -> {
             if (connected) {
                 try {
@@ -142,6 +156,9 @@ public class QolsysiqClient {
         }, heartbeatSeconds, heartbeatSeconds, TimeUnit.SECONDS);
     }
 
+    /**
+     * Disconnects from the panel
+     */
     public void disconnect() {
         connected = false;
 
@@ -183,24 +200,40 @@ public class QolsysiqClient {
         }
     }
 
+    /**
+     * Sends an Action message to the panel
+     *
+     * @param action
+     * @throws IOException
+     */
     public void sendAction(Action action) throws IOException {
         logger.debug("sendAction {}", action.type);
         writeMessage(gson.toJson(action));
     }
 
+    /**
+     * Adds a QolsysIQClientListener
+     *
+     * @param listener
+     */
     public void addListener(QolsysIQClientListener listener) {
         synchronized (listeners) {
             listeners.add(listener);
         }
     }
 
+    /**
+     * Removes a QolsysIQClientListener
+     *
+     * @param listener
+     */
     public void removeListener(QolsysIQClientListener listener) {
         synchronized (listeners) {
             listeners.remove(listener);
         }
     }
 
-    public synchronized void writeMessage(String message) throws IOException {
+    private synchronized void writeMessage(String message) throws IOException {
         if (!connected) {
             logger.debug("writeMessage: not connected, ignoring {}", message);
             return;

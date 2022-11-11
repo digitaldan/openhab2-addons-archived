@@ -64,7 +64,6 @@ public class QolsysIQPanelHandler extends BaseBridgeHandler
     private final Logger logger = LoggerFactory.getLogger(QolsysIQPanelHandler.class);
     private static final int QUICK_RETRY_SECONDS = 1;
     private static final int LONG_RETRY_SECONDS = 30;
-
     private @Nullable QolsysiqClient apiClient;
     private @Nullable ScheduledFuture<?> retryFuture;
     private @Nullable QolsysIQChildDiscoveryService discoveryService;

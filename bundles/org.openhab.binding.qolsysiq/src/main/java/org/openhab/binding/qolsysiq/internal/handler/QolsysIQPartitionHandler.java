@@ -160,6 +160,20 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
         return partitionId;
     }
 
+    public void zoneActiveEvent(ZoneActiveEvent event) {
+        QolsysIQZoneHandler handler = zoneHandler(event.zone.zoneId);
+        if (handler != null) {
+            handler.zoneActiveEvent(event);
+        }
+    }
+
+    public void zoneUpdateEvent(ZoneUpdateEvent event) {
+        QolsysIQZoneHandler handler = zoneHandler(event.zone.zoneId);
+        if (handler != null) {
+            handler.zoneUpdateEvent(event);
+        }
+    }
+
     protected void alarmEvent(AlarmEvent event) {
         // is this needed? I need to trigger the alarm and see if two updates are sent
         if (event.alarmType != AlarmType.NONE && event.alarmType != AlarmType.ZONEOPEN) {
@@ -183,20 +197,6 @@ public class QolsysIQPartitionHandler extends BaseBridgeHandler implements Qolsy
 
     protected void secureArmInfoEvent(SecureArmInfoEvent event) {
         setSecureArm(event.value);
-    }
-
-    public void zoneActiveEvent(ZoneActiveEvent event) {
-        QolsysIQZoneHandler handler = zoneHandler(event.zone.zoneId);
-        if (handler != null) {
-            handler.zoneActiveEvent(event);
-        }
-    }
-
-    public void zoneUpdateEvent(ZoneUpdateEvent event) {
-        QolsysIQZoneHandler handler = zoneHandler(event.zone.zoneId);
-        if (handler != null) {
-            handler.zoneUpdateEvent(event);
-        }
     }
 
     protected void updatePartition(Partition partition) {

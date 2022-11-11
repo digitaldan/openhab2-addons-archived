@@ -21,10 +21,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  */
 @NonNullByDefault
 public class QolsysIQPanelConfiguration {
-
-    /**
-     * Sample configuration parameters. Replace with your own.
-     */
     public String hostname = "";
     public int port = 12345;
     public String key = "";

@@ -27,20 +27,59 @@ import org.openhab.binding.qolsysiq.internal.client.dto.event.ZoneUpdateEvent;
  */
 @NonNullByDefault
 public interface QolsysIQClientListener {
-
+    /**
+     * Call when connection has been disconnected
+     *
+     * @param reason
+     */
     void disconnected(Exception reason);
 
+    /**
+     * AlarmEvent message callback
+     *
+     * @param event
+     */
     void alarmEvent(AlarmEvent event);
 
+    /**
+     * ArmingEvent message callback
+     *
+     * @param event
+     */
     void armingEvent(ArmingEvent event);
 
+    /**
+     * ErrorEvent message callback
+     *
+     * @param event
+     */
     void errorEvent(ErrorEvent event);
 
+    /**
+     * SummaryInfoEvent message callback
+     *
+     * @param event
+     */
     void summaryInfoEvent(SummaryInfoEvent event);
 
+    /**
+     * SecureArmInfoEvent message callback
+     *
+     * @param event
+     */
     void secureArmInfoEvent(SecureArmInfoEvent event);
 
+    /**
+     * ZoneActiveEvent message callback
+     *
+     * @param event
+     */
     void zoneActiveEvent(ZoneActiveEvent event);
 
+    /**
+     * ZoneUpdateEvent message callback
+     *
+     * @param event
+     */
     void zoneUpdateEvent(ZoneUpdateEvent event);
 }
