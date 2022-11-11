@@ -111,6 +111,5 @@ Contact                           ZoneKitchenWindows_ZoneContact           "Kitc
 
 Group                             ZoneMotionDetector1                      "Motion Detector 1"                                                                                                                ["Equipment"]
 Number                            ZoneMotionDetector_ZoneState1            "Motion Detector 1 Zone State"                          (ZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:state"}
-String                            ZoneMotionDetector_ZoneStatus1           "Motion Detector 1 Zone Status"                         (ZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:status"}
-Contact    
+String                            ZoneMotionDetector_ZoneStatus1           "Motion Detector 1 Zone Status"                         (ZoneMotionDetector1)                                              ["Point"]        {channel="qolsysiq:zone:home:0:2:status"}    
 ```
