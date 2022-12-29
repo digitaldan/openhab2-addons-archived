@@ -55,8 +55,11 @@ import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ai.coqui.libstt.CandidateTranscript;
+import ai.coqui.libstt.Metadata;
 import ai.coqui.libstt.STTModel;
 import ai.coqui.libstt.STTStreamingState;
+import ai.coqui.libstt.TokenMetadata;
 
 /**
  * @author Dan Cunningham
@@ -71,6 +74,8 @@ public class CoquiSTTService implements STTService {
     private final Logger logger = LoggerFactory.getLogger(CoquiSTTService.class);
     private static final String MODEL_NAME = "model.tflite";
     private static final String SCORER_NAME = "large_vocabulary.scorer";
+    private static final String[] HOTWORDS = { "turn", "switch", "dim", "brighten", "open", "close", "lights", "office",
+            "kitchen", "bedroom" };
     private final ScheduledExecutorService executor = ThreadPoolManager.getScheduledPool("OH-voice-coquistt");
 
     @Nullable
@@ -98,6 +103,9 @@ public class CoquiSTTService implements STTService {
                 model = new STTModel(MODEL_NAME);
                 model.enableExternalScorer(SCORER_NAME);
                 model.setBeamWidth(this.config.beamWidth);
+                for (String word : HOTWORDS) {
+                    model.addHotWord(word, 10);
+                }
             } catch (IOException e) {
                 logger.debug("Could not save model", e);
             }
@@ -178,23 +186,14 @@ public class CoquiSTTService implements STTService {
                         break;
                     }
                     if (isExpiredInterval(maxTranscriptionMillis, startTime)) {
-                        String decoded = model.finishStream(stream);
-                        logger.debug("Stops listening, max transcription time reached: {} ", decoded);
-                        sttListener.sttEventReceived(new RecognitionStopEvent());
-                        if (decoded != null && decoded.length() > 0) {
-                            sttListener.sttEventReceived(new SpeechRecognitionEvent(decoded, 1));
-                        }
-
+                        logger.debug("Stops listening, max transcription time reached");
+                        finishStream(model, sttListener, stream);
                         break;
                     }
 
                     if (isExpiredInterval(maxSilenceMillis, lastSpeechTime)) {
-                        String decoded = model.finishStream(stream);
-                        logger.debug("Stops listening, max silence time reached {}", decoded);
-                        sttListener.sttEventReceived(new RecognitionStopEvent());
-                        if (decoded != null && decoded.length() > 0) {
-                            sttListener.sttEventReceived(new SpeechRecognitionEvent(decoded, 1));
-                        }
+                        logger.debug("Stops listening, max silence time reached");
+                        finishStream(model, sttListener, stream);
                         break;
                     }
                     if (dataN != readBytes) {
@@ -241,5 +240,29 @@ public class CoquiSTTService implements STTService {
         }
         in.close();
         out.close();
+    }
+
+    private void finishStream(STTModel model, STTListener sttListener, STTStreamingState stream) {
+        Metadata metaData = model.finishStreamWithMetadata(stream, 10);
+        int numTranscripts = (int) metaData.getNumTranscripts();
+        String text = null;
+        for (int i = 0; i < numTranscripts; i++) {
+            CandidateTranscript transcript = metaData.getTranscript(i);
+            int numTokens = (int) transcript.getNumTokens();
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < numTokens; j++) {
+                TokenMetadata tokenMetadata = transcript.getToken(j);
+                sb.append(tokenMetadata.getText());
+            }
+            logger.debug("Transcript {}, confidence {} : {}", i, transcript.getConfidence(), sb.toString());
+            if (text == null) {
+                text = sb.toString();
+            }
+        }
+        sttListener.sttEventReceived(new RecognitionStopEvent());
+        if (text != null && text.length() > 0) {
+            sttListener.sttEventReceived(new SpeechRecognitionEvent(text, 1));
+        }
+
     }
 }
