@@ -39,7 +39,6 @@ import org.openhab.core.audio.AudioStream;
 import org.openhab.core.common.ThreadPoolManager;
 import org.openhab.core.config.core.ConfigurableService;
 import org.openhab.core.config.core.Configuration;
-import org.openhab.core.voice.RecognitionStartEvent;
 import org.openhab.core.voice.RecognitionStopEvent;
 import org.openhab.core.voice.STTException;
 import org.openhab.core.voice.STTListener;
@@ -102,10 +101,10 @@ public class CoquiSTTService implements STTService {
                 extractFromBundle(scorerUrl, new File(SCORER_NAME));
                 model = new STTModel(MODEL_NAME);
                 model.enableExternalScorer(SCORER_NAME);
-                model.setBeamWidth(this.config.beamWidth);
-                for (String word : HOTWORDS) {
-                    model.addHotWord(word, 10);
-                }
+                // model.setBeamWidth(this.config.beamWidth);
+                // for (String word : HOTWORDS) {
+                // model.addHotWord(word, 10);
+                // }
             } catch (IOException e) {
                 logger.debug("Could not save model", e);
             }
@@ -162,41 +161,36 @@ public class CoquiSTTService implements STTService {
     private Future<?> process(STTListener sttListener, AudioStream audioStream, AtomicBoolean aborted, Locale locale,
             Set<String> grammars) {
         return executor.submit(() -> {
-            STTModel model = this.model;
-            if (model == null) {
-                sttListener.sttEventReceived(new SpeechRecognitionErrorEvent("No Model"));
-                return;
-            }
-            long startTime = System.currentTimeMillis();
-            long lastSpeechTime = startTime;
-            long maxTranscriptionMillis = (config.maxTranscriptionSeconds * 1000L);
-            long maxSilenceMillis = (config.maxSilenceSeconds * 1000L);
-            boolean started = false;
-            int readBytes = 2048;
-            String intermediateResults = "";
-            STTStreamingState stream = model.createStream();
-            while (!aborted.get()) {
-                byte[] data = new byte[readBytes];
-                try {
-                    int dataN = audioStream.read(data);
-                    logger.trace("Read {} bytes", dataN);
+            try {
+                STTModel model = this.model;
+                if (model == null) {
+                    sttListener.sttEventReceived(new SpeechRecognitionErrorEvent("No Model"));
+                    return;
+                }
+                long startTime = System.currentTimeMillis();
+                long lastSpeechTime = startTime;
+                long maxTranscriptionMillis = (config.maxTranscriptionSeconds * 1000L);
+                long maxSilenceMillis = (config.maxSilenceSeconds * 1000L);
+                String intermediateResults = "";
+                STTStreamingState stream = model.createStream();
+                while (!aborted.get()) {
+                    byte[] data = new byte[2048];
+                    int nbytes = audioStream.read(data);
+                    logger.trace("Read {} bytes", nbytes);
                     if (aborted.get()) {
                         logger.debug("Stops listening, aborted");
-                        model.finishStream(stream);
                         break;
                     }
                     if (isExpiredInterval(maxTranscriptionMillis, startTime)) {
-                        logger.debug("Stops listening, max transcription time reached");
-                        finishStream(model, sttListener, stream);
+                        logger.debug("Stop listening, max transcription time reached");
                         break;
                     }
 
-                    if (isExpiredInterval(maxSilenceMillis, lastSpeechTime)) {
-                        logger.debug("Stops listening, max silence time reached");
-                        finishStream(model, sttListener, stream);
+                    if (!config.singleUtteranceMode && isExpiredInterval(maxSilenceMillis, lastSpeechTime)) {
+                        logger.debug("Stop listening, max silence time reached");
                         break;
                     }
-                    if (dataN != readBytes) {
+                    if (nbytes == 0) {
                         try {
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
@@ -211,16 +205,39 @@ public class CoquiSTTService implements STTService {
                     logger.debug("DECODED '{}'", decoded);
                     if (decoded != null && !intermediateResults.equals(decoded)) {
                         intermediateResults = decoded;
+                        if (config.singleUtteranceMode) {
+                            break;
+                        }
                         lastSpeechTime = System.currentTimeMillis();
-                        if (!started) {
-                            sttListener.sttEventReceived(new RecognitionStartEvent());
-                            started = true;
+                    }
+
+                }
+                String transcript = model.finishStream(stream);
+                if (!aborted.get()) {
+                    sttListener.sttEventReceived(new RecognitionStopEvent());
+                    logger.debug("Final: {}", transcript);
+                    if (!transcript.isBlank()) {
+                        sttListener.sttEventReceived(new SpeechRecognitionEvent(transcript, 1F));
+                    } else {
+                        if (!config.noResultsMessage.isBlank()) {
+                            sttListener.sttEventReceived(new SpeechRecognitionErrorEvent(config.noResultsMessage));
+                        } else {
+                            sttListener.sttEventReceived(new SpeechRecognitionErrorEvent("No results"));
                         }
                     }
-                } catch (IOException e) {
-                    logger.debug("Could not read audio data", e);
-                    sttListener.sttEventReceived(new SpeechRecognitionErrorEvent("Could not read audio data"));
                 }
+            } catch (IOException e) {
+                logger.warn("Error running speech to text: {}", e.getMessage());
+                if (config.errorMessage.isBlank()) {
+                    sttListener.sttEventReceived(new SpeechRecognitionErrorEvent("Error"));
+                } else {
+                    sttListener.sttEventReceived(new SpeechRecognitionErrorEvent(config.errorMessage));
+                }
+            }
+            try {
+                audioStream.close();
+            } catch (IOException e) {
+                logger.warn("IOException on close: {}", e.getMessage());
             }
         });
     }

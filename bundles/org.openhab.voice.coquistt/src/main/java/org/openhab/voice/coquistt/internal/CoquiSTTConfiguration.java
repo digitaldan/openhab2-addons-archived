@@ -23,14 +23,10 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 public class CoquiSTTConfiguration {
 
     /**
-     * Message to be told when no results.
+     * /**
+     * Single phrase mode.
      */
-    public String noResultsMessage = "";
-    /**
-     * Message to be told when an error has happened.
-     */
-    public String errorMessage = "";
-
+    public boolean singleUtteranceMode = true;
     /**
      * Max seconds to wait to force stop the transcription.
      */
@@ -39,11 +35,15 @@ public class CoquiSTTConfiguration {
      * Only works when singleUtteranceMode is disabled, max seconds without getting new transcriptions to stop
      * listening.
      */
-    public int maxSilenceSeconds = 10;
+    public int maxSilenceSeconds = 3;
     /**
-     * Single phrase mode.
+     * Message to be told when no results.
      */
-    public boolean singleUtteranceMode = true;
+    public String noResultsMessage = "Sorry, I didn't understand you";
+    /**
+     * Message to be told when an error has happened.
+     */
+    public String errorMessage = "Sorry, something went wrong";
 
     /**
      *

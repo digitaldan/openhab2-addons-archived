@@ -16,8 +16,7 @@
 		</parameter-group>
 		<parameter name="singleUtteranceMode" type="boolean" groupName="stt">
 			<label>Single Utterance Mode</label>
-			<description>When enabled Google Cloud Platform is responsible for detecting when to stop listening after a single
-				utterance. (Recommended)</description>
+			<description>When enabled recognition stops listening after a single utterance</description>
 			<default>true</default>
 		</parameter>
 		<parameter name="maxTranscriptionSeconds" type="integer" unit="s" groupName="stt">
