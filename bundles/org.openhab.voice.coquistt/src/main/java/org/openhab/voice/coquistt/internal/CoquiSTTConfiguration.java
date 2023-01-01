@@ -49,4 +49,9 @@ public class CoquiSTTConfiguration {
      *
      */
     public int beamWidth = 50;
+
+    /**
+     * list of hotwords and their boost value (float) eg: lights:20.0,dim:10.0,
+     */
+    public String hotWords = "";
 }

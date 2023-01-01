@@ -73,8 +73,7 @@ public class CoquiSTTService implements STTService {
     private final Logger logger = LoggerFactory.getLogger(CoquiSTTService.class);
     private static final String MODEL_NAME = "model.tflite";
     private static final String SCORER_NAME = "large_vocabulary.scorer";
-    private static final String[] HOTWORDS = { "turn", "switch", "dim", "brighten", "open", "close", "lights", "office",
-            "kitchen", "bedroom" };
+
     private final ScheduledExecutorService executor = ThreadPoolManager.getScheduledPool("OH-voice-coquistt");
 
     @Nullable
@@ -101,10 +100,19 @@ public class CoquiSTTService implements STTService {
                 extractFromBundle(scorerUrl, new File(SCORER_NAME));
                 model = new STTModel(MODEL_NAME);
                 model.enableExternalScorer(SCORER_NAME);
-                // model.setBeamWidth(this.config.beamWidth);
-                // for (String word : HOTWORDS) {
-                // model.addHotWord(word, 10);
-                // }
+                model.setBeamWidth(this.config.beamWidth);
+                String[] hotwordPairs = this.config.hotWords.split(",");
+                for (String pair : hotwordPairs) {
+                    logger.debug("Hotword {}", pair);
+                    String[] hotword = pair.split(":");
+                    if (hotword.length == 2) {
+                        try {
+                            model.addHotWord(hotword[0], Float.parseFloat(hotword[1]));
+                        } catch (NumberFormatException e) {
+                            logger.debug("Could not parse hostword value for {}", pair);
+                        }
+                    }
+                }
             } catch (IOException e) {
                 logger.debug("Could not save model", e);
             }

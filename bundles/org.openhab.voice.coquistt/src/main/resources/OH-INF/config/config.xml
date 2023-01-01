@@ -35,6 +35,11 @@
             <description>The beam width used by the model. A larger beam width value generates better results at the cost of decoding time.</description>
             <default>50</default>
         </parameter>
+        <parameter name="hotWords" type="text" groupName="stt">
+            <label>Hotwords</label>
+            <description>list of hotwords and their boost value (float) eg: lights:20.0,dim:10.0</description>
+            <default></default>
+        </parameter>
 		<parameter name="noResultsMessage" type="text" groupName="messages">
 			<label>No Results Message</label>
 			<description>Message to be told when no results. (Empty for disabled)</description>
