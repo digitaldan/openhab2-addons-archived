@@ -182,7 +182,7 @@ public class CoquiSTTService implements STTService {
                 String intermediateResults = "";
                 STTStreamingState stream = model.createStream();
                 while (!aborted.get()) {
-                    byte[] data = new byte[2048];
+                    byte[] data = new byte[4096];
                     int nbytes = audioStream.read(data);
                     logger.trace("Read {} bytes", nbytes);
                     if (aborted.get()) {
