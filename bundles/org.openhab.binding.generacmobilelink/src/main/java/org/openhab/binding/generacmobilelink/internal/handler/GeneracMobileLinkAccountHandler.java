@@ -15,6 +15,7 @@ package org.openhab.binding.generacmobilelink.internal.handler;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -32,8 +33,8 @@ import org.eclipse.jetty.util.Fields;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.openhab.binding.generacmobilelink.internal.GeneracMobileLinkBindingConstants;
 import org.openhab.binding.generacmobilelink.internal.config.GeneracMobileLinkAccountConfiguration;
+import org.openhab.binding.generacmobilelink.internal.config.GeneracMobileLinkGeneratorConfiguration;
 import org.openhab.binding.generacmobilelink.internal.discovery.GeneracMobileLinkDiscoveryService;
 import org.openhab.binding.generacmobilelink.internal.dto.Apparatus;
 import org.openhab.binding.generacmobilelink.internal.dto.ApparatusDetail;
@@ -44,7 +45,6 @@ import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
-import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.binding.BaseBridgeHandler;
 import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.types.Command;
@@ -112,9 +112,10 @@ public class GeneracMobileLinkAccountHandler extends BaseBridgeHandler {
     @Override
     public void childHandlerInitialized(ThingHandler childHandler, Thing childThing) {
         logger.debug("childHandlerInitialized {}", childThing.getUID());
-        Apparatus apparatus = apparatusesCache.get(childThing.getUID().getId());
+        String id = childThing.getConfiguration().as(GeneracMobileLinkGeneratorConfiguration.class).generatorId;
+        Apparatus apparatus = apparatusesCache.get(id);
         if (apparatus == null) {
-            logger.debug("No such device for id {}", childThing.getUID().getId());
+            logger.debug("No such device for id {}", id);
             return;
         }
         try {
@@ -187,13 +188,20 @@ public class GeneracMobileLinkAccountHandler extends BaseBridgeHandler {
                 logger.debug("Unknown apparatus type {} {}", apparatus.type, apparatus.name);
                 continue;
             }
-            apparatusesCache.put(String.valueOf(apparatus.apparatusId), apparatus);
-            Thing thing = getThing().getThing(new ThingUID(GeneracMobileLinkBindingConstants.THING_TYPE_GENERATOR,
-                    getThing().getUID(), String.valueOf(apparatus.apparatusId)));
-            if (thing == null) {
+
+            String id = String.valueOf(apparatus.apparatusId);
+            apparatusesCache.put(id, apparatus);
+
+            Optional<Thing> thing = getThing().getThings().stream().filter(
+                    t -> t.getConfiguration().as(GeneracMobileLinkGeneratorConfiguration.class).generatorId.equals(id))
+                    .findFirst();
+
+            // Thing thing = getThing().getThing(new ThingUID(GeneracMobileLinkBindingConstants.THING_TYPE_GENERATOR,
+            // getThing().getUID(), String.valueOf(apparatus.apparatusId)));
+            if (!thing.isPresent()) {
                 discoveryService.generatorDiscovered(apparatus, getThing().getUID());
             } else {
-                ThingHandler handler = thing.getHandler();
+                ThingHandler handler = thing.get().getHandler();
                 if (handler != null) {
                     updateGeneratorThing(handler, apparatus);
                 }
@@ -297,7 +305,8 @@ public class GeneracMobileLinkAccountHandler extends BaseBridgeHandler {
     }
 
     /**
-     * Attempts to submit a HTML form from Azure to the Generac API, returns false if the HTML is not match the required
+     * Attempts to submit a HTML form from Azure to the Generac API, returns false if the HTML does not match the
+     * required
      * form
      *
      * @param loginString
