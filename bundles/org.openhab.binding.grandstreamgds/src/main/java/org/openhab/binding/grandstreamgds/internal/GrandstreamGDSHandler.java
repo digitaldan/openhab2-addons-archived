@@ -55,7 +55,6 @@ import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 import org.openhab.core.types.State;
-import org.openhab.core.types.StringType;
 import org.openhab.core.types.UnDefType;
 import org.openhab.core.util.HexUtils;
 import org.osgi.service.http.HttpService;
@@ -167,7 +166,7 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
             return;
         }
         if (CHANNEL_DOOR_OPEN.equals(channelUID.getId())) {
-            if (command instanceof StringType stringType && stringType.toLowerCase().equals("open")) {
+            if (command instanceof StringType stringType && stringType.toString().toLowerCase().equals("open")) {
                 String remoteCode;
                 try {
                     remoteCode = getRemoteCode();
