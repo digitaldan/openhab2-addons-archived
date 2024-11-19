@@ -182,7 +182,7 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
                 } catch (InterruptedException | ExecutionException | TimeoutException | GDSResponseException e) {
                     logger.debug("Could not open gate", e);
                 }
-                initPolling(5);
+                //initPolling(5);
             }
             break;
             case CHANNEL_KEEP_DOOR_OPEN:
@@ -194,7 +194,7 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
                         logger.debug("Could not open gate", e);
                     }
                 }
-                initPolling(5);
+                //initPolling(5);
             break;
             default:
                 if (channelUID.getId().startsWith("call_")) {
@@ -240,9 +240,10 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
                     case DI_ALARM:
                     case KEEP_DOOR_OPEN_IMMEDIATELY:
                     case KEEP_DOOR_OPEN_SCHEDULED:
-                        // umm, this needs to be reworked to handle D1 and D2
-                        //updateState(CHANNEL_DI_1, OpenClosedType.OPEN);
+                        //reset polling so when updates stop, we poll 5 seconds later, and then normally
+                        clearPolling();
                         poll();
+                        initPolling(5);
                         break;
                     default:
                 }
@@ -384,7 +385,10 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
     }
 
     private void updateDoorState(State state){
-        OnOffType onOffType = OnOffType.from(state != OpenClosedType.OPEN);
+        OnOffType onOffType = OnOffType.OFF;
+        if(state instanceof OpenClosedType openClosedType && openClosedType == OpenClosedType.OPEN){
+            onOffType = OnOffType.ON;
+        }
         updateState(CHANNEL_DOOR, onOffType);
         updateState(CHANNEL_DOOR_OPEN, new StringType(state.toString()));
     }
