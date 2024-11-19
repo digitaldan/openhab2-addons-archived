@@ -182,7 +182,6 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
                 } catch (InterruptedException | ExecutionException | TimeoutException | GDSResponseException e) {
                     logger.debug("Could not open gate", e);
                 }
-                //initPolling(5);
             }
             break;
             case CHANNEL_KEEP_DOOR_OPEN:
@@ -194,7 +193,6 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
                         logger.debug("Could not open gate", e);
                     }
                 }
-                //initPolling(5);
             break;
             default:
                 if (channelUID.getId().startsWith("call_")) {
@@ -230,8 +228,7 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
     private void handleGDSEvent(String data) {
         GDSEventDTO event = gson.fromJson(data, GDSEventDTO.class);
         if (event != null) {
-            logger.info("Event type {} : {} {}", event.type, event.date, event.content);
-
+            logger.debug("Event type {} : {} {}", event.type, event.date, event.content);
             GDSEventType type = GDSEventType.fromType(event.type);
             if (type != null) {
                 triggerChannel("event_all", data);
