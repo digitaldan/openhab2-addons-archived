@@ -32,6 +32,7 @@ public class GrandstreamGDSBindingConstants {
     public static final ThingTypeUID THING_TYPE_GDS = new ThingTypeUID(BINDING_ID, "gds");
 
     // List of all Channel ids
+    public static final String CHANNEL_DOOR = "door";
     public static final String CHANNEL_DOOR_OPEN = "dooropen";
     public static final String CHANNEL_KEEP_DOOR_OPEN = "keepdooropen";
     public static final String CHANNEL_DI_1 = "digital_input1";

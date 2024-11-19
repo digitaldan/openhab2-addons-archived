@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -44,6 +45,7 @@ import org.eclipse.jetty.util.Fields;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.openhab.binding.grandstreamgds.internal.dto.GDSEventDTO;
 import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.OpenClosedType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.net.NetworkAddressService;
@@ -90,12 +92,14 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
     private String userName = "";
     private String password = "";
     private int refreshDurationSeconds = 60;
-
+    private String doorSensor = "";
     private HttpClient httpClient;
     private NetworkAddressService networkAddressService;
     private final HttpService httpService;
     private final String servletPath;
     private @Nullable ScheduledFuture<?> pollFuture;
+    private final AtomicBoolean inPoll = new AtomicBoolean(false);
+
 
     public GrandstreamGDSHandler(Thing thing, HttpService httpService, NetworkAddressService networkAddressService) {
         super(thing);
@@ -126,6 +130,7 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
         userName = config.username;
         password = config.password;
         refreshDurationSeconds = config.refreshSeconds;
+        doorSensor = config.doorSensor;
         updateStatus(ThingStatus.UNKNOWN);
         scheduler.execute(() -> {
             try {
@@ -142,20 +147,17 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
     @Override
     public void dispose() {
         clearPolling();
-
         try {
             httpService.unregister(servletPath);
         } catch (IllegalArgumentException e) {
-            logger.debug("Error unregestering servlet", e);
+            logger.debug("Error unregistering servlet", e);
         }
 
-        // if (httpClient.isStarted()) {
         try {
             httpClient.stop();
         } catch (Exception e) {
             logger.debug("Error stopping httpClient", e);
         }
-        // }
     }
 
     @Override
@@ -165,8 +167,12 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
             initPolling(0);
             return;
         }
-        if (CHANNEL_DOOR_OPEN.equals(channelUID.getId())) {
-            if (command instanceof StringType stringType && stringType.toString().toLowerCase().equals("open")) {
+
+        switch(channelUID.getId()){
+            case CHANNEL_DOOR_OPEN:
+            case CHANNEL_DOOR:
+            if (command instanceof OnOffType onOffType && onOffType == OnOffType.ON ||
+                command instanceof StringType stringType && stringType.toString().toLowerCase().equals("open")) {
                 String remoteCode;
                 try {
                     remoteCode = getRemoteCode();
@@ -178,63 +184,65 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
                 }
                 initPolling(5);
             }
-
-        } else if (CHANNEL_KEEP_DOOR_OPEN.equals(channelUID.getId())) {
-            if (command instanceof DecimalType) {
-                try {
-                    int len = keepDoorOpen(((DecimalType) command).intValue());
-                    updateState(channelUID, new DecimalType(len));
-                } catch (InterruptedException | ExecutionException | TimeoutException | GDSResponseException e) {
-                    logger.debug("Could not open gate", e);
+            break;
+            case CHANNEL_KEEP_DOOR_OPEN:
+                if (command instanceof DecimalType) {
+                    try {
+                        int len = keepDoorOpen(((DecimalType) command).intValue());
+                        updateState(channelUID, new DecimalType(len));
+                    } catch (InterruptedException | ExecutionException | TimeoutException | GDSResponseException e) {
+                        logger.debug("Could not open gate", e);
+                    }
                 }
-            }
-            initPolling(5);
-        } else if (channelUID.getId().startsWith("call_")) {
-            String account = "auto";
-            switch (channelUID.getId()) {
-                case CHANNEL_CALL_HANGUP:
-                    try {
-                        hangup();
-                    } catch (InterruptedException | ExecutionException | TimeoutException | GDSResponseException e) {
-                        logger.debug("Could not hangup", e);
+                initPolling(5);
+            break;
+            default:
+                if (channelUID.getId().startsWith("call_")) {
+                    String account = "auto";
+                    switch (channelUID.getId()) {
+                        case CHANNEL_CALL_HANGUP:
+                            try {
+                                hangup();
+                            } catch (InterruptedException | ExecutionException | TimeoutException | GDSResponseException e) {
+                                logger.debug("Could not hangup", e);
+                            }
+                            break;
+                        case CHANNEL_CALL_ACCOUNT1:
+                            account = "1";
+                        case CHANNEL_CALL_ACCOUNT2:
+                            account = "2";
+                        case CHANNEL_CALL_ACCOUNT3:
+                            account = "3";
+                        case CHANNEL_CALL_ACCOUNT4:
+                            account = "4";
+                        default:
+                            try {
+                                call(account, command.toString());
+                            } catch (InterruptedException | ExecutionException | TimeoutException | GDSResponseException e) {
+                                logger.debug("Could not call", e);
+                            }
+        
                     }
-                    break;
-                case CHANNEL_CALL_ACCOUNT1:
-                    account = "1";
-                case CHANNEL_CALL_ACCOUNT2:
-                    account = "2";
-                case CHANNEL_CALL_ACCOUNT3:
-                    account = "3";
-                case CHANNEL_CALL_ACCOUNT4:
-                    account = "4";
-                default:
-                    try {
-                        call(account, command.toString());
-                    } catch (InterruptedException | ExecutionException | TimeoutException | GDSResponseException e) {
-                        logger.debug("Could not call", e);
-                    }
-
-            }
+                }
         }
     }
 
     private void handleGDSEvent(String data) {
         GDSEventDTO event = gson.fromJson(data, GDSEventDTO.class);
         if (event != null) {
-            logger.debug("Event type {} : {} {}", event.type, event.date, event.content);
+            logger.info("Event type {} : {} {}", event.type, event.date, event.content);
 
             GDSEventType type = GDSEventType.fromType(event.type);
             if (type != null) {
                 triggerChannel("event_all", data);
                 triggerChannel("event_" + type.name().toLowerCase());
-
                 switch (type) {
                     case DI_ALARM:
                     case KEEP_DOOR_OPEN_IMMEDIATELY:
                     case KEEP_DOOR_OPEN_SCHEDULED:
                         // umm, this needs to be reworked to handle D1 and D2
-                        updateState(CHANNEL_DI_1, OpenClosedType.OPEN);
-                        initPolling(5);
+                        //updateState(CHANNEL_DI_1, OpenClosedType.OPEN);
+                        poll();
                         break;
                     default:
                 }
@@ -242,9 +250,9 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
         }
     }
 
-    private synchronized void initPolling(int initalDelay) {
+    private synchronized void initPolling(int initialDelay) {
         clearPolling();
-        pollFuture = scheduler.scheduleWithFixedDelay(this::poll, initalDelay, refreshDurationSeconds,
+        pollFuture = scheduler.scheduleWithFixedDelay(this::poll, initialDelay, refreshDurationSeconds,
                 TimeUnit.SECONDS);
     }
 
@@ -260,6 +268,9 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
     }
 
     private void poll() {
+        if (!inPoll.compareAndSet(false, true)) {
+            return;
+        }
         try {
             String cookie = configLogin();
             logger.debug("Cookie {}", cookie);
@@ -286,6 +297,8 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
                 default:
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, message);
             }
+        } finally {
+            inPoll.set(false);
         }
     }
 
@@ -349,11 +362,31 @@ public class GrandstreamGDSHandler extends BaseThingHandler {
         String digital1 = getXMLValue(content, "Configuration/ALMIN1_STATUS");
         String digital2 = getXMLValue(content, "Configuration/ALMIN2_STATUS");
         logger.debug("DI_1 {} : DI_2 {}", digital1, digital2);
-        updateState(CHANNEL_DI_1, diToState(digital1));
-        // we should probably add a config option to tie a DI channel to the doorstate, doing this now for homekit
+        State d1State = diToState(digital1);
+        State d2State = diToState(digital2);
+
+        updateState(CHANNEL_DI_1, d1State);
+        updateState(CHANNEL_DI_2, d1State);
+
         logger.debug("Sending {} to {}", diToState(digital1), CHANNEL_DOOR_OPEN);
-        updateState(CHANNEL_DOOR_OPEN, new StringType(diToState(digital1).toString()));
-        updateState(CHANNEL_DI_2, diToState(digital2));
+        switch (doorSensor) {
+            case "digital_input1":
+                updateDoorState(d1State);
+                break;
+            case "digital_input2":
+                updateDoorState(d2State);
+                break;
+            default:
+                updateDoorState(UnDefType.UNDEF);
+                break;
+        }
+
+    }
+
+    private void updateDoorState(State state){
+        OnOffType onOffType = OnOffType.from(state != OpenClosedType.OPEN);
+        updateState(CHANNEL_DOOR, onOffType);
+        updateState(CHANNEL_DOOR_OPEN, new StringType(state.toString()));
     }
 
     private State diToState(@Nullable String value) {

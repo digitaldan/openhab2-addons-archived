@@ -12,16 +12,20 @@
  */
 package org.openhab.binding.grandstreamgds.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The {@link GrandstreamGDSConfiguration} class contains fields mapping thing configuration parameters.
  *
  * @author Dan Cunningham - Initial contribution
  */
+@NonNullByDefault
 public class GrandstreamGDSConfiguration {
 
-    public String url;
-    public String username;
-    public String password;
-    public Boolean modifyGdsConfig;
-    public Integer refreshSeconds;
+    public String url = "";
+    public String username = "admin";
+    public String password = "";
+    public String doorSensor = "digital_input1";
+    public Boolean modifyGdsConfig = true;
+    public Integer refreshSeconds = 60;
 }

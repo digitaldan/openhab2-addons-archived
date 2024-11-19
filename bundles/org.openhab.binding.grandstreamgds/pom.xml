@@ -12,6 +12,6 @@
 
   <artifactId>org.openhab.binding.grandstreamgds</artifactId>
 
-  <name>openHAB Add-ons :: Bundles :: GrandstreamGDS Binding</name>
+  <name>openHAB Add-ons :: Bundles :: Grandstream GDS Binding</name>
 
 </project>

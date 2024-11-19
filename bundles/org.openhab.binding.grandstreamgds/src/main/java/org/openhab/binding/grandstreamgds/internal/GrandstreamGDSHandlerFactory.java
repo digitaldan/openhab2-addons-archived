@@ -36,8 +36,7 @@ import org.osgi.service.http.HttpService;
  * @author Dan Cunningham - Initial contribution
  */
 @NonNullByDefault
-@Component(configurationPid = "binding.grandstreamgds", service = { ThingHandlerFactory.class,
-        GrandstreamGDSHandlerFactory.class })
+@Component(configurationPid = "binding.grandstreamgds", service = ThingHandlerFactory.class)
 public class GrandstreamGDSHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_GDS);

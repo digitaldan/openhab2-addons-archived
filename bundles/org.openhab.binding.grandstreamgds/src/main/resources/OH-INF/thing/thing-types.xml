@@ -8,6 +8,7 @@
 		<label>Grandstream GDS</label>
 		<description>Grandstream GDS door phone.</description>
 		<channels>
+			<channel id="door" typeId="door"/>
 			<channel id="dooropen" typeId="dooropen"/>
 			<channel id="keepdooropen" typeId="keepdooropen"/>
 			<channel id="digital_input1" typeId="digital_input"/>
@@ -197,6 +198,16 @@
 				<label>GDS Password</label>
 				<description>The password used to log into the GDS web UI.</description>
 			</parameter>
+			<parameter name="doorSensor" type="text" required="true">
+				<label>Door Sensor</label>
+				<description>The digital sensor used to monitor the open or closed state of the door.</description>
+				<default>digital_input1</default>
+				<options>
+					<option value="digital_input1">Digital Input 1</option>
+					<option value="digital_input2">Digital Input 2</option>
+					<option value="none">None</option>
+				</options>
+			</parameter>
 			<parameter name="refreshSeconds" type="integer" required="true">
 				<label>GDS Refresh Interval</label>
 				<description>How frequently in seconds to poll the GDS for updates</description>
@@ -212,6 +223,12 @@
 
 	</thing-type>
 
+	<channel-type id="door">
+		<item-type>Switch</item-type>
+		<label>Door Control</label>
+		<description>Operates the door and indicates door state.</description>
+		<autoUpdatePolicy>veto</autoUpdatePolicy>
+	</channel-type>
 
 	<channel-type id="dooropen">
 		<item-type>String</item-type>
