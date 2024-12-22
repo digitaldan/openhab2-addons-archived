@@ -24,5 +24,5 @@ public class HydrawiseAccountConfiguration {
     public String userName = "";
     public String password = "";
     public Boolean savePassword = false;
-    public Integer refreshInterval = 60;
+    public Integer refresh = 60;
 }

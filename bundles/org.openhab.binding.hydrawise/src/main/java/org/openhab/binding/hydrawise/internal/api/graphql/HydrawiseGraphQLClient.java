@@ -47,6 +47,7 @@ import org.openhab.binding.hydrawise.internal.api.graphql.dto.ScheduledRuns;
 import org.openhab.binding.hydrawise.internal.api.graphql.dto.Sensor;
 import org.openhab.binding.hydrawise.internal.api.graphql.dto.Zone;
 import org.openhab.binding.hydrawise.internal.api.graphql.dto.ZoneRun;
+import org.openhab.core.OpenHAB;
 import org.openhab.core.auth.client.oauth2.AccessTokenResponse;
 import org.openhab.core.auth.client.oauth2.OAuthClientService;
 import org.openhab.core.auth.client.oauth2.OAuthException;
@@ -81,7 +82,7 @@ public class HydrawiseGraphQLClient {
             .registerTypeAdapter(ControllerStatus.class, new ResponseDeserializer<ControllerStatus>())
             .registerTypeAdapter(Hardware.class, new ResponseDeserializer<ControllerStatus>()).create();
 
-    private static final String GRAPH_URL = "https://app.hydrawise.com/api/v2/graph";
+    private static final String GRAPH_URL = "https://app.hydrawise.com/api/v2/graph?appVersion=openHAB-" + OpenHAB.getVersion();
     private static final String MUTATION_START_ZONE = "startZone(zoneId: %d) { status }";
     private static final String MUTATION_START_ZONE_CUSTOM = "startZone(zoneId: %d, customRunDuration: %d) { status }";
     private static final String MUTATION_START_ALL_ZONES = "startAllZones(controllerId: %d){ status }";

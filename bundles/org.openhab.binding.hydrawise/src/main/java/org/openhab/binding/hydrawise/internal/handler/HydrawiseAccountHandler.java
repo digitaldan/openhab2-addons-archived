@@ -61,7 +61,7 @@ public class HydrawiseAccountHandler extends BaseBridgeHandler implements Access
     /**
      * Minimum amount of time we can poll for updates
      */
-    private static final int MIN_REFRESH_SECONDS = 30;
+    private static final int MIN_REFRESH_SECONDS = 60;
     private static final int TOKEN_REFRESH_SECONDS = 60;
     private static final int WEATHER_REFRESH_MILLIS = 60 * 60 * 1000; // 1 hour
     private static final String BASE_URL = "https://app.hydrawise.com/api/v2/";
@@ -154,7 +154,7 @@ public class HydrawiseAccountHandler extends BaseBridgeHandler implements Access
     }
 
     public void refreshData(int delaySeconds) {
-        initPolling(delaySeconds, this.refresh);
+        initPolling(delaySeconds, refresh);
     }
 
     private void configure(OAuthClientService oAuthService) {
@@ -171,7 +171,7 @@ public class HydrawiseAccountHandler extends BaseBridgeHandler implements Access
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Login credentials required.");
                 return;
             }
-            this.refresh = Math.max(config.refreshInterval, MIN_REFRESH_SECONDS);
+            refresh = Math.max(config.refresh, MIN_REFRESH_SECONDS);
             initPolling(0, refresh);
         } catch (OAuthException | IOException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
