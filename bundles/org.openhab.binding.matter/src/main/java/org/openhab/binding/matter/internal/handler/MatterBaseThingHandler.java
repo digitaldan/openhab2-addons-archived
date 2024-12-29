@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -259,10 +260,12 @@ public abstract class MatterBaseThingHandler extends BaseThingHandler
             for (NetworkInterface ni : generalCluster.networkInterfaces) {
                 thing.setProperty(Thing.PROPERTY_MAC_ADDRESS, MatterLabelUtils.formatMacAddress(ni.hardwareAddress));
                 if (!ni.iPv6Addresses.isEmpty()) {
-                    thing.setProperty("ipv6Address", MatterLabelUtils.formatIPv6Address(ni.iPv6Addresses.get(0)));
+                    thing.setProperty("ipv6Address", ni.iPv6Addresses.stream().map(MatterLabelUtils::formatIPv6Address)
+                            .collect(Collectors.joining(",")));
                 }
                 if (!ni.iPv4Addresses.isEmpty()) {
-                    thing.setProperty("ipv4Address", MatterLabelUtils.formatIPv4Address(ni.iPv4Addresses.get(0)));
+                    thing.setProperty("ipv4Address", ni.iPv4Addresses.stream().map(MatterLabelUtils::formatIPv4Address)
+                            .collect(Collectors.joining(",")));
                 }
             }
         }

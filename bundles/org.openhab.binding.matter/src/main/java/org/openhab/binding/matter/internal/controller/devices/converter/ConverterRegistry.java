@@ -69,8 +69,7 @@ public class ConverterRegistry {
         ConverterRegistry.registerConverter(BooleanStateCluster.CLUSTER_ID, BooleanStateConverter.class);
         ConverterRegistry.registerConverter(WiFiNetworkDiagnosticsCluster.CLUSTER_ID,
                 WiFiNetworkDiagnosticsConverter.class);
-        ConverterRegistry.registerConverter(DoorLockCluster.CLUSTER_ID,
-                DoorLockConverter.class);
+        ConverterRegistry.registerConverter(DoorLockCluster.CLUSTER_ID, DoorLockConverter.class);
     }
 
     public static void registerConverter(Integer clusterId,

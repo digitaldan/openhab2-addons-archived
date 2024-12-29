@@ -55,16 +55,16 @@ public class DoorLockConverter extends GenericConverter<DoorLockCluster> {
         return Collections.singletonMap(channel, null);
     }
 
-     @Override
-     public void handleCommand(ChannelUID channelUID, Command command) {
-         if (command instanceof OnOffType onOffType) {
-             ClusterCommand doorLockCommand = onOffType == OnOffType.ON ? DoorLockCluster.lockDoor("")
-                     : DoorLockCluster.unlockDoor("");
-             handler.sendClusterCommand(endpointNumber, DoorLockCluster.CLUSTER_NAME, doorLockCommand);
-         }
-         super.handleCommand(channelUID, command);
-     }
-    
+    @Override
+    public void handleCommand(ChannelUID channelUID, Command command) {
+        if (command instanceof OnOffType onOffType) {
+            ClusterCommand doorLockCommand = onOffType == OnOffType.ON ? DoorLockCluster.lockDoor("")
+                    : DoorLockCluster.unlockDoor("");
+            handler.sendClusterCommand(endpointNumber, DoorLockCluster.CLUSTER_NAME, doorLockCommand);
+        }
+        super.handleCommand(channelUID, command);
+    }
+
     @Override
     public void onEvent(AttributeChangedMessage message) {
         Integer numberValue = message.value instanceof Number number ? number.intValue() : 0;
