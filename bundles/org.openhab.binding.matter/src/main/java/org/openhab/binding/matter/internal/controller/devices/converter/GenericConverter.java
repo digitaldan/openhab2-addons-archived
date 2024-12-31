@@ -12,7 +12,6 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
@@ -57,14 +56,16 @@ public abstract class GenericConverter<T extends BaseCluster> implements Attribu
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final BigDecimal TEMPERATURE_MULTIPLIER = new BigDecimal(100);
-    protected T cluster;
+    // This cluster is used for initializing the converter, but is not kept updated as values change over time.
+    protected T initializingCluster;
     protected MatterBaseThingHandler handler;
     protected int endpointNumber;
     protected String labelPrefix;
+    // used to REFRESH channels
     protected ConcurrentHashMap<ChannelTypeUID, State> stateCache = new ConcurrentHashMap<>();
 
     public GenericConverter(T cluster, MatterBaseThingHandler handler, int endpointNumber, String labelPrefix) {
-        this.cluster = cluster;
+        this.initializingCluster = cluster;
         this.handler = handler;
         this.endpointNumber = endpointNumber;
         this.labelPrefix = labelPrefix;
@@ -85,15 +86,14 @@ public abstract class GenericConverter<T extends BaseCluster> implements Attribu
 
     @Override
     public void onEvent(AttributeChangedMessage message) {
-        updateLocalClusterAttribute(message.path.attributeName, message.value);
     }
 
     @Override
     public void onEvent(EventTriggeredMessage message) {
     }
 
-    public T getCluster() {
-        return cluster;
+    public T getInitializingCluster() {
+        return initializingCluster;
     }
 
     public final void updateState(ChannelTypeUID channelTypeUID, State state) {
@@ -167,22 +167,6 @@ public abstract class GenericConverter<T extends BaseCluster> implements Attribu
      */
     public static QuantityType<Temperature> valueToTemperature(int value) {
         return new QuantityType<>(BigDecimal.valueOf(value, 2), SIUnits.CELSIUS);
-    }
-
-    private void updateLocalClusterAttribute(String attributeName, Object newValue) {
-        Object fieldValue = null;
-        try {
-            if (newValue instanceof Number number) {
-                fieldValue = number.intValue();
-            } else {
-                fieldValue = newValue;
-            }
-            Field field = cluster.getClass().getDeclaredField(attributeName);
-            field.setAccessible(true);
-            field.set(cluster, fieldValue);
-        } catch (NoSuchFieldException | IllegalAccessException ignored) {
-            // its likely this is not a field in the cluster, so just ignore
-        }
     }
 
     protected String formatLabel(String channelLabel) {

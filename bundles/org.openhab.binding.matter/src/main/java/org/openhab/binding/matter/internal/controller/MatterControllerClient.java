@@ -29,6 +29,7 @@ import org.openhab.binding.matter.internal.client.model.cluster.gen.OperationalC
 import org.openhab.binding.matter.internal.client.model.ws.ActiveSessionInformation;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -73,7 +74,7 @@ public class MatterControllerClient extends MatterWebsocketClient {
         return future.thenApply(obj -> {
             Node node = gson.fromJson(obj, Node.class);
             if (node == null) {
-                throw new IllegalStateException("Could not deserialize node");
+                throw new JsonParseException("Could not deserialize node");
             }
             return node;
         });
@@ -114,7 +115,7 @@ public class MatterControllerClient extends MatterWebsocketClient {
         return future.thenApply(obj -> {
             PairingCodes codes = gson.fromJson(obj, PairingCodes.class);
             if (codes == null) {
-                throw new IllegalStateException("Could not deserialize pairing codes");
+                throw new JsonParseException("Could not deserialize pairing codes");
             }
             return codes;
         });
@@ -133,11 +134,11 @@ public class MatterControllerClient extends MatterWebsocketClient {
         return future.thenApply(obj -> {
             Type listType = new TypeToken<List<OperationalCredentialsCluster.FabricDescriptorStruct>>() {
             }.getType();
-            // return List<OperationalCredentialsCluster.FabricDescriptorStruct> list = gson.fromJson(obj, listType);
             List<OperationalCredentialsCluster.FabricDescriptorStruct> list = gson.fromJson(obj, listType);
             if (list == null) {
-                throw new IllegalStateException("Could not deserialize fabrics");
+                throw new JsonParseException("Could not deserialize fabrics");
             }
+            
             return list;
         });
     }

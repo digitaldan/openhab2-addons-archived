@@ -95,7 +95,7 @@ public class LevelControlConverter extends GenericConverter<LevelControlCluster>
     }
 
     public void initState(boolean onOff) {
-        lastLevel = levelToPercent(cluster.currentLevel);
+        lastLevel = levelToPercent(initializingCluster.currentLevel);
         updateState(CHANNEL_LEVEL_LEVEL, onOff ? lastLevel : OnOffType.OFF);
     }
 }

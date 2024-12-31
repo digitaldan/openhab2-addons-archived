@@ -101,13 +101,13 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
                 .withType(CHANNEL_COLOR_COLOR).withLabel(formatLabel(CHANNEL_LABEL_COLOR_COLOR)).build(), null);
 
         // see Matter spec 3.2.6.1. For more information on color temperature
-        if (cluster.featureMap.colorTemperature) {
+        if (initializingCluster.featureMap.colorTemperature) {
             map.put(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_COLOR_TEMPERATURE.getId()), ITEM_TYPE_DIMMER)
                     .withType(CHANNEL_COLOR_TEMPERATURE).withLabel(formatLabel(CHANNEL_LABEL_COLOR_TEMPERATURE))
                     .build(), null);
-            Optional.ofNullable(cluster.colorTempPhysicalMinMireds)
+            Optional.ofNullable(initializingCluster.colorTempPhysicalMinMireds)
                     .ifPresent(temp -> colorTempPhysicalMinMireds = temp);
-            Optional.ofNullable(cluster.colorTempPhysicalMaxMireds)
+            Optional.ofNullable(initializingCluster.colorTempPhysicalMaxMireds)
                     .ifPresent(temp -> colorTempPhysicalMaxMireds = temp);
             StateDescription stateDescription = null;
             if (colorTempPhysicalMinMireds < colorTempPhysicalMaxMireds) {
@@ -226,17 +226,19 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
 
     public void initState(boolean onOff, int brightness) {
         lastHSB = new HSBType(lastHSB.getHue(), lastHSB.getSaturation(), new PercentType(brightness));
-        lastColorMode = cluster.colorMode;
+        lastColorMode = initializingCluster.colorMode;
         lastOnOff = onOff;
-        supportsHue = cluster.featureMap.hueSaturation;
-        lastX = cluster.currentX != null ? cluster.currentX : 0;
-        lastY = cluster.currentY != null ? cluster.currentY : 0;
-        lastHue = cluster.currentHue != null ? cluster.currentHue : 0;
-        lastSaturation = cluster.currentSaturation != null ? cluster.currentSaturation : 0;
-        supportsColorTemperature = cluster.featureMap.colorTemperature;
-        lastColorTemperatureMireds = cluster.colorTemperatureMireds;
-        Optional.ofNullable(cluster.colorTempPhysicalMaxMireds).ifPresent(temp -> colorTempPhysicalMaxMireds = temp);
-        Optional.ofNullable(cluster.colorTempPhysicalMinMireds).ifPresent(temp -> colorTempPhysicalMinMireds = temp);
+        supportsHue = initializingCluster.featureMap.hueSaturation;
+        lastX = initializingCluster.currentX != null ? initializingCluster.currentX : 0;
+        lastY = initializingCluster.currentY != null ? initializingCluster.currentY : 0;
+        lastHue = initializingCluster.currentHue != null ? initializingCluster.currentHue : 0;
+        lastSaturation = initializingCluster.currentSaturation != null ? initializingCluster.currentSaturation : 0;
+        supportsColorTemperature = initializingCluster.featureMap.colorTemperature;
+        lastColorTemperatureMireds = initializingCluster.colorTemperatureMireds;
+        Optional.ofNullable(initializingCluster.colorTempPhysicalMaxMireds)
+                .ifPresent(temp -> colorTempPhysicalMaxMireds = temp);
+        Optional.ofNullable(initializingCluster.colorTempPhysicalMinMireds)
+                .ifPresent(temp -> colorTempPhysicalMinMireds = temp);
         updateColor();
     }
 

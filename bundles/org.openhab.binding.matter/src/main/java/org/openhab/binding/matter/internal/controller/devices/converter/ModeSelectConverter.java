@@ -53,10 +53,11 @@ public class ModeSelectConverter extends GenericConverter<ModeSelectCluster> {
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Channel channel = ChannelBuilder
                 .create(new ChannelUID(thingUID, CHANNEL_MODESELECT_MODE.getId()), ITEM_TYPE_NUMBER)
-                .withType(CHANNEL_MODESELECT_MODE).withLabel(formatLabel(cluster.description)).build();
+                .withType(CHANNEL_MODESELECT_MODE).withLabel(formatLabel(initializingCluster.description)).build();
 
         List<StateOption> modeOptions = new ArrayList<>();
-        cluster.supportedModes.forEach(mode -> modeOptions.add(new StateOption(mode.mode.toString(), mode.label)));
+        initializingCluster.supportedModes
+                .forEach(mode -> modeOptions.add(new StateOption(mode.mode.toString(), mode.label)));
 
         @Nullable
         StateDescription stateDescriptionMode = StateDescriptionFragmentBuilder.create().withPattern("%d")
@@ -79,7 +80,7 @@ public class ModeSelectConverter extends GenericConverter<ModeSelectCluster> {
         Integer numberValue = message.value instanceof Number number ? number.intValue() : 0;
         switch (message.path.attributeName) {
             case "currentMode":
-                cluster.currentMode = numberValue;
+                initializingCluster.currentMode = numberValue;
                 updateState(CHANNEL_MODESELECT_MODE, new DecimalType(numberValue));
                 break;
         }
@@ -88,6 +89,6 @@ public class ModeSelectConverter extends GenericConverter<ModeSelectCluster> {
 
     @Override
     public void initState() {
-        updateState(CHANNEL_MODESELECT_MODE, new DecimalType(cluster.currentMode));
+        updateState(CHANNEL_MODESELECT_MODE, new DecimalType(initializingCluster.currentMode));
     }
 }

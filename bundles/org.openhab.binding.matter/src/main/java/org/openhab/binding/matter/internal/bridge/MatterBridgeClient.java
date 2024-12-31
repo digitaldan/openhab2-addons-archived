@@ -20,6 +20,7 @@ import org.openhab.binding.matter.internal.client.MatterWebsocketClient;
 import org.openhab.binding.matter.internal.client.model.ws.BridgeCommissionState;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 
 /**
  * The {@link MatterBridgeClient}
@@ -64,7 +65,7 @@ public class MatterBridgeClient extends MatterWebsocketClient {
         return future.thenApply(obj -> {
             BridgeCommissionState state = gson.fromJson(obj, BridgeCommissionState.class);
             if (state == null) {
-                throw new IllegalStateException("Could not deserialize commissioning state");
+                throw new JsonParseException("Could not deserialize commissioning state");
             }
             return state;
         });

@@ -72,6 +72,6 @@ public class OccupancySensingConverter extends GenericConverter<OccupancySensing
 
     @Override
     public void initState() {
-        updateState(CHANNEL_OCCUPANCYSENSING_OCCUPIED, OnOffType.from(cluster.occupancy.occupied));
+        updateState(CHANNEL_OCCUPANCYSENSING_OCCUPIED, OnOffType.from(initializingCluster.occupancy.occupied));
     }
 }

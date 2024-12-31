@@ -57,15 +57,15 @@ public class PowerSourceConverter extends GenericConverter<PowerSourceCluster> {
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Map<Channel, @Nullable StateDescription> channels = new HashMap<>();
-        if (cluster.featureMap.battery) {
-            if (cluster.batPercentRemaining != null) {
+        if (initializingCluster.featureMap.battery) {
+            if (initializingCluster.batPercentRemaining != null) {
                 Channel channel = ChannelBuilder
                         .create(new ChannelUID(thingUID, CHANNEL_POWER_BATTERYPERCENT.getId()), ITEM_TYPE_NUMBER)
                         .withType(CHANNEL_POWER_BATTERYPERCENT)
                         .withLabel(formatLabel(CHANNEL_LABEL_POWER_BATTERYPERCENT)).build();
                 channels.put(channel, null);
             }
-            if (cluster.batChargeLevel != null) {
+            if (initializingCluster.batChargeLevel != null) {
                 Channel channel = ChannelBuilder
                         .create(new ChannelUID(thingUID, CHANNEL_POWER_CHARGELEVEL.getId()), ITEM_TYPE_NUMBER)
                         .withType(CHANNEL_POWER_CHARGELEVEL).withLabel(formatLabel(CHANNEL_LABEL_POWER_CHARGELEVEL))
@@ -100,12 +100,12 @@ public class PowerSourceConverter extends GenericConverter<PowerSourceCluster> {
 
     @Override
     public void initState() {
-        if (cluster.batPercentRemaining != null) {
-            updateState(CHANNEL_POWER_BATTERYPERCENT, convertToPercentage(cluster.batPercentRemaining));
+        if (initializingCluster.batPercentRemaining != null) {
+            updateState(CHANNEL_POWER_BATTERYPERCENT, convertToPercentage(initializingCluster.batPercentRemaining));
         }
 
-        if (cluster.batChargeLevel != null) {
-            updateState(CHANNEL_POWER_CHARGELEVEL, new DecimalType(cluster.batChargeLevel.value));
+        if (initializingCluster.batChargeLevel != null) {
+            updateState(CHANNEL_POWER_CHARGELEVEL, new DecimalType(initializingCluster.batChargeLevel.value));
         }
     }
 

@@ -73,22 +73,22 @@ public class SwitchConverter extends GenericConverter<SwitchCluster> {
         final Map<Channel, @Nullable StateDescription> map = new HashMap<>();
         Map<ChannelTypeUID, String> triggerChannels = new HashMap<>();
         // See cluster specification table 1.13.4. Switch Features
-        if (cluster.featureMap.latchingSwitch) {
+        if (initializingCluster.featureMap.latchingSwitch) {
             triggerChannels.put(CHANNEL_SWITCH_SWITCHLATECHED, CHANNEL_LABEL_SWITCH_SWITCHLATECHED);
         }
-        if (cluster.featureMap.momentarySwitch) {
+        if (initializingCluster.featureMap.momentarySwitch) {
             triggerChannels.put(CHANNEL_SWITCH_INITIALPRESS, CHANNEL_LABEL_SWITCH_INITIALPRESS);
         }
-        if (cluster.featureMap.momentarySwitchRelease) {
+        if (initializingCluster.featureMap.momentarySwitchRelease) {
             triggerChannels.put(CHANNEL_SWITCH_SHORTRELEASE, CHANNEL_LABEL_SWITCH_SHORTRELEASE);
 
         }
-        if (cluster.featureMap.momentarySwitchLongPress) {
+        if (initializingCluster.featureMap.momentarySwitchLongPress) {
             triggerChannels.put(CHANNEL_SWITCH_LONGPRESS, CHANNEL_LABEL_SWITCH_LONGPRESS);
             triggerChannels.put(CHANNEL_SWITCH_LONGRELEASE, CHANNEL_LABEL_SWITCH_LONGRELEASE);
 
         }
-        if (cluster.featureMap.momentarySwitchMultiPress) {
+        if (initializingCluster.featureMap.momentarySwitchMultiPress) {
             triggerChannels.put(CHANNEL_SWITCH_MULTIPRESSCOMPLETE, CHANNEL_LABEL_SWITCH_MULTIPRESSCOMPLETE);
             triggerChannels.put(CHANNEL_SWITCH_MULTIPRESSONGOING, CHANNEL_LABEL_SWITCH_MULTIPRESSONGOING);
         }
@@ -103,7 +103,7 @@ public class SwitchConverter extends GenericConverter<SwitchCluster> {
                 .withType(CHANNEL_SWITCH_SWITCH).withLabel(formatLabel(CHANNEL_LABEL_SWITCH_SWITCH)).build();
 
         List<StateOption> options = new ArrayList<>();
-        for (int i = 0; i < cluster.numberOfPositions; i++) {
+        for (int i = 0; i < initializingCluster.numberOfPositions; i++) {
             options.add(new StateOption(String.valueOf(i), "Position " + i));
         }
 
@@ -120,7 +120,7 @@ public class SwitchConverter extends GenericConverter<SwitchCluster> {
         Integer numberValue = message.value instanceof Number number ? number.intValue() : 0;
         switch (message.path.attributeName) {
             case "currentPosition":
-                cluster.currentPosition = numberValue;
+                initializingCluster.currentPosition = numberValue;
                 updateState(CHANNEL_SWITCH_SWITCH, new DecimalType(numberValue));
                 break;
         }
@@ -138,6 +138,6 @@ public class SwitchConverter extends GenericConverter<SwitchCluster> {
 
     @Override
     public void initState() {
-        updateState(CHANNEL_SWITCH_SWITCH, new DecimalType(cluster.currentPosition));
+        updateState(CHANNEL_SWITCH_SWITCH, new DecimalType(initializingCluster.currentPosition));
     }
 }

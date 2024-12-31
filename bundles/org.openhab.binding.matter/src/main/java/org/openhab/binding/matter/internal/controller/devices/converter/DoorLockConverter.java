@@ -82,7 +82,8 @@ public class DoorLockConverter extends GenericConverter<DoorLockCluster> {
     @Override
     public void initState() {
         updateState(CHANNEL_DOORLOCK_STATE,
-                cluster.lockState.getValue().equals(DoorLockCluster.LockStateEnum.LOCKED.getValue()) ? OnOffType.ON
+                initializingCluster.lockState.getValue().equals(DoorLockCluster.LockStateEnum.LOCKED.getValue())
+                        ? OnOffType.ON
                         : OnOffType.OFF);
     }
 }

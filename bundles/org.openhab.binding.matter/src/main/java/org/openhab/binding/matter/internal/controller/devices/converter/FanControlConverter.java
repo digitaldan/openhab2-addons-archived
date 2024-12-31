@@ -67,7 +67,7 @@ public class FanControlConverter extends GenericConverter<FanControlCluster> {
                 .withType(CHANNEL_FANCONTROL_PERCENT).withLabel(formatLabel(CHANNEL_LABEL_FANCONTROL_PERCENT)).build();
         channels.put(percentChannel, null);
 
-        if (cluster.fanModeSequence != null) {
+        if (initializingCluster.fanModeSequence != null) {
             Channel modeChannel = ChannelBuilder
                     .create(new ChannelUID(thingUID, CHANNEL_FANCONTROL_MODE.getId()), ITEM_TYPE_NUMBER)
                     .withType(CHANNEL_FANCONTROL_MODE).withLabel(CHANNEL_LABEL_FANCONTROL_MODE).build();
@@ -77,7 +77,7 @@ public class FanControlConverter extends GenericConverter<FanControlCluster> {
             modeOptions.add(new StateOption(FanControlCluster.FanModeEnum.OFF.value.toString(),
                     FanControlCluster.FanModeEnum.OFF.label));
 
-            switch (cluster.fanModeSequence) {
+            switch (initializingCluster.fanModeSequence) {
                 case OFF_HIGH:
                     modeOptions.add(new StateOption(FanControlCluster.FanModeEnum.HIGH.value.toString(),
                             FanControlCluster.FanModeEnum.HIGH.label));
@@ -171,11 +171,11 @@ public class FanControlConverter extends GenericConverter<FanControlCluster> {
 
     @Override
     public void initState() {
-        if (cluster.fanMode != null) {
-            updateState(CHANNEL_FANCONTROL_MODE, new DecimalType(cluster.fanMode.value));
+        if (initializingCluster.fanMode != null) {
+            updateState(CHANNEL_FANCONTROL_MODE, new DecimalType(initializingCluster.fanMode.value));
         }
-        if (cluster.percentSetting != null) {
-            updateState(CHANNEL_FANCONTROL_PERCENT, new PercentType(cluster.percentSetting));
+        if (initializingCluster.percentSetting != null) {
+            updateState(CHANNEL_FANCONTROL_PERCENT, new PercentType(initializingCluster.percentSetting));
         }
     }
 
