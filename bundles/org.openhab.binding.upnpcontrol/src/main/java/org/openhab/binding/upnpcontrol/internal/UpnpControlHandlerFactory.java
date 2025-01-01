@@ -18,12 +18,18 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jupnp.UpnpService;
+import org.jupnp.model.message.header.RootDeviceHeader;
+import org.jupnp.model.message.header.UDNHeader;
 import org.jupnp.model.meta.LocalDevice;
 import org.jupnp.model.meta.RemoteDevice;
+import org.jupnp.model.types.UDN;
 import org.jupnp.registry.Registry;
 import org.jupnp.registry.RegistryListener;
 import org.openhab.binding.upnpcontrol.internal.audiosink.UpnpAudioSink;
@@ -35,6 +41,7 @@ import org.openhab.binding.upnpcontrol.internal.handler.UpnpRendererHandler;
 import org.openhab.binding.upnpcontrol.internal.handler.UpnpServerHandler;
 import org.openhab.core.audio.AudioHTTPServer;
 import org.openhab.core.audio.AudioSink;
+import org.openhab.core.common.ThreadPoolManager;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.io.transport.upnp.UpnpIOService;
 import org.openhab.core.net.HttpServiceUtil;
@@ -62,15 +69,20 @@ import org.slf4j.LoggerFactory;
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.upnpcontrol")
 @NonNullByDefault
 public class UpnpControlHandlerFactory extends BaseThingHandlerFactory implements UpnpAudioSinkReg, RegistryListener {
+    private final static long KEEP_ALIVE_BUFFER_SECONDS = 30;
+
     final UpnpControlBindingConfiguration configuration = new UpnpControlBindingConfiguration();
 
     private final Logger logger = LoggerFactory.getLogger(UpnpControlHandlerFactory.class);
+
+    private ScheduledExecutorService keepAliveScheduler = ThreadPoolManager.getScheduledPool("binding-upnpcontrol");
 
     private ConcurrentMap<String, ServiceRegistration<AudioSink>> audioSinkRegistrations = new ConcurrentHashMap<>();
     private ConcurrentMap<String, UpnpRendererHandler> upnpRenderers = new ConcurrentHashMap<>();
     private ConcurrentMap<String, UpnpServerHandler> upnpServers = new ConcurrentHashMap<>();
     private ConcurrentMap<String, UpnpHandler> handlers = new ConcurrentHashMap<>();
     private ConcurrentMap<String, RemoteDevice> devices = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
     private final UpnpIOService upnpIOService;
     private final UpnpService upnpService;
@@ -107,11 +119,15 @@ public class UpnpControlHandlerFactory extends BaseThingHandlerFactory implement
         // share the same instance.
         configuration.update(new Configuration(config).as(UpnpControlBindingConfiguration.class));
         logger.debug("Updated binding configuration to {}", configuration);
+        // Send out an initial search request to find/notify all devices
+        upnpService.getControlPoint().search();
+        upnpService.getControlPoint().search(new RootDeviceHeader());
     }
 
     @Deactivate
     protected void deActivate() {
         upnpService.getRegistry().removeListener(this);
+        scheduledTasks.forEach((device, task) -> task.cancel(true));
     }
 
     @Override
@@ -154,7 +170,12 @@ public class UpnpControlHandlerFactory extends BaseThingHandlerFactory implement
         String udn = handler.getUDN();
         if (udn != null) {
             handlers.put(udn, handler);
-            remoteDeviceUpdated(null, devices.get(udn));
+            RemoteDevice device = devices.get(udn);
+            if (device != null) {
+                remoteDeviceUpdated(null, device);
+            } else {
+                sendSearchMessageToDevice(udn);
+            }
         }
 
         return handler;
@@ -172,7 +193,12 @@ public class UpnpControlHandlerFactory extends BaseThingHandlerFactory implement
         String udn = handler.getUDN();
         if (udn != null) {
             handlers.put(udn, handler);
-            remoteDeviceUpdated(null, devices.get(udn));
+            RemoteDevice device = devices.get(udn);
+            if (device != null) {
+                remoteDeviceUpdated(null, device);
+            } else {
+                sendSearchMessageToDevice(udn);
+            }
         }
 
         return handler;
@@ -260,6 +286,31 @@ public class UpnpControlHandlerFactory extends BaseThingHandlerFactory implement
         return "http://" + ipAddress + ":" + port;
     }
 
+    private synchronized void scheduleKeepAliveTask(RemoteDevice device) {
+        cancelKeepAliveTask(device);
+        String udn = device.getIdentity().getUdn().getIdentifierString();
+        long maxAgeSeconds = device.getIdentity().getMaxAgeSeconds();
+        long delay = Math.max(maxAgeSeconds - KEEP_ALIVE_BUFFER_SECONDS, KEEP_ALIVE_BUFFER_SECONDS);
+        logger.debug("Scheduling keep alive task for device {} in {} seconds", device.getDisplayString(), delay);
+        ScheduledFuture<?> scheduledTask = keepAliveScheduler.schedule(() -> sendSearchMessageToDevice(udn), delay,
+                TimeUnit.SECONDS);
+        scheduledTasks.put(udn, scheduledTask);
+    }
+
+    private void cancelKeepAliveTask(RemoteDevice device) {
+        String udn = device.getIdentity().getUdn().getIdentifierString();
+        ScheduledFuture<?> existingTask = scheduledTasks.remove(udn);
+        if (existingTask != null) {
+            existingTask.cancel(false);
+        }
+    }
+
+    private void sendSearchMessageToDevice(String udnString) {
+        logger.debug("Sending search message to device with UDN {}", udnString);
+        UDN udn = new UDN(udnString);
+        upnpService.getControlPoint().search(new UDNHeader(udn));
+    }
+
     @Override
     public void remoteDeviceDiscoveryStarted(@Nullable Registry registry, @Nullable RemoteDevice device) {
     }
@@ -295,6 +346,7 @@ public class UpnpControlHandlerFactory extends BaseThingHandlerFactory implement
         UpnpHandler handler = handlers.get(udn);
         if (handler != null) {
             handler.updateDeviceConfig(device);
+            scheduleKeepAliveTask(device);
         }
     }
 
@@ -304,6 +356,7 @@ public class UpnpControlHandlerFactory extends BaseThingHandlerFactory implement
             return;
         }
         devices.remove(device.getIdentity().getUdn().getIdentifierString());
+        cancelKeepAliveTask(device);
     }
 
     @Override
