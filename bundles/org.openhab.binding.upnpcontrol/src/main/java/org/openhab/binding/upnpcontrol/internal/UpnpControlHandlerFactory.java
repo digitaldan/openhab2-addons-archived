@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.upnpcontrol")
 @NonNullByDefault
 public class UpnpControlHandlerFactory extends BaseThingHandlerFactory implements UpnpAudioSinkReg, RegistryListener {
-    private final static long KEEP_ALIVE_BUFFER_SECONDS = 30;
+    private final static long KEEP_ALIVE_BUFFER_SECONDS = 120;
 
     final UpnpControlBindingConfiguration configuration = new UpnpControlBindingConfiguration();
 
