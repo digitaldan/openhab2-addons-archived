@@ -30,6 +30,7 @@ import org.openhab.core.thing.ChannelGroupUID;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.binding.builder.ChannelBuilder;
 import org.openhab.core.types.StateDescription;
+import org.openhab.core.types.UnDefType;
 
 /**
  * The {@link WiFiNetworkDiagnosticsConverter}
@@ -67,6 +68,6 @@ public class WiFiNetworkDiagnosticsConverter extends GenericConverter<WiFiNetwor
 
     @Override
     public void initState() {
-        updateState(CHANNEL_WIFINETWORKDIAGNOSTICS_RSSI, new DecimalType(initializingCluster.rssi));
+        updateState(CHANNEL_WIFINETWORKDIAGNOSTICS_RSSI, initializingCluster.rssi != null ? new DecimalType(initializingCluster.rssi) : UnDefType.NULL);
     }
 }

@@ -121,6 +121,6 @@ public class PowerSourceConverter extends GenericConverter<PowerSourceCluster> {
         if (halfPercentValue == null || halfPercentValue < 0 || halfPercentValue > 200) {
             return UnDefType.UNDEF; // Indicates that the node is unable to assess the value or invalid input.
         }
-        return new PercentType(halfPercentValue / 2);
+        return new PercentType(halfPercentValue == 0 ? 0 : halfPercentValue / 2);
     }
 }
