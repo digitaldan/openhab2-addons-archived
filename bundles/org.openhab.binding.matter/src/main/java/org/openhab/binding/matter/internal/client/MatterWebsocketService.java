@@ -25,10 +25,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.common.ThreadPoolManager;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -46,16 +48,28 @@ public class MatterWebsocketService {
     private static final Pattern LOG_PATTERN = Pattern
             .compile("^\\S+\\s+\\S+\\s+(TRACE|DEBUG|INFO|WARN|ERROR)\\s+(\\S+)\\s+(.*)$");
     private static final String MATTER_JS_PATH = "/matter-server/matter.js";
-
-    private final String nodePath;
-    private Process nodeProcess;
-    private boolean ready;
-    private boolean shuttingDown;
-    private int port;
+    // Delay before restarting the node process after it exits as well as notifying listeners when it's ready
+    private static int STARTUP_DELAY_SECONDS = 5;
+    // Timeout for shutting down the node process
+    private static int SHUTDOWN_TIMEOUT_SECONDS = 5;
     private final List<NodeProcessListener> processListeners = new ArrayList<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
     private final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool("matter.MatterWebsocketService");
+    private @Nullable ScheduledFuture<?> notifyFuture;
+    private @Nullable ScheduledFuture<?> restartFuture;
+    // The path to the Node.js executable (node or node.exe)
+    private final String nodePath;
+    // The Node.js process running the matter.js script
+    private Process nodeProcess;
+    // is this service up and ready
+    private boolean ready;
+    // used to track if we are in the process of starting the node process, but not yet ready
+    private boolean starting;
+    // used to track if we are in the process of shutting down the node process, so don't restart
+    private boolean shuttingDown;
+    // the port the node process is listening on
+    private int port;
 
     @Activate
     public MatterWebsocketService() throws IOException {
@@ -90,11 +104,13 @@ public class MatterWebsocketService {
     public void stopNode() {
         logger.debug("stopNode");
         shuttingDown = true;
+        ready = false;
+        cancelFutures();
         if (nodeProcess != null && nodeProcess.isAlive()) {
             nodeProcess.destroy();
             try {
                 // Wait for the process to terminate
-                if (!nodeProcess.waitFor(5, java.util.concurrent.TimeUnit.SECONDS)) {
+                if (!nodeProcess.waitFor(SHUTDOWN_TIMEOUT_SECONDS, java.util.concurrent.TimeUnit.SECONDS)) {
                     nodeProcess.destroyForcibly();
                 }
             } catch (InterruptedException e) {
@@ -112,8 +128,20 @@ public class MatterWebsocketService {
         return ready;
     }
 
+    private void cancelFutures() {
+        ScheduledFuture<?> notifyFuture = this.notifyFuture;
+        if (notifyFuture != null) {
+            notifyFuture.cancel(true);
+        }
+        ScheduledFuture<?> restartFuture = this.restartFuture;
+        if (restartFuture != null) {
+            restartFuture.cancel(true);
+        }
+    }
+
     private int runNodeWithResource(String resourcePath, String... additionalArgs) throws IOException {
         shuttingDown = false;
+        starting = true;
         ready = false;
         Path scriptPath = extractResourceToTempFile(resourcePath);
 
@@ -152,13 +180,14 @@ public class MatterWebsocketService {
                 }
                 ready = false;
                 if (!shuttingDown) {
-                    scheduler.schedule(() -> {
+                    cancelFutures();
+                    restartFuture = scheduler.schedule(() -> {
                         try {
                             restart();
                         } catch (IOException e) {
                             logger.error("Failed to restart Node process", e);
                         }
-                    }, 5, TimeUnit.SECONDS);
+                    }, STARTUP_DELAY_SECONDS, TimeUnit.SECONDS);
                 }
             }
         });
@@ -177,11 +206,12 @@ public class MatterWebsocketService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (!ready) {
-                    ready = true;
+                if (starting) {
+                    starting = false;
                     scheduler.schedule(() -> {
+                        ready = true;
                         notifyReadyListeners();
-                    }, 1, TimeUnit.SECONDS);
+                    }, STARTUP_DELAY_SECONDS, TimeUnit.SECONDS);
                 }
                 Matcher matcher = LOG_PATTERN.matcher(line);
                 if (matcher.matches()) {

@@ -138,7 +138,7 @@ public class MatterControllerClient extends MatterWebsocketClient {
             if (list == null) {
                 throw new JsonParseException("Could not deserialize fabrics");
             }
-            
+
             return list;
         });
     }
