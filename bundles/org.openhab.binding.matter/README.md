@@ -16,9 +16,13 @@ This binding supports 2 different types of matter functionality.
   - This is considered experimental and is still a work in progress.
   - See [Matter Bridge](#matter-bridge) for information on configuring a bridge.
 
+Please read this document in its entirety as Matter is a complex protocol with very specific requirements.
+
+## Matter.JS Runtime
+
 This binding uses the excellent [matter.js](https://github.com/project-chip/matter.js) implementation of the the Matter 1.3 protocol.
 
-Please read this document in its entirety as Matter is a complex protocol with very specific requirements.
+As such, this binding requires NodesJS 18+ and will attempt to download and cache an appropriate version when started if a version is not already installed on the system. Alpine Linux users (typically docker) and those on older Linux distributions will need to install this manually as the official NodeJS versions are not compatible.
 
 # General Matter Ecosystem Overview
 
