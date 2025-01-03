@@ -18,21 +18,23 @@ This binding supports 2 different types of matter functionality.
 
 Please read this document in its entirety as Matter is a complex protocol with very specific requirements.
 
+For specifics on configuring the addon, see [Matter Binding Configuration](#matter-binding-configuration)
+
 ## Matter.JS Runtime
 
 This binding uses the excellent [matter.js](https://github.com/project-chip/matter.js) implementation of the the Matter 1.3 protocol.
 
 As such, this binding requires NodesJS 18+ and will attempt to download and cache an appropriate version when started if a version is not already installed on the system. Alpine Linux users (typically docker) and those on older Linux distributions will need to install this manually as the official NodeJS versions are not compatible.
 
+## Matter and IPv6
+
+Matter **requires** IPv6 to be enabled and be routable between openHAB and the Matter device.  This means IPv6 needs to be enabled on the host openHAB is running, and the network must be able route IPv6 unicast and multicast messages.  Docker, VLANs, subnets and other configurations can prohibit Matter from working if not configured correctly. See the [IPv6 Requirements](#IPv6-Requirements) section for more information.
+
 # General Matter Ecosystem Overview
 
 Matter is an open-source connectivity standard for smart home devices, allowing seamless communication between a wide range of devices, controllers, and ecosystems. 
 
 Below is a high-level overview of the Matter ecosystem as well as common terminology used in the Matter standard.
-
-## Matter and IPv6
-
-Matter **requires** IPv6 to be enabled and be routable between openHAB and the Matter device.  This means IPv6 needs to be enabled on the host openHAB is running, and the network must be able route IPv6 unicast and multicast messages.  Docker, VLANs, subnets and other configurations can prohibit Matter from working if not configured correctly. See the [IPv6 Requirements](#IPv6-Requirements) section for more information.
 
 ## Matter Devices
 
@@ -147,7 +149,7 @@ Commissioning a Matter device involves securely adding it to the network using a
 
 ### Pairing Code from the Device
 
-When commissioning a new Matter device, it typically has a printed QR code or numeric pairing code that you scan or enter during setup. This pairing code allows the controller to establish a secure connection to the device and add it to the network. Once a device pairing code is in use, it can not be used again to pair other controllers.
+When commissioning a new Matter device, it typically has a printed QR code or numeric pairing code that you scan or enter during setup. This pairing code allows the controller to establish a secure connection to the device and add it to the network. Once a device pairing code is in use, it typically can not be used again to pair other controllers.
 
 ### Additional Pairing Code from a Controller
 
@@ -178,7 +180,7 @@ Bridged endpoints will be added to the inbox once the parent Node is added as a 
 
 In order to pair a device, you must have an 11 digit manual pairing code (eg 123-4567-8901 or 12345678901) or a QR Code (eg MT:ABCDEF1234567890123).  If the device has not been paired before, use the code provided by the manufacturer and **ensure the device is in pairing mode**, refer to your devices instructions for pairing for more information.
 
-If the device is paired with another Matter ecosystem (Apple, Google, Amazon, etc..) use that ecosystem to generate a pairing code and search for devices.  The pairing code and device will only be available for commissioning for a limited time.  Refer to the ecosystem that generated the code for the exact duration (typically 1-15 minutes).
+If the device is paired with another Matter ecosystem (Apple, Google, Amazon, etc..) you must that ecosystem to generate a new pairing code and search for devices.  The pairing code and device will only be available for commissioning for a limited time.  Refer to the ecosystem that generated the code for the exact duration (typically 1-15 minutes). In this case, openHAB still talks directly to the device and is not associated with that existing ecosystem. 
 
 When using the discovery feature of openHAB use the provided code in the text entry box before pushing "scan"
 
