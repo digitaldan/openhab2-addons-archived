@@ -62,12 +62,8 @@ public class MatterWebsocketService {
     private final String nodePath;
     // The Node.js process running the matter.js script
     private Process nodeProcess;
-    // is this service up and ready
-    private boolean ready;
-    // used to track if we are in the process of starting the node process, but not yet ready
-    private boolean starting;
-    // used to track if we are in the process of shutting down the node process, so don't restart
-    private boolean shuttingDown;
+    // The state of the service, STARTING, READY, SHUTTING_DOWN
+    private ServiceState state = ServiceState.STARTING;
     // the port the node process is listening on
     private int port;
 
@@ -92,7 +88,7 @@ public class MatterWebsocketService {
 
     public void addProcessListener(NodeProcessListener listener) {
         processListeners.add(listener);
-        if (ready) {
+        if (state == ServiceState.READY) {
             listener.onNodeReady(port);
         }
     }
@@ -103,8 +99,7 @@ public class MatterWebsocketService {
 
     public void stopNode() {
         logger.debug("stopNode");
-        shuttingDown = true;
-        ready = false;
+        state = ServiceState.SHUTTING_DOWN;
         cancelFutures();
         if (nodeProcess != null && nodeProcess.isAlive()) {
             nodeProcess.destroy();
@@ -125,7 +120,7 @@ public class MatterWebsocketService {
     }
 
     public boolean isReady() {
-        return ready;
+        return state == ServiceState.READY;
     }
 
     private void cancelFutures() {
@@ -140,9 +135,7 @@ public class MatterWebsocketService {
     }
 
     private int runNodeWithResource(String resourcePath, String... additionalArgs) throws IOException {
-        shuttingDown = false;
-        starting = true;
-        ready = false;
+        state = ServiceState.STARTING;
         Path scriptPath = extractResourceToTempFile(resourcePath);
 
         port = findAvailablePort();
@@ -178,8 +171,9 @@ public class MatterWebsocketService {
                 } catch (IOException e) {
                     logger.debug("Failed to delete temporary script file", e);
                 }
-                ready = false;
-                if (!shuttingDown) {
+                
+                if (state != ServiceState.SHUTTING_DOWN) {
+                    state = ServiceState.STARTING;
                     cancelFutures();
                     restartFuture = scheduler.schedule(() -> {
                         try {
@@ -195,21 +189,22 @@ public class MatterWebsocketService {
     }
 
     private void readOutputStream() {
-        processStream(nodeProcess.getInputStream(), "Error reading Node process output");
+        processStream(nodeProcess.getInputStream(), "Error reading Node process output", true);
     }
 
     private void readErrorStream() {
-        processStream(nodeProcess.getErrorStream(), "Error reading Node process error stream");
+        processStream(nodeProcess.getErrorStream(), "Error reading Node process error stream", false);
     }
 
-    private void processStream(InputStream inputStream, String errorMessage) {
+    private void processStream(InputStream inputStream, String errorMessage, boolean triggerNotify) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (starting) {
-                    starting = false;
-                    scheduler.schedule(() -> {
-                        ready = true;
+                // we only want to do this once!
+                if (state == ServiceState.STARTING && triggerNotify && notifyFuture == null) {
+                    notifyFuture = scheduler.schedule(() -> {
+                        state = ServiceState.READY;
+                        this.notifyFuture = null;
                         notifyReadyListeners();
                     }, STARTUP_DELAY_SECONDS, TimeUnit.SECONDS);
                 }
@@ -224,7 +219,7 @@ public class MatterWebsocketService {
                 }
             }
         } catch (IOException e) {
-            if (!shuttingDown) {
+            if (!state.equals(ServiceState.SHUTTING_DOWN)) {
                 logger.debug("{}", errorMessage, e);
             }
         }
@@ -289,5 +284,22 @@ public class MatterWebsocketService {
         void onNodeExit(int exitCode);
 
         void onNodeReady(int port);
+    }
+
+    public enum ServiceState {
+        /**
+         * The service is up and ready.
+         */
+        READY,
+        
+        /**
+         * The service is in the process of starting but not yet ready.
+         */
+        STARTING,
+        
+        /**
+         * The service is in the process of shutting down, so it shouldn't be restarted.
+         */
+        SHUTTING_DOWN
     }
 }
