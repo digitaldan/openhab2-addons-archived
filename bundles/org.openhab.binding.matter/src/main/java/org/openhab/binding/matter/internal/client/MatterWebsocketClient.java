@@ -414,8 +414,7 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
                 JsonElement clusterElement = clusterEntry.getValue();
                 logger.trace("Cluster {}", clusterEntry);
                 try {
-                    Class<?> clazz = Class
-                            .forName(BaseCluster.class.getPackageName() + "." + clusterName + "Cluster");
+                    Class<?> clazz = Class.forName(BaseCluster.class.getPackageName() + "." + clusterName + "Cluster");
                     if (BaseCluster.class.isAssignableFrom(clazz)) {
                         BaseCluster cluster = context.deserialize(clusterElement, clazz);
                         deserializeFields(cluster, clusterElement, clazz, context);

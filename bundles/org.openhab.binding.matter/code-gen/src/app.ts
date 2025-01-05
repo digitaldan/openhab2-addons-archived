@@ -43,6 +43,10 @@ handlebars.registerHelper('asLowerCamelCase', function (str) {
     return toLowerCamelCase(str);
 });
 
+handlebars.registerHelper('asTitleCase', function (str) {
+    return toTitleCase(str);
+});
+
 handlebars.registerHelper('asEnumField', function (str) {
     return toEnumField(str);
 });
@@ -104,6 +108,19 @@ function toLowerCamelCase(str: string): string {
     return str.replace(/(?:^\w|[_\s]\w)/g, (match, offset) => {
         return offset === 0 ? match.toLowerCase() : match.replace(/[_\s]/, '').toUpperCase();
     });
+}
+
+function toTitleCase(str: string | undefined): string {
+    if (!str) {
+        return "Undefined";
+    }
+    return str
+        .replace(/([a-z])([A-Z])/g, '$1 $2') // Add a space before uppercase letters that follow lowercase letters
+        .replace(/[_\s]+/g, ' ') // Replace underscores or multiple spaces with a single space
+        .trim() // Remove leading and trailing spaces
+        .split(' ') // Split into words
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter of each word
+        .join(' '); // Join the words with a space
 }
 
 function toEnumField(str: string): string {
@@ -434,6 +451,8 @@ const deviceTypeSource = fs.readFileSync('src/templates/device-types-class.hbs',
 const deviceTypeTemplate = handlebars.compile(deviceTypeSource);
 const clusterRegistrySource = fs.readFileSync('src/templates/cluster-registry.hbs', 'utf8');
 const clusterRegistryTemplate = handlebars.compile(clusterRegistrySource);
+const clusterConstantsSource = fs.readFileSync('src/templates/cluster-constants.hbs', 'utf8');
+const clusterConstantsTemplate = handlebars.compile(clusterConstantsSource);
 
 // Generate Java code
 
@@ -468,6 +487,8 @@ fs.writeFileSync(`out/DeviceTypes.java`, deviceTypeClass);
 const clusterRegistryClass = clusterRegistryTemplate({ clusters: clusters });
 fs.writeFileSync(`out/ClusterRegistry.java`, clusterRegistryClass);
 
+const clusterConstantsClass = clusterConstantsTemplate({ clusters: clusters });
+fs.writeFileSync(`out/ClusterConstants.java`, clusterConstantsClass);
 
 clusters.forEach(cluster => {
     if (cluster.id == undefined) {
