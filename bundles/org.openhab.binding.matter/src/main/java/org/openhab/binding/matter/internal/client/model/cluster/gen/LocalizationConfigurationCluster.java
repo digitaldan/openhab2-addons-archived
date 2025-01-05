@@ -18,8 +18,7 @@ package org.openhab.binding.matter.internal.client.model.cluster.gen;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * LocalizationConfiguration
@@ -52,7 +51,8 @@ public class LocalizationConfigurationCluster extends BaseCluster {
         super(nodeId, endpointId, 43, "LocalizationConfiguration");
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "activeLocale : " + activeLocale + "\n";

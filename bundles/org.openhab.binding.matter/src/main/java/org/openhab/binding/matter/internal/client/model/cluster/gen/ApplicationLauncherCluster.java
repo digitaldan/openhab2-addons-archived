@@ -20,9 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * ApplicationLauncher
@@ -147,7 +146,6 @@ public class ApplicationLauncherCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("application", application);
         map.put("data", data);
-
         return new ClusterCommand("launchApp", map);
     }
 
@@ -164,7 +162,6 @@ public class ApplicationLauncherCluster extends BaseCluster {
     public static ClusterCommand stopApp(ApplicationStruct application) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("application", application);
-
         return new ClusterCommand("stopApp", map);
     }
 
@@ -181,11 +178,11 @@ public class ApplicationLauncherCluster extends BaseCluster {
     public static ClusterCommand hideApp(ApplicationStruct application) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("application", application);
-
         return new ClusterCommand("hideApp", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

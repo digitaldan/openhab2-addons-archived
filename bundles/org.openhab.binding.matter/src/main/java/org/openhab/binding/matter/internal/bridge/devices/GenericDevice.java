@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.matter.internal.bridge.MatterBridgeClient;
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.openhab.binding.matter.internal.client.model.cluster.gen.BaseCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.ClusterRegistry;
 import org.openhab.core.items.GenericItem;
 import org.openhab.core.items.Item;

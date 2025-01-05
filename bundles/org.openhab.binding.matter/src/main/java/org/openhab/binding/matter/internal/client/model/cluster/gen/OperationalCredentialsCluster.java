@@ -20,9 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * OperationalCredentials
@@ -233,7 +232,6 @@ public class OperationalCredentialsCluster extends BaseCluster {
     public static ClusterCommand attestationRequest(String attestationNonce) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("attestationNonce", attestationNonce);
-
         return new ClusterCommand("attestationRequest", map);
     }
 
@@ -244,7 +242,6 @@ public class OperationalCredentialsCluster extends BaseCluster {
     public static ClusterCommand certificateChainRequest(CertificateChainTypeEnum certificateType) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("certificateType", certificateType);
-
         return new ClusterCommand("certificateChainRequest", map);
     }
 
@@ -271,7 +268,6 @@ public class OperationalCredentialsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("csrNonce", csrNonce);
         map.put("isForUpdateNoc", isForUpdateNoc);
-
         return new ClusterCommand("csrRequest", map);
     }
 
@@ -291,7 +287,6 @@ public class OperationalCredentialsCluster extends BaseCluster {
         map.put("ipkValue", ipkValue);
         map.put("caseAdminSubject", caseAdminSubject);
         map.put("adminVendorId", adminVendorId);
-
         return new ClusterCommand("addNoc", map);
     }
 
@@ -338,7 +333,6 @@ public class OperationalCredentialsCluster extends BaseCluster {
         map.put("nocValue", nocValue);
         map.put("icacValue", icacValue);
         map.put("fabricIndex", fabricIndex);
-
         return new ClusterCommand("updateNoc", map);
     }
 
@@ -356,7 +350,6 @@ public class OperationalCredentialsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("label", label);
         map.put("fabricIndex", fabricIndex);
-
         return new ClusterCommand("updateFabricLabel", map);
     }
 
@@ -377,7 +370,6 @@ public class OperationalCredentialsCluster extends BaseCluster {
     public static ClusterCommand removeFabric(Integer fabricIndex) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("fabricIndex", fabricIndex);
-
         return new ClusterCommand("removeFabric", map);
     }
 
@@ -403,11 +395,11 @@ public class OperationalCredentialsCluster extends BaseCluster {
     public static ClusterCommand addTrustedRootCertificate(String rootCaCertificate) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("rootCaCertificate", rootCaCertificate);
-
         return new ClusterCommand("addTrustedRootCertificate", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "nocs : " + nocs + "\n";

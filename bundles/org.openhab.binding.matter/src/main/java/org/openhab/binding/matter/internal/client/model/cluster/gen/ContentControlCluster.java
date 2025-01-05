@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -391,7 +391,6 @@ public class ContentControlCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("oldPin", oldPin);
         map.put("newPin", newPin);
-
         return new ClusterCommand("updatePin", map);
     }
 
@@ -437,7 +436,6 @@ public class ContentControlCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("pinCode", pinCode);
         map.put("bonusTime", bonusTime);
-
         return new ClusterCommand("addBonusTime", map);
     }
 
@@ -449,7 +447,6 @@ public class ContentControlCluster extends BaseCluster {
     public static ClusterCommand setScreenDailyTime(Integer screenTime) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("screenTime", screenTime);
-
         return new ClusterCommand("setScreenDailyTime", map);
     }
 
@@ -481,7 +478,6 @@ public class ContentControlCluster extends BaseCluster {
     public static ClusterCommand setOnDemandRatingThreshold(String rating) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("rating", rating);
-
         return new ClusterCommand("setOnDemandRatingThreshold", map);
     }
 
@@ -494,7 +490,6 @@ public class ContentControlCluster extends BaseCluster {
     public static ClusterCommand setScheduledContentRatingThreshold(String rating) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("rating", rating);
-
         return new ClusterCommand("setScheduledContentRatingThreshold", map);
     }
 
@@ -512,7 +507,6 @@ public class ContentControlCluster extends BaseCluster {
     public static ClusterCommand addBlockChannels(List<BlockChannelStruct> channels) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("channels", channels);
-
         return new ClusterCommand("addBlockChannels", map);
     }
 
@@ -526,7 +520,6 @@ public class ContentControlCluster extends BaseCluster {
     public static ClusterCommand removeBlockChannels(List<Integer> channelIndexes) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("channelIndexes", channelIndexes);
-
         return new ClusterCommand("removeBlockChannels", map);
     }
 
@@ -544,7 +537,6 @@ public class ContentControlCluster extends BaseCluster {
     public static ClusterCommand addBlockApplications(List<AppInfoStruct> applications) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("applications", applications);
-
         return new ClusterCommand("addBlockApplications", map);
     }
 
@@ -558,7 +550,6 @@ public class ContentControlCluster extends BaseCluster {
     public static ClusterCommand removeBlockApplications(List<AppInfoStruct> applications) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("applications", applications);
-
         return new ClusterCommand("removeBlockApplications", map);
     }
 
@@ -576,7 +567,6 @@ public class ContentControlCluster extends BaseCluster {
     public static ClusterCommand setBlockContentTimeWindow(TimeWindowStruct timeWindow) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("timeWindow", timeWindow);
-
         return new ClusterCommand("setBlockContentTimeWindow", map);
     }
 
@@ -590,12 +580,11 @@ public class ContentControlCluster extends BaseCluster {
     public static ClusterCommand removeBlockContentTimeWindow(List<Integer> timeWindowIndexes) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("timeWindowIndexes", timeWindowIndexes);
-
         return new ClusterCommand("removeBlockContentTimeWindow", map);
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

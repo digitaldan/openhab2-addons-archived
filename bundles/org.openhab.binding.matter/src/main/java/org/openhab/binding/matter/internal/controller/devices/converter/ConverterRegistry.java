@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.openhab.binding.matter.internal.client.model.cluster.gen.BaseCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.BooleanStateCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.ColorControlCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.DoorLockCluster;

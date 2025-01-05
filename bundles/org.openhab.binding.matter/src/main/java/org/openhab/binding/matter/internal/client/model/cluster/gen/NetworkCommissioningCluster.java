@@ -20,9 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * NetworkCommissioning
@@ -401,7 +400,6 @@ public class NetworkCommissioningCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("ssid", ssid);
         map.put("breadcrumb", breadcrumb);
-
         return new ClusterCommand("scanNetworks", map);
     }
 
@@ -421,7 +419,6 @@ public class NetworkCommissioningCluster extends BaseCluster {
         map.put("ssid", ssid);
         map.put("credentials", credentials);
         map.put("breadcrumb", breadcrumb);
-
         return new ClusterCommand("addOrUpdateWiFiNetwork", map);
     }
 
@@ -440,7 +437,6 @@ public class NetworkCommissioningCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("operationalDataset", operationalDataset);
         map.put("breadcrumb", breadcrumb);
-
         return new ClusterCommand("addOrUpdateThreadNetwork", map);
     }
 
@@ -459,7 +455,6 @@ public class NetworkCommissioningCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("networkId", networkId);
         map.put("breadcrumb", breadcrumb);
-
         return new ClusterCommand("removeNetwork", map);
     }
 
@@ -516,7 +511,6 @@ public class NetworkCommissioningCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("networkId", networkId);
         map.put("breadcrumb", breadcrumb);
-
         return new ClusterCommand("connectNetwork", map);
     }
 
@@ -529,11 +523,11 @@ public class NetworkCommissioningCluster extends BaseCluster {
         map.put("networkId", networkId);
         map.put("networkIndex", networkIndex);
         map.put("breadcrumb", breadcrumb);
-
         return new ClusterCommand("reorderNetwork", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

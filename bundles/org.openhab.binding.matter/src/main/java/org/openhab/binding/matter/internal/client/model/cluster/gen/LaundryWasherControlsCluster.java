@@ -18,8 +18,7 @@ package org.openhab.binding.matter.internal.client.model.cluster.gen;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * LaundryWasherControls
@@ -120,7 +119,8 @@ public class LaundryWasherControlsCluster extends BaseCluster {
         super(nodeId, endpointId, 83, "LaundryWasherControls");
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

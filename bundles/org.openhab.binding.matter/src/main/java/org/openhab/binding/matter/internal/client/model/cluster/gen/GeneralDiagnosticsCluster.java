@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -340,7 +340,6 @@ public class GeneralDiagnosticsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("enableKey", enableKey);
         map.put("eventTrigger", eventTrigger);
-
         return new ClusterCommand("testEventTrigger", map);
     }
 
@@ -368,12 +367,11 @@ public class GeneralDiagnosticsCluster extends BaseCluster {
         map.put("enableKey", enableKey);
         map.put("value", value);
         map.put("count", count);
-
         return new ClusterCommand("payloadTestRequest", map);
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

@@ -165,6 +165,10 @@ function matterNativeTypeToJavaNativeType(field: AnyElement) {
             return "date";
         case "string":
             return "String";
+        // this are semantic tag fields
+        case "tag":
+        case "namespace":
+            return "Integer";
         case "list":
         case "struct":
         case "map8":
@@ -252,7 +256,13 @@ const globalAttributes = Matter.children.filter(c => c.tag == 'attribute');
  * Global type mapping lookup, clusters will combine this with their own mapping
  */
 const globalTypeMapping = new Map();
+//some types are special and need to be mapped to Java native types here
 globalTypeMapping.set("FabricIndex", "Integer");
+// semantic tag fields
+globalTypeMapping.set("namespace", "Integer");
+globalTypeMapping.set("tag", "Integer");
+
+
 globalDataTypes.forEach(dt => {
     //console.log(dt.name, dt.type, matterNativeTypeToJavaNativeType(dt))
     matterNativeTypeToJavaNativeType(dt) && globalTypeMapping.set(dt.name, matterNativeTypeToJavaNativeType(dt))
@@ -278,10 +288,10 @@ const clusters = Matter.children.filter(c => c.tag == 'cluster').filter(c => !sk
                 }
             });
         }
-        console.log(`Cluster ${cluster.name} has parent ${cluster.type}`)
+        //console.log(`Cluster ${cluster.name} has parent ${cluster.type}`)
         const parent = Matter.children.find(c => c.name == cluster.type);
         if (parent) {
-            console.log(`Add additional types to ${cluster.name} from parent ${cluster.type}`)
+            //console.log(`Add additional types to ${cluster.name} from parent ${cluster.type}`)
             let pDataType = parent.children?.filter(c => c.tag == 'datatype') as DatatypeElement[];
             combineArray(dataTypes, pDataType)
             let pMaps = parent.children?.filter(c => c.type?.startsWith('map')) as ClusterElement.Child[];
@@ -292,25 +302,6 @@ const clusters = Matter.children.filter(c => c.tag == 'cluster').filter(c => !sk
             combineArray(structs, pStructs)
         }
     }
-    //looks at attributes and command elements that need top level structs/enums to be declared
-    // function addTypesFromMember(c: AnyElement) {
-    //     if (c.children) {
-    //         if (c.type?.startsWith('enum')) {
-    //             if (enums && enums.findIndex(e => e.name == c.name) < 0) {
-    //                 enums?.push(c as FieldElement);
-    //             }
-    //         } else if (c.type?.startsWith('map')) {
-    //             if (maps && maps.findIndex(e => e.name == c.name) < 0) {
-    //                 maps?.push(c as FieldElement);
-    //             }
-    //         } else if (c.type?.startsWith('struct')) {
-    //             if (structs && structs.findIndex(e => e.name == c.name) < 0) {
-    //                 structs?.push(c as FieldElement);
-    //             }
-    //         }
-    //         (c as any).mappedType = c.name
-    //     }
-    // }
 
     dataTypes?.forEach(dt => {
         if (dt.type && dt.type.indexOf('.') > 0) {
@@ -435,8 +426,10 @@ if (lcc && ccc) {
 // Compile Handlebars template
 const clusterSource = fs.readFileSync('src/templates/cluster-class.hbs', 'utf8');
 const clusterTemplate = handlebars.compile(clusterSource);
-const dataTypeSource = fs.readFileSync('src/templates/data-types-class.hbs', 'utf8');
-const dataTypeTemplate = handlebars.compile(dataTypeSource);
+// const dataTypeSource = fs.readFileSync('src/templates/data-types-class.hbs', 'utf8');
+// const dataTypeTemplate = handlebars.compile(dataTypeSource);
+const baseClusterSource = fs.readFileSync('src/templates/base-cluster.hbs', 'utf8');
+const baseClusterTemplate = handlebars.compile(baseClusterSource);
 const deviceTypeSource = fs.readFileSync('src/templates/device-types-class.hbs', 'utf8');
 const deviceTypeTemplate = handlebars.compile(deviceTypeSource);
 const clusterRegistrySource = fs.readFileSync('src/templates/cluster-registry.hbs', 'utf8');
@@ -462,8 +455,11 @@ const datatypes = {
 
 fs.mkdir('out', { recursive: true }, (err) => {
 });
-const dataTypeClass = dataTypeTemplate(datatypes);
-fs.writeFileSync(`out/DataTypes.java`, dataTypeClass);
+// const dataTypeClass = dataTypeTemplate(datatypes);
+// fs.writeFileSync(`out/DataTypes.java`, dataTypeClass);
+
+const baseClusterClass = baseClusterTemplate(datatypes);
+fs.writeFileSync(`out/BaseCluster.java`, baseClusterClass);
 
 const deviceTypeClass = deviceTypeTemplate({ deviceTypes: Matter.children.filter(c => c.tag == 'deviceType' && c.id !== undefined) });
 fs.writeFileSync(`out/DeviceTypes.java`, deviceTypeClass);

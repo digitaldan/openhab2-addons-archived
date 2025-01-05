@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -1289,7 +1289,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand lockDoor(String pinCodePinRfidCode) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("pinCodePinRfidCode", pinCodePinRfidCode);
-
         return new ClusterCommand("lockDoor", map);
     }
 
@@ -1304,7 +1303,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand unlockDoor(String pinCodePinRfidCode) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("pinCodePinRfidCode", pinCodePinRfidCode);
-
         return new ClusterCommand("unlockDoor", map);
     }
 
@@ -1324,7 +1322,6 @@ public class DoorLockCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("timeout", timeout);
         map.put("pinCodePinRfidCode", pinCodePinRfidCode);
-
         return new ClusterCommand("unlockWithTimeout", map);
     }
 
@@ -1336,7 +1333,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand getLogRecord(Integer logIndex) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("logIndex", logIndex);
-
         return new ClusterCommand("getLogRecord", map);
     }
 
@@ -1352,7 +1348,6 @@ public class DoorLockCluster extends BaseCluster {
         map.put("userStatus", userStatus);
         map.put("userType", userType);
         map.put("pin", pin);
-
         return new ClusterCommand("setPinCode", map);
     }
 
@@ -1362,7 +1357,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand getPinCode(Integer userId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("userId", userId);
-
         return new ClusterCommand("getPinCode", map);
     }
 
@@ -1376,7 +1370,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand clearPinCode(Integer pinSlotIndexUserId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("pinSlotIndexUserId", pinSlotIndexUserId);
-
         return new ClusterCommand("clearPinCode", map);
     }
 
@@ -1397,7 +1390,6 @@ public class DoorLockCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("userId", userId);
         map.put("userStatus", userStatus);
-
         return new ClusterCommand("setUserStatus", map);
     }
 
@@ -1407,7 +1399,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand getUserStatus(Integer userId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("userId", userId);
-
         return new ClusterCommand("getUserStatus", map);
     }
 
@@ -1427,7 +1418,6 @@ public class DoorLockCluster extends BaseCluster {
         map.put("startMinute", startMinute);
         map.put("endHour", endHour);
         map.put("endMinute", endMinute);
-
         return new ClusterCommand("setWeekDaySchedule", map);
     }
 
@@ -1439,7 +1429,6 @@ public class DoorLockCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("weekDayIndexScheduleId", weekDayIndexScheduleId);
         map.put("userIndexUserId", userIndexUserId);
-
         return new ClusterCommand("getWeekDaySchedule", map);
     }
 
@@ -1452,7 +1441,6 @@ public class DoorLockCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("weekDayIndexScheduleId", weekDayIndexScheduleId);
         map.put("userIndexUserId", userIndexUserId);
-
         return new ClusterCommand("clearWeekDaySchedule", map);
     }
 
@@ -1469,7 +1457,6 @@ public class DoorLockCluster extends BaseCluster {
         map.put("userIndexUserId", userIndexUserId);
         map.put("localStartTime", localStartTime);
         map.put("localEndTime", localEndTime);
-
         return new ClusterCommand("setYearDaySchedule", map);
     }
 
@@ -1481,7 +1468,6 @@ public class DoorLockCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("yearDayIndexScheduleId", yearDayIndexScheduleId);
         map.put("userIndexUserId", userIndexUserId);
-
         return new ClusterCommand("getYearDaySchedule", map);
     }
 
@@ -1494,7 +1480,6 @@ public class DoorLockCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("yearDayIndexScheduleId", yearDayIndexScheduleId);
         map.put("userIndexUserId", userIndexUserId);
-
         return new ClusterCommand("clearYearDaySchedule", map);
     }
 
@@ -1511,7 +1496,6 @@ public class DoorLockCluster extends BaseCluster {
         map.put("localStartTime", localStartTime);
         map.put("localEndTime", localEndTime);
         map.put("operatingMode", operatingMode);
-
         return new ClusterCommand("setHolidaySchedule", map);
     }
 
@@ -1522,7 +1506,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand getHolidaySchedule(Integer holidayIndexHolidayScheduleId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("holidayIndexHolidayScheduleId", holidayIndexHolidayScheduleId);
-
         return new ClusterCommand("getHolidaySchedule", map);
     }
 
@@ -1533,7 +1516,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand clearHolidaySchedule(Integer holidayIndexHolidayScheduleId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("holidayIndexHolidayScheduleId", holidayIndexHolidayScheduleId);
-
         return new ClusterCommand("clearHolidaySchedule", map);
     }
 
@@ -1546,7 +1528,6 @@ public class DoorLockCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("userId", userId);
         map.put("userType", userType);
-
         return new ClusterCommand("setUserType", map);
     }
 
@@ -1556,7 +1537,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand getUserType(Integer userId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("userId", userId);
-
         return new ClusterCommand("getUserType", map);
     }
 
@@ -1572,7 +1552,6 @@ public class DoorLockCluster extends BaseCluster {
         map.put("userStatus", userStatus);
         map.put("userType", userType);
         map.put("rfidCode", rfidCode);
-
         return new ClusterCommand("setRfidCode", map);
     }
 
@@ -1582,7 +1561,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand getRfidCode(Integer userId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("userId", userId);
-
         return new ClusterCommand("getRfidCode", map);
     }
 
@@ -1596,7 +1574,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand clearRfidCode(Integer rfidSlotIndexUserId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("rfidSlotIndexUserId", rfidSlotIndexUserId);
-
         return new ClusterCommand("clearRfidCode", map);
     }
 
@@ -1630,7 +1607,6 @@ public class DoorLockCluster extends BaseCluster {
         map.put("userStatus", userStatus);
         map.put("userType", userType);
         map.put("credentialRule", credentialRule);
-
         return new ClusterCommand("setUser", map);
     }
 
@@ -1642,7 +1618,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand getUser(Integer userIndex) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("userIndex", userIndex);
-
         return new ClusterCommand("getUser", map);
     }
 
@@ -1656,7 +1631,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand clearUser(Integer userIndex) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("userIndex", userIndex);
-
         return new ClusterCommand("clearUser", map);
     }
 
@@ -1674,7 +1648,6 @@ public class DoorLockCluster extends BaseCluster {
         map.put("userIndex", userIndex);
         map.put("userStatus", userStatus);
         map.put("userType", userType);
-
         return new ClusterCommand("setCredential", map);
     }
 
@@ -1686,7 +1659,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand getCredentialStatus(CredentialStruct credential) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("credential", credential);
-
         return new ClusterCommand("getCredentialStatus", map);
     }
 
@@ -1702,7 +1674,6 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand clearCredential(CredentialStruct credential) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("credential", credential);
-
         return new ClusterCommand("clearCredential", map);
     }
 
@@ -1717,12 +1688,11 @@ public class DoorLockCluster extends BaseCluster {
     public static ClusterCommand unboltDoor(String pinCode) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("pinCode", pinCode);
-
         return new ClusterCommand("unboltDoor", map);
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

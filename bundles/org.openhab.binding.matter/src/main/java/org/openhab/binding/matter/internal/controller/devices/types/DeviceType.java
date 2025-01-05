@@ -23,7 +23,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.matter.internal.client.AttributeListener;
 import org.openhab.binding.matter.internal.client.EventTriggeredListener;
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.openhab.binding.matter.internal.client.model.cluster.gen.BaseCluster;
 import org.openhab.binding.matter.internal.client.model.ws.AttributeChangedMessage;
 import org.openhab.binding.matter.internal.client.model.ws.EventTriggeredMessage;
 import org.openhab.binding.matter.internal.controller.devices.converter.ConverterRegistry;

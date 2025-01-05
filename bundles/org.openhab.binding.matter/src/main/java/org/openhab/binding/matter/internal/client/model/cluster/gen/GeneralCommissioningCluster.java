@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -249,7 +249,6 @@ public class GeneralCommissioningCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("expiryLengthSeconds", expiryLengthSeconds);
         map.put("breadcrumb", breadcrumb);
-
         return new ClusterCommand("armFailSafe", map);
     }
 
@@ -282,7 +281,6 @@ public class GeneralCommissioningCluster extends BaseCluster {
         map.put("newRegulatoryConfig", newRegulatoryConfig);
         map.put("countryCode", countryCode);
         map.put("breadcrumb", breadcrumb);
-
         return new ClusterCommand("setRegulatoryConfig", map);
     }
 
@@ -330,7 +328,7 @@ public class GeneralCommissioningCluster extends BaseCluster {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "breadcrumb : " + breadcrumb + "\n";

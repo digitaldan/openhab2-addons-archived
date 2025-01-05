@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -135,7 +135,6 @@ public class MediaInputCluster extends BaseCluster {
     public static ClusterCommand selectInput(Integer index) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("index", index);
-
         return new ClusterCommand("selectInput", map);
     }
 
@@ -161,12 +160,11 @@ public class MediaInputCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("index", index);
         map.put("name", name);
-
         return new ClusterCommand("renameInput", map);
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

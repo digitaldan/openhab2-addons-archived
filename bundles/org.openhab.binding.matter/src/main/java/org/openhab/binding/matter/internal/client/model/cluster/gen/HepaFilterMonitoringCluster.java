@@ -17,8 +17,7 @@ package org.openhab.binding.matter.internal.client.model.cluster.gen;
 
 import java.math.BigInteger;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * HepaFilterMonitoring
@@ -34,7 +33,8 @@ public class HepaFilterMonitoringCluster extends BaseCluster {
         super(nodeId, endpointId, 113, "HepaFilterMonitoring");
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         return str;
     }

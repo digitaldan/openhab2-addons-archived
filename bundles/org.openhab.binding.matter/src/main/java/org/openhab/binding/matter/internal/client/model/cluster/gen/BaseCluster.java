@@ -17,8 +17,9 @@ package org.openhab.binding.matter.internal.client.model.cluster.gen;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import com.google.gson.Gson;
 
 /**
  * undefined
@@ -26,7 +27,42 @@ import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
  * @author Dan Cunningham - Initial contribution
  */
 
-public class DataTypes {
+public class BaseCluster {
+
+    protected static final Gson GSON = new Gson();
+    public BigInteger nodeId;
+    public int endpointId;
+    public int id;
+    public String name;
+    public static Map<Integer, String> ATTRIBUTE_MAPPING;
+    public static Map<Integer, String> COMMAND_MAPPING;
+
+    public interface MatterEnum {
+        Integer getValue();
+
+        String getLabel();
+
+        public static <E extends MatterEnum> E fromValue(Class<E> enumClass, int value) {
+            E[] constants = enumClass.getEnumConstants();
+            if (constants != null) {
+                for (E enumConstant : constants) {
+                    if (enumConstant != null) {
+                        if (enumConstant.getValue().equals(value)) {
+                            return enumConstant;
+                        }
+                    }
+                }
+            }
+            throw new IllegalArgumentException("Unknown value: " + value);
+        }
+    }
+
+    public BaseCluster(BigInteger nodeId, int endpointId, int clusterId, String clusterName) {
+        this.nodeId = nodeId;
+        this.endpointId = endpointId;
+        this.id = clusterId;
+        this.name = clusterName;
+    }
 
     // Structs
     public class MeasurementAccuracyRangeStruct {
@@ -101,11 +137,11 @@ public class DataTypes {
 
     public class Semtag {
         public Integer mfgCode; // vendor-id
-        public Namespace namespaceId; // namespace
-        public Tag tag; // tag
+        public Integer namespaceId; // namespace
+        public Integer tag; // tag
         public String label; // string
 
-        public Semtag(Integer mfgCode, Namespace namespaceId, Tag tag, String label) {
+        public Semtag(Integer mfgCode, Integer namespaceId, Integer tag, String label) {
             this.mfgCode = mfgCode;
             this.namespaceId = namespaceId;
             this.tag = tag;
@@ -114,7 +150,7 @@ public class DataTypes {
     }
 
     // Enums
-    public enum MeasurementTypeEnum implements BaseCluster.MatterEnum {
+    public enum MeasurementTypeEnum implements MatterEnum {
         UNSPECIFIED(0, "Unspecified"),
         VOLTAGE(1, "Voltage"),
         ACTIVE_CURRENT(2, "ActiveCurrent"),
@@ -150,7 +186,7 @@ public class DataTypes {
         }
     }
 
-    public enum Priority implements BaseCluster.MatterEnum {
+    public enum Priority implements MatterEnum {
         DEBUG(0, "Debug"),
         INFO(1, "Info"),
         CRITICAL(2, "Critical");
@@ -174,7 +210,7 @@ public class DataTypes {
         }
     }
 
-    public enum Status implements BaseCluster.MatterEnum {
+    public enum Status implements MatterEnum {
         SUCCESS(0, "Success"),
         FAILURE(1, "Failure"),
         INVALID_SUBSCRIPTION(125, "InvalidSubscription"),
@@ -224,7 +260,7 @@ public class DataTypes {
         }
     }
 
-    public enum Namespace implements BaseCluster.MatterEnum {
+    public enum Namespace implements MatterEnum {
         DEFAULT(0, "Default");
 
         public final Integer value;
@@ -246,7 +282,7 @@ public class DataTypes {
         }
     }
 
-    public enum Tag implements BaseCluster.MatterEnum {
+    public enum Tag implements MatterEnum {
         DEFAULT(0, "Default");
 
         public final Integer value;
@@ -268,7 +304,7 @@ public class DataTypes {
         }
     }
 
-    public enum SoftwareVersionCertificationStatusEnum implements BaseCluster.MatterEnum {
+    public enum SoftwareVersionCertificationStatusEnum implements MatterEnum {
         DEV_TEST(0, "DevTest"),
         PROVISIONAL(1, "Provisional"),
         CERTIFIED(2, "Certified"),

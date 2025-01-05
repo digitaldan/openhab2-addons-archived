@@ -20,9 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * TimeSynchronization
@@ -409,7 +408,6 @@ public class TimeSynchronizationCluster extends BaseCluster {
         map.put("utcTime", utcTime);
         map.put("granularity", granularity);
         map.put("timeSource", timeSource);
-
         return new ClusterCommand("setUtcTime", map);
     }
 
@@ -425,7 +423,6 @@ public class TimeSynchronizationCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("trustedTimeSource", trustedTimeSource);
         map.put("fabricIndex", fabricIndex);
-
         return new ClusterCommand("setTrustedTimeSource", map);
     }
 
@@ -445,7 +442,6 @@ public class TimeSynchronizationCluster extends BaseCluster {
     public static ClusterCommand setTimeZone(List<TimeZoneStruct> timeZone) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("timeZone", timeZone);
-
         return new ClusterCommand("setTimeZone", map);
     }
 
@@ -461,7 +457,6 @@ public class TimeSynchronizationCluster extends BaseCluster {
     public static ClusterCommand setDstOffset(List<DSTOffsetStruct> dstOffset) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("dstOffset", dstOffset);
-
         return new ClusterCommand("setDstOffset", map);
     }
 
@@ -475,11 +470,11 @@ public class TimeSynchronizationCluster extends BaseCluster {
     public static ClusterCommand setDefaultNtp(String defaultNtp) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("defaultNtp", defaultNtp);
-
         return new ClusterCommand("setDefaultNtp", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

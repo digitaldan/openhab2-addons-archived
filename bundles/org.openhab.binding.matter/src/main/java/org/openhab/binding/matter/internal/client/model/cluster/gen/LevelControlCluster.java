@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -227,7 +227,6 @@ public class LevelControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveToLevel", map);
     }
 
@@ -238,7 +237,6 @@ public class LevelControlCluster extends BaseCluster {
         map.put("rate", rate);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("move", map);
     }
 
@@ -250,7 +248,6 @@ public class LevelControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("step", map);
     }
 
@@ -258,7 +255,6 @@ public class LevelControlCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("stop", map);
     }
 
@@ -269,7 +265,6 @@ public class LevelControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveToLevelWithOnOff", map);
     }
 
@@ -280,7 +275,6 @@ public class LevelControlCluster extends BaseCluster {
         map.put("rate", rate);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveWithOnOff", map);
     }
 
@@ -292,7 +286,6 @@ public class LevelControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("stepWithOnOff", map);
     }
 
@@ -300,18 +293,17 @@ public class LevelControlCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("stopWithOnOff", map);
     }
 
     public static ClusterCommand moveToClosestFrequency(Integer frequency) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("frequency", frequency);
-
         return new ClusterCommand("moveToClosestFrequency", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

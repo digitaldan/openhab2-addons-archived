@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -257,7 +257,6 @@ public class OnOffCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("effectIdentifier", effectIdentifier);
         map.put("effectVariant", effectVariant);
-
         return new ClusterCommand("offWithEffect", map);
     }
 
@@ -279,12 +278,11 @@ public class OnOffCluster extends BaseCluster {
         map.put("onOffControl", onOffControl);
         map.put("onTime", onTime);
         map.put("offWaitTime", offWaitTime);
-
         return new ClusterCommand("onWithTimedOff", map);
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

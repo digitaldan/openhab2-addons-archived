@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -227,7 +227,6 @@ public class ValveConfigurationAndControlCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("openDuration", openDuration);
         map.put("targetLevel", targetLevel);
-
         return new ClusterCommand("open", map);
     }
 
@@ -239,7 +238,7 @@ public class ValveConfigurationAndControlCluster extends BaseCluster {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

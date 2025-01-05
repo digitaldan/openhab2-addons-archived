@@ -41,7 +41,7 @@ import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.openhab.binding.matter.internal.client.model.Endpoint;
 import org.openhab.binding.matter.internal.client.model.Node;
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.openhab.binding.matter.internal.client.model.cluster.gen.BaseCluster;
 import org.openhab.binding.matter.internal.client.model.ws.AttributeChangedMessage;
 import org.openhab.binding.matter.internal.client.model.ws.BridgeEventAttributeChanged;
 import org.openhab.binding.matter.internal.client.model.ws.BridgeEventMessage;
@@ -415,7 +415,7 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
                 logger.trace("Cluster {}", clusterEntry);
                 try {
                     Class<?> clazz = Class
-                            .forName(BaseCluster.class.getPackageName() + ".gen." + clusterName + "Cluster");
+                            .forName(BaseCluster.class.getPackageName() + "." + clusterName + "Cluster");
                     if (BaseCluster.class.isAssignableFrom(clazz)) {
                         BaseCluster cluster = context.deserialize(clusterElement, clazz);
                         deserializeFields(cluster, clusterElement, clazz, context);

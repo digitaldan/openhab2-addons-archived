@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
+
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * {{asUpperCamelCase name}}
@@ -150,18 +150,19 @@ public class {{asUpperCamelCase name}}Cluster extends BaseCluster {
     */
 {{/if}}
     public static ClusterCommand {{asLowerCamelCase name}}({{#each children}}{{#unless (isDepreciated this)}}{{{mappedType}}} {{asLowerCamelCase name}}{{/unless}}{{#unless (isLastElement @index ../children.length)}}, {{/unless}}{{/each}}) {
-        Map<String, Object> map = new LinkedHashMap<>();
 {{#each children}}
+{{#if (isFirstElement @index)}}
+        Map<String, Object> map = new LinkedHashMap<>();
+{{/if}}
 {{#unless (isDepreciated this)}}
         map.put("{{asLowerCamelCase name}}", {{asLowerCamelCase name}});
 {{/unless}}
-{{/each}}      
-
+{{/each}}
         return new ClusterCommand("{{asLowerCamelCase name}}"{{#if children}}, map{{/if}});
     }
 {{/each}}
-
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
 {{#each attributes }}
 {{#if (isDepreciated this)}}

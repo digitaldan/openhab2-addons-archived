@@ -171,7 +171,7 @@ public class MatterWebsocketService {
                 } catch (IOException e) {
                     logger.debug("Failed to delete temporary script file", e);
                 }
-                
+
                 if (state != ServiceState.SHUTTING_DOWN) {
                     state = ServiceState.STARTING;
                     cancelFutures();
@@ -291,12 +291,12 @@ public class MatterWebsocketService {
          * The service is up and ready.
          */
         READY,
-        
+
         /**
          * The service is in the process of starting but not yet ready.
          */
         STARTING,
-        
+
         /**
          * The service is in the process of shutting down, so it shouldn't be restarted.
          */

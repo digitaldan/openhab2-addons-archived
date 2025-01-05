@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -509,7 +509,6 @@ public class EnergyEvseCluster extends BaseCluster {
         map.put("chargingEnabledUntil", chargingEnabledUntil);
         map.put("minimumChargeCurrent", minimumChargeCurrent);
         map.put("maximumChargeCurrent", maximumChargeCurrent);
-
         return new ClusterCommand("enableCharging", map);
     }
 
@@ -521,7 +520,6 @@ public class EnergyEvseCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("dischargingEnabledUntil", dischargingEnabledUntil);
         map.put("maximumDischargeCurrent", maximumDischargeCurrent);
-
         return new ClusterCommand("enableDischarging", map);
     }
 
@@ -538,7 +536,6 @@ public class EnergyEvseCluster extends BaseCluster {
     public static ClusterCommand setTargets(List<ChargingTargetScheduleStruct> chargingTargetSchedules) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("chargingTargetSchedules", chargingTargetSchedules);
-
         return new ClusterCommand("setTargets", map);
     }
 
@@ -557,7 +554,7 @@ public class EnergyEvseCluster extends BaseCluster {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

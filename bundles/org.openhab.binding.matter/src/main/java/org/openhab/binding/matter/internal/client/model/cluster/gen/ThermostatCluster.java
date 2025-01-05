@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -946,7 +946,6 @@ public class ThermostatCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("mode", mode);
         map.put("amount", amount);
-
         return new ClusterCommand("setpointRaiseLower", map);
     }
 
@@ -981,7 +980,6 @@ public class ThermostatCluster extends BaseCluster {
         map.put("dayOfWeekForSequence", dayOfWeekForSequence);
         map.put("modeForSequence", modeForSequence);
         map.put("transitions", transitions);
-
         return new ClusterCommand("setWeeklySchedule", map);
     }
 
@@ -996,7 +994,6 @@ public class ThermostatCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("daysToReturn", daysToReturn);
         map.put("modeToReturn", modeToReturn);
-
         return new ClusterCommand("getWeeklySchedule", map);
     }
 
@@ -1010,7 +1007,7 @@ public class ThermostatCluster extends BaseCluster {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

@@ -19,9 +19,8 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * ColorControl
@@ -643,7 +642,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveToHue", map);
     }
 
@@ -654,7 +652,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("rate", rate);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveHue", map);
     }
 
@@ -666,7 +663,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("stepHue", map);
     }
 
@@ -677,7 +673,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveToSaturation", map);
     }
 
@@ -688,7 +683,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("rate", rate);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveSaturation", map);
     }
 
@@ -700,7 +694,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("stepSaturation", map);
     }
 
@@ -712,7 +705,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveToHueAndSaturation", map);
     }
 
@@ -724,7 +716,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveToColor", map);
     }
 
@@ -734,7 +725,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("rateY", rateY);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveColor", map);
     }
 
@@ -746,7 +736,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("stepColor", map);
     }
 
@@ -757,7 +746,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveToColorTemperature", map);
     }
 
@@ -773,7 +761,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("enhancedMoveToHue", map);
     }
 
@@ -788,7 +775,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("rate", rate);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("enhancedMoveHue", map);
     }
 
@@ -804,7 +790,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("enhancedStepHue", map);
     }
 
@@ -820,7 +805,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("enhancedMoveToHueAndSaturation", map);
     }
 
@@ -838,7 +822,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("startHue", startHue);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("colorLoopSet", map);
     }
 
@@ -851,7 +834,6 @@ public class ColorControlCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("stopMoveStep", map);
     }
 
@@ -868,7 +850,6 @@ public class ColorControlCluster extends BaseCluster {
         map.put("colorTemperatureMaximumMireds", colorTemperatureMaximumMireds);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("moveColorTemperature", map);
     }
 
@@ -886,11 +867,11 @@ public class ColorControlCluster extends BaseCluster {
         map.put("colorTemperatureMaximumMireds", colorTemperatureMaximumMireds);
         map.put("optionsMask", optionsMask);
         map.put("optionsOverride", optionsOverride);
-
         return new ClusterCommand("stepColorTemperature", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

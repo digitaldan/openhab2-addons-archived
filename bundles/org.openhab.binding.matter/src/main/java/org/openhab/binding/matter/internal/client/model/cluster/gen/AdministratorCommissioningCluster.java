@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -158,7 +158,6 @@ public class AdministratorCommissioningCluster extends BaseCluster {
         map.put("discriminator", discriminator);
         map.put("iterations", iterations);
         map.put("salt", salt);
-
         return new ClusterCommand("openCommissioningWindow", map);
     }
 
@@ -180,7 +179,6 @@ public class AdministratorCommissioningCluster extends BaseCluster {
     public static ClusterCommand openBasicCommissioningWindow(Integer commissioningTimeout) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("commissioningTimeout", commissioningTimeout);
-
         return new ClusterCommand("openBasicCommissioningWindow", map);
     }
 
@@ -201,7 +199,7 @@ public class AdministratorCommissioningCluster extends BaseCluster {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

@@ -20,9 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * OtaSoftwareUpdateProvider
@@ -143,7 +142,6 @@ public class OtaSoftwareUpdateProviderCluster extends BaseCluster {
         map.put("location", location);
         map.put("requestorCanConsent", requestorCanConsent);
         map.put("metadataForProvider", metadataForProvider);
-
         return new ClusterCommand("queryImage", map);
     }
 
@@ -151,7 +149,6 @@ public class OtaSoftwareUpdateProviderCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("updateToken", updateToken);
         map.put("newVersion", newVersion);
-
         return new ClusterCommand("applyUpdateRequest", map);
     }
 
@@ -159,11 +156,11 @@ public class OtaSoftwareUpdateProviderCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("updateToken", updateToken);
         map.put("softwareVersion", softwareVersion);
-
         return new ClusterCommand("notifyUpdateApplied", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         return str;

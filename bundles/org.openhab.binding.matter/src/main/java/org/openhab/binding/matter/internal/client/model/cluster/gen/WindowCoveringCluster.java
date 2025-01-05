@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -517,7 +517,6 @@ public class WindowCoveringCluster extends BaseCluster {
     public static ClusterCommand goToLiftValue(Integer liftValue) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("liftValue", liftValue);
-
         return new ClusterCommand("goToLiftValue", map);
     }
 
@@ -537,14 +536,12 @@ public class WindowCoveringCluster extends BaseCluster {
     public static ClusterCommand goToLiftPercentage(Integer liftPercent100thsValue) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("liftPercent100thsValue", liftPercent100thsValue);
-
         return new ClusterCommand("goToLiftPercentage", map);
     }
 
     public static ClusterCommand goToTiltValue(Integer tiltValue) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("tiltValue", tiltValue);
-
         return new ClusterCommand("goToTiltValue", map);
     }
 
@@ -564,12 +561,11 @@ public class WindowCoveringCluster extends BaseCluster {
     public static ClusterCommand goToTiltPercentage(Integer tiltPercent100thsValue) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("tiltPercent100thsValue", tiltPercent100thsValue);
-
         return new ClusterCommand("goToTiltPercentage", map);
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

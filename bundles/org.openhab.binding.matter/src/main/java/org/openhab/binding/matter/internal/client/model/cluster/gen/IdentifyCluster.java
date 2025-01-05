@@ -19,9 +19,8 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * Identify
@@ -140,7 +139,6 @@ public class IdentifyCluster extends BaseCluster {
     public static ClusterCommand identify(Integer identifyTime) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("identifyTime", identifyTime);
-
         return new ClusterCommand("identify", map);
     }
 
@@ -155,11 +153,11 @@ public class IdentifyCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("effectIdentifier", effectIdentifier);
         map.put("effectVariant", effectVariant);
-
         return new ClusterCommand("triggerEffect", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "identifyTime : " + identifyTime + "\n";

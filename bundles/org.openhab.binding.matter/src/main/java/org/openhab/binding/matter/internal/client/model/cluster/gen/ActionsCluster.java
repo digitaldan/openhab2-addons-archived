@@ -20,9 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * Actions
@@ -301,7 +300,6 @@ public class ActionsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
-
         return new ClusterCommand("instantAction", map);
     }
 
@@ -320,7 +318,6 @@ public class ActionsCluster extends BaseCluster {
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
         map.put("transitionTime", transitionTime);
-
         return new ClusterCommand("instantActionWithTransition", map);
     }
 
@@ -336,7 +333,6 @@ public class ActionsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
-
         return new ClusterCommand("startAction", map);
     }
 
@@ -352,7 +348,6 @@ public class ActionsCluster extends BaseCluster {
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
         map.put("duration", duration);
-
         return new ClusterCommand("startActionWithDuration", map);
     }
 
@@ -365,7 +360,6 @@ public class ActionsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
-
         return new ClusterCommand("stopAction", map);
     }
 
@@ -378,7 +372,6 @@ public class ActionsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
-
         return new ClusterCommand("pauseAction", map);
     }
 
@@ -397,7 +390,6 @@ public class ActionsCluster extends BaseCluster {
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
         map.put("duration", duration);
-
         return new ClusterCommand("pauseActionWithDuration", map);
     }
 
@@ -412,7 +404,6 @@ public class ActionsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
-
         return new ClusterCommand("resumeAction", map);
     }
 
@@ -424,7 +415,6 @@ public class ActionsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
-
         return new ClusterCommand("enableAction", map);
     }
 
@@ -440,7 +430,6 @@ public class ActionsCluster extends BaseCluster {
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
         map.put("duration", duration);
-
         return new ClusterCommand("enableActionWithDuration", map);
     }
 
@@ -452,7 +441,6 @@ public class ActionsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
-
         return new ClusterCommand("disableAction", map);
     }
 
@@ -469,11 +457,11 @@ public class ActionsCluster extends BaseCluster {
         map.put("actionId", actionId);
         map.put("invokeId", invokeId);
         map.put("duration", duration);
-
         return new ClusterCommand("disableActionWithDuration", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "actionList : " + actionList + "\n";

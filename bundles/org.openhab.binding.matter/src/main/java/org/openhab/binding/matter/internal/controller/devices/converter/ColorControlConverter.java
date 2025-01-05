@@ -33,8 +33,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster.MatterEnum;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
+import org.openhab.binding.matter.internal.client.model.cluster.gen.BaseCluster.MatterEnum;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.ColorControlCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.ColorControlCluster.ColorMode;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.ColorControlCluster.Options;

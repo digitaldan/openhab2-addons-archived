@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -397,7 +397,6 @@ public class MediaPlaybackCluster extends BaseCluster {
     public static ClusterCommand rewind(Boolean audioAdvanceUnmuted) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("audioAdvanceUnmuted", audioAdvanceUnmuted);
-
         return new ClusterCommand("rewind", map);
     }
 
@@ -416,7 +415,6 @@ public class MediaPlaybackCluster extends BaseCluster {
     public static ClusterCommand fastForward(Boolean audioAdvanceUnmuted) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("audioAdvanceUnmuted", audioAdvanceUnmuted);
-
         return new ClusterCommand("fastForward", map);
     }
 
@@ -426,7 +424,6 @@ public class MediaPlaybackCluster extends BaseCluster {
     public static ClusterCommand skipForward(BigInteger deltaPositionMilliseconds) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("deltaPositionMilliseconds", deltaPositionMilliseconds);
-
         return new ClusterCommand("skipForward", map);
     }
 
@@ -436,7 +433,6 @@ public class MediaPlaybackCluster extends BaseCluster {
     public static ClusterCommand skipBackward(BigInteger deltaPositionMilliseconds) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("deltaPositionMilliseconds", deltaPositionMilliseconds);
-
         return new ClusterCommand("skipBackward", map);
     }
 
@@ -446,7 +442,6 @@ public class MediaPlaybackCluster extends BaseCluster {
     public static ClusterCommand seek(BigInteger position) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("position", position);
-
         return new ClusterCommand("seek", map);
     }
 
@@ -460,7 +455,6 @@ public class MediaPlaybackCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("trackId", trackId);
         map.put("audioOutputIndex", audioOutputIndex);
-
         return new ClusterCommand("activateAudioTrack", map);
     }
 
@@ -473,7 +467,6 @@ public class MediaPlaybackCluster extends BaseCluster {
     public static ClusterCommand activateTextTrack(String trackId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("trackId", trackId);
-
         return new ClusterCommand("activateTextTrack", map);
     }
 
@@ -486,7 +479,7 @@ public class MediaPlaybackCluster extends BaseCluster {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

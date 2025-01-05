@@ -17,8 +17,7 @@ package org.openhab.binding.matter.internal.client.model.cluster.gen;
 
 import java.math.BigInteger;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * BridgedDeviceBasicInformation
@@ -174,7 +173,8 @@ public class BridgedDeviceBasicInformationCluster extends BaseCluster {
         super(nodeId, endpointId, 57, "BridgedDeviceBasicInformation");
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "vendorName : " + vendorName + "\n";

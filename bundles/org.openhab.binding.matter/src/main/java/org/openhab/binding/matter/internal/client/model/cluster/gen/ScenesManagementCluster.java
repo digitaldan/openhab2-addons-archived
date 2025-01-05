@@ -20,9 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * ScenesManagement
@@ -277,7 +276,6 @@ public class ScenesManagementCluster extends BaseCluster {
         map.put("transitionTime", transitionTime);
         map.put("sceneName", sceneName);
         map.put("extensionFieldSetStructs", extensionFieldSetStructs);
-
         return new ClusterCommand("addScene", map);
     }
 
@@ -285,7 +283,6 @@ public class ScenesManagementCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupId", groupId);
         map.put("sceneId", sceneId);
-
         return new ClusterCommand("viewScene", map);
     }
 
@@ -293,14 +290,12 @@ public class ScenesManagementCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupId", groupId);
         map.put("sceneId", sceneId);
-
         return new ClusterCommand("removeScene", map);
     }
 
     public static ClusterCommand removeAllScenes(Integer groupId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupId", groupId);
-
         return new ClusterCommand("removeAllScenes", map);
     }
 
@@ -308,7 +303,6 @@ public class ScenesManagementCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupId", groupId);
         map.put("sceneId", sceneId);
-
         return new ClusterCommand("storeScene", map);
     }
 
@@ -317,7 +311,6 @@ public class ScenesManagementCluster extends BaseCluster {
         map.put("groupId", groupId);
         map.put("sceneId", sceneId);
         map.put("transitionTime", transitionTime);
-
         return new ClusterCommand("recallScene", map);
     }
 
@@ -328,7 +321,6 @@ public class ScenesManagementCluster extends BaseCluster {
     public static ClusterCommand getSceneMembership(Integer groupId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupId", groupId);
-
         return new ClusterCommand("getSceneMembership", map);
     }
 
@@ -344,11 +336,11 @@ public class ScenesManagementCluster extends BaseCluster {
         map.put("sceneIdentifierFrom", sceneIdentifierFrom);
         map.put("groupIdentifierTo", groupIdentifierTo);
         map.put("sceneIdentifierTo", sceneIdentifierTo);
-
         return new ClusterCommand("copyScene", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

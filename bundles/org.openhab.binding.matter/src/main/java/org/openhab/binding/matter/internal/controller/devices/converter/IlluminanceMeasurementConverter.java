@@ -30,6 +30,7 @@ import org.openhab.core.thing.ChannelGroupUID;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.binding.builder.ChannelBuilder;
 import org.openhab.core.types.StateDescription;
+import org.openhab.core.types.UnDefType;
 
 /**
  * The {@link IlluminanceMeasurementConverter}
@@ -66,6 +67,8 @@ public class IlluminanceMeasurementConverter extends GenericConverter<Illuminanc
 
     @Override
     public void initState() {
-        updateState(CHANNEL_ILLUMINANCEMEASURMENT_MEASUREDVALUE, new DecimalType(initializingCluster.maxMeasuredValue));
+        updateState(CHANNEL_ILLUMINANCEMEASURMENT_MEASUREDVALUE,
+                initializingCluster.measuredValue != null ? new DecimalType(initializingCluster.measuredValue)
+                        : UnDefType.UNDEF);
     }
 }

@@ -20,9 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * MicrowaveOvenControl
@@ -130,7 +129,6 @@ public class MicrowaveOvenControlCluster extends BaseCluster {
         map.put("powerSetting", powerSetting);
         map.put("wattSettingIndex", wattSettingIndex);
         map.put("startAfterSetting", startAfterSetting);
-
         return new ClusterCommand("setCookingParameters", map);
     }
 
@@ -141,11 +139,11 @@ public class MicrowaveOvenControlCluster extends BaseCluster {
     public static ClusterCommand addMoreTime(Integer timeToAdd) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("timeToAdd", timeToAdd);
-
         return new ClusterCommand("addMoreTime", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

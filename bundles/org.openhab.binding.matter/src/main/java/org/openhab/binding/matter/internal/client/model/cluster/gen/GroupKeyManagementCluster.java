@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -289,7 +289,6 @@ public class GroupKeyManagementCluster extends BaseCluster {
     public static ClusterCommand keySetWrite(GroupKeySetStruct groupKeySet) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupKeySet", groupKeySet);
-
         return new ClusterCommand("keySetWrite", map);
     }
 
@@ -305,7 +304,6 @@ public class GroupKeyManagementCluster extends BaseCluster {
     public static ClusterCommand keySetRead(Integer groupKeySetId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupKeySetId", groupKeySetId);
-
         return new ClusterCommand("keySetRead", map);
     }
 
@@ -327,7 +325,6 @@ public class GroupKeyManagementCluster extends BaseCluster {
     public static ClusterCommand keySetRemove(Integer groupKeySetId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupKeySetId", groupKeySetId);
-
         return new ClusterCommand("keySetRemove", map);
     }
 
@@ -344,7 +341,7 @@ public class GroupKeyManagementCluster extends BaseCluster {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

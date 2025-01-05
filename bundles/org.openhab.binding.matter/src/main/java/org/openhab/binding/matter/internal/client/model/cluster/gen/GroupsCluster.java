@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -75,7 +75,6 @@ public class GroupsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupId", groupId);
         map.put("groupName", groupName);
-
         return new ClusterCommand("addGroup", map);
     }
 
@@ -86,7 +85,6 @@ public class GroupsCluster extends BaseCluster {
     public static ClusterCommand viewGroup(Integer groupId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupId", groupId);
-
         return new ClusterCommand("viewGroup", map);
     }
 
@@ -97,7 +95,6 @@ public class GroupsCluster extends BaseCluster {
     public static ClusterCommand getGroupMembership(List<Integer> groupList) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupList", groupList);
-
         return new ClusterCommand("getGroupMembership", map);
     }
 
@@ -108,7 +105,6 @@ public class GroupsCluster extends BaseCluster {
     public static ClusterCommand removeGroup(Integer groupId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupId", groupId);
-
         return new ClusterCommand("removeGroup", map);
     }
 
@@ -132,12 +128,11 @@ public class GroupsCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("groupId", groupId);
         map.put("groupName", groupName);
-
         return new ClusterCommand("addGroupIfIdentifying", map);
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";

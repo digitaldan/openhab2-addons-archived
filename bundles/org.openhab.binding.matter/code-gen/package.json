@@ -6,11 +6,12 @@
         "clean": "tsc --clean",
         "build": "tsc --build",
         "build-clean": "tsc --build --clean",
-        "start": "ts-node src/app.ts"
+        "start": "ts-node src/app.ts",
+        "test": "ts-node src/test.ts"
     },
     "devDependencies": {
         "ts-loader": "^9.4.4",
-        "ts-node": "^10.9.1",
+        "ts-node": "^10.9.2",
         "typescript": "^5.2.2"
     },
     "dependencies": {

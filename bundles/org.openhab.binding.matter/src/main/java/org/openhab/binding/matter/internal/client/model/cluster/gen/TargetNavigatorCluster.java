@@ -20,9 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DataTypes.*;
 
 /**
  * TargetNavigator
@@ -106,11 +105,11 @@ public class TargetNavigatorCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("target", target);
         map.put("data", data);
-
         return new ClusterCommand("navigateTarget", map);
     }
 
-    public String toString() {
+    @Override
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "targetList : " + targetList + "\n";

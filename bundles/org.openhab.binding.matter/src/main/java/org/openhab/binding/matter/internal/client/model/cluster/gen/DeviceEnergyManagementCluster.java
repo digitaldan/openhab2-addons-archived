@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openhab.binding.matter.internal.client.model.cluster.BaseCluster;
+import org.eclipse.jdt.annotation.NonNull;
 import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
 
 /**
@@ -853,7 +853,6 @@ public class DeviceEnergyManagementCluster extends BaseCluster {
         map.put("power", power);
         map.put("duration", duration);
         map.put("cause", cause);
-
         return new ClusterCommand("powerAdjustRequest", map);
     }
 
@@ -872,7 +871,6 @@ public class DeviceEnergyManagementCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("requestedStartTime", requestedStartTime);
         map.put("cause", cause);
-
         return new ClusterCommand("startTimeAdjustRequest", map);
     }
 
@@ -883,7 +881,6 @@ public class DeviceEnergyManagementCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("duration", duration);
         map.put("cause", cause);
-
         return new ClusterCommand("pauseRequest", map);
     }
 
@@ -903,7 +900,6 @@ public class DeviceEnergyManagementCluster extends BaseCluster {
         map.put("forecastId", forecastId);
         map.put("slotAdjustments", slotAdjustments);
         map.put("cause", cause);
-
         return new ClusterCommand("modifyForecastRequest", map);
     }
 
@@ -915,7 +911,6 @@ public class DeviceEnergyManagementCluster extends BaseCluster {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("constraints", constraints);
         map.put("cause", cause);
-
         return new ClusterCommand("requestConstraintBasedForecast", map);
     }
 
@@ -928,7 +923,7 @@ public class DeviceEnergyManagementCluster extends BaseCluster {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String str = "";
         str += "clusterRevision : " + clusterRevision + "\n";
         str += "featureMap : " + featureMap + "\n";
