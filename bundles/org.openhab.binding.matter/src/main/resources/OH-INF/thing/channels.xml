@@ -471,4 +471,13 @@
 		<label>Multi-press Complete Trigger Channel</label>
 	</channel-type>
 
+	<channel-type id="electricalenergymeasurement-energymeasurmement-energy">
+		<item-type>Number:Energy</item-type>
+		<label>Energy</label>
+		<description>Energy</description>
+		<category>Energy</category>
+		<state pattern="%.3f MWh" readOnly="true"></state>	
+	</channel-type>
+
+
 </thing:thing-descriptions>

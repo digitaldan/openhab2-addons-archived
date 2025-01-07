@@ -167,6 +167,38 @@ public class MatterBindingConstants {
             "matter:switch-multipresscomplete");
     public static final String CHANNEL_LABEL_SWITCH_MULTIPRESSCOMPLETE = "Multi-press Complete Trigger";
 
+    // shared by energy imported and exported
+    public static final ChannelTypeUID CHANNEL_ELECTRICALENERGYMEASUREMENT_ENERGYMEASUREMENT_ENERGY = new ChannelTypeUID(
+            "matter:electricalenergymeasurement-energymeasurmement-energy");
+
+    public static final String CHANNEL_LABEL_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYIMPORTED_ENERGY = "Cumulative Energy Imported";
+    public static final String CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYIMPORTED_ENERGY = "electricalenergymeasurement-cumulativeenergyimported-energy";
+    
+
+    public static final String CHANNEL_LABEL_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYEXPORTED_ENERGY = "Cumulative Energy Exported";
+    public static final String CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYEXPORTED_ENERGY = "electricalenergymeasurement-cumulativeenergyexported-energy";
+
+    public static final String CHANNEL_LABEL_ELECTRICALPOWERMEASUREMENT_VOLTAGE = "Voltage";
+    public static final String CHANNEL_ID_ELECTRICALPOWERMEASUREMENT_VOLTAGE = "electricalpowermeasurement-voltage";
+    public static final ChannelTypeUID CHANNEL_ELECTRICALPOWERMEASUREMENT_VOLTAGE = new ChannelTypeUID(
+            "matter:" + CHANNEL_ID_ELECTRICALPOWERMEASUREMENT_VOLTAGE);
+
+    public static final String CHANNEL_LABEL_ELECTRICALPOWERMEASUREMENT_ACTIVECURRENT = "Active Current";
+    public static final String CHANNEL_ID_ELECTRICALPOWERMEASUREMENT_ACTIVECURRENT = "electricalpowermeasurement-activecurrent";
+    public static final ChannelTypeUID CHANNEL_ELECTRICALPOWERMEASUREMENT_ACTIVECURRENT = new ChannelTypeUID(
+            "matter:" + CHANNEL_ID_ELECTRICALPOWERMEASUREMENT_ACTIVECURRENT);
+
+    public static final String CHANNEL_LABEL_ELECTRICALPOWERMEASUREMENT_ACTIVEPOWER = "Active Power";
+    public static final String CHANNEL_ID_ELECTRICALPOWERMEASUREMENT_ACTIVEPOWER = "electricalpowermeasurement-activepower";
+    public static final ChannelTypeUID CHANNEL_ELECTRICALPOWERMEASUREMENT_ACTIVEPOWER = new ChannelTypeUID(
+            "matter:" + CHANNEL_ID_ELECTRICALPOWERMEASUREMENT_ACTIVEPOWER);
+
+    public static final String CHANNEL_NAME_ELECTRICALPOWERMEASUREMENT_FREQUENCY = "Frequency";
+    public static final String CHANNEL_LABEL_ELECTRICALPOWERMEASUREMENT_FREQUENCY = "Frequency";
+    public static final String CHANNEL_ID_ELECTRICALPOWERMEASUREMENT_FREQUENCY = "electricalpowermeasurement-frequency";
+    public static final ChannelTypeUID CHANNEL_ELECTRICALPOWERMEASUREMENT_FREQUENCY = new ChannelTypeUID(
+            "matter:" + CHANNEL_ID_ELECTRICALPOWERMEASUREMENT_FREQUENCY);
+
     public static final String ITEM_TYPE_COLOR = "Color";
     public static final String ITEM_TYPE_CONTACT = "Contact";
     public static final String ITEM_TYPE_DIMMER = "Dimmer";
