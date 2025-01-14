@@ -22,6 +22,7 @@ import org.openhab.binding.matter.internal.client.model.cluster.gen.BaseCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.BooleanStateCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.ColorControlCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.DoorLockCluster;
+import org.openhab.binding.matter.internal.client.model.cluster.gen.ElectricalPowerMeasurementCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.FanControlCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.IlluminanceMeasurementCluster;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.LevelControlCluster;
@@ -70,6 +71,8 @@ public class ConverterRegistry {
         ConverterRegistry.registerConverter(WiFiNetworkDiagnosticsCluster.CLUSTER_ID,
                 WiFiNetworkDiagnosticsConverter.class);
         ConverterRegistry.registerConverter(DoorLockCluster.CLUSTER_ID, DoorLockConverter.class);
+        ConverterRegistry.registerConverter(ElectricalPowerMeasurementCluster.CLUSTER_ID,
+                ElectricalPowerMeasurementConverter.class);
     }
 
     public static void registerConverter(Integer clusterId,

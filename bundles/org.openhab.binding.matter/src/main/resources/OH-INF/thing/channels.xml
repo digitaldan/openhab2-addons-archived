@@ -476,7 +476,23 @@
 		<label>Energy</label>
 		<description>Energy</description>
 		<category>Energy</category>
-		<state pattern="%.3f MWh" readOnly="true"></state>	
+		<state pattern="%.3f MWh" readOnly="true"></state>
+	</channel-type>
+
+	<channel-type id="electricalpowermeasurement-activepower">
+		<item-type>Number:Power</item-type>
+		<label>Active Power</label>
+		<description>Active Power</description>
+		<category>Energy</category>
+		<state pattern="%.0f mA" readOnly="true"></state>
+	</channel-type>
+
+	<channel-type id="electricalpowermeasurement-activecurrent">
+		<item-type>Number:ElectricCurrent</item-type>
+		<label>Active Current</label>
+		<description>Active Current</description>
+		<category>Energy</category>
+		<state pattern="%.0f mW" readOnly="true"></state>
 	</channel-type>
 
 

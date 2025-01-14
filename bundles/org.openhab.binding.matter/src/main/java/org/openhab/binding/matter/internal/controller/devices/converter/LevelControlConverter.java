@@ -44,6 +44,7 @@ import org.openhab.core.types.StateDescription;
 public class LevelControlConverter extends GenericConverter<LevelControlCluster> {
 
     private PercentType lastLevel = new PercentType(0);
+    private OnOffType lastOnOff = OnOffType.OFF;
 
     public LevelControlConverter(LevelControlCluster cluster, MatterBaseThingHandler handler, int endpointNumber,
             String labelPrefix) {
@@ -78,11 +79,14 @@ public class LevelControlConverter extends GenericConverter<LevelControlCluster>
                 Integer numberValue = message.value instanceof Number number ? number.intValue() : 0;
                 lastLevel = levelToPercent(numberValue);
                 logger.debug("currentLevel {}", lastLevel);
-                updateState(CHANNEL_LEVEL_LEVEL, lastLevel);
+                if (lastOnOff == OnOffType.ON) {
+                    updateState(CHANNEL_LEVEL_LEVEL, lastLevel);
+                }
                 break;
             case "onOff":
                 logger.debug("onOff {}", message.value);
-                updateState(CHANNEL_LEVEL_LEVEL, OnOffType.from((Boolean) message.value));
+                lastOnOff = OnOffType.from((Boolean) message.value);
+                updateState(CHANNEL_LEVEL_LEVEL, lastOnOff);
                 break;
         }
         super.onEvent(message);
@@ -95,6 +99,7 @@ public class LevelControlConverter extends GenericConverter<LevelControlCluster>
     }
 
     public void initState(boolean onOff) {
+        lastOnOff = OnOffType.from(onOff);
         lastLevel = levelToPercent(initializingCluster.currentLevel);
         updateState(CHANNEL_LEVEL_LEVEL, onOff ? lastLevel : OnOffType.OFF);
     }

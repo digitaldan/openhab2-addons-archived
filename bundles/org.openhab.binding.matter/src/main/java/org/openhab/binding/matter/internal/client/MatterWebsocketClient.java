@@ -90,9 +90,9 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
             .registerTypeAdapter(BigInteger.class, new BigIntegerSerializer())
             .registerTypeHierarchyAdapter(BaseCluster.MatterEnum.class, new MatterEnumDeserializer()).create();
 
-    private final WebSocketClient client = new WebSocketClient();
-    private final ConcurrentHashMap<String, CompletableFuture<JsonElement>> pendingRequests = new ConcurrentHashMap<>();
-    private final CopyOnWriteArrayList<MatterClientListener> clientListeners = new CopyOnWriteArrayList<>();
+    protected final WebSocketClient client = new WebSocketClient();
+    protected final ConcurrentHashMap<String, CompletableFuture<JsonElement>> pendingRequests = new ConcurrentHashMap<>();
+    protected final CopyOnWriteArrayList<MatterClientListener> clientListeners = new CopyOnWriteArrayList<>();
 
     @Nullable
     private Session session;
