@@ -13,10 +13,10 @@
 package org.openhab.binding.matter.internal.client;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.matter.internal.client.model.ws.AttributeChangedMessage;
-import org.openhab.binding.matter.internal.client.model.ws.BridgeEventMessage;
-import org.openhab.binding.matter.internal.client.model.ws.EventTriggeredMessage;
-import org.openhab.binding.matter.internal.client.model.ws.NodeStateMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.AttributeChangedMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.BridgeEventMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.EventTriggeredMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.NodeStateMessage;
 
 /**
  * The {@link MatterClientListener}

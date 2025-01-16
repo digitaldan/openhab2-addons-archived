@@ -17,7 +17,7 @@ import java.util.Optional;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.matter.internal.bridge.MatterBridgeClient;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DoorLockCluster;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.DoorLockCluster;
 import org.openhab.core.items.GenericItem;
 import org.openhab.core.items.GroupItem;
 import org.openhab.core.items.Item;

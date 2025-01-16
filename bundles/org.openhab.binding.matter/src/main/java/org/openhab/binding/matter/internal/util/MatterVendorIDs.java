@@ -15,10 +15,13 @@ package org.openhab.binding.matter.internal.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * 
  * @author Dan Cunningham - Initial contribution
  */
+@NonNullByDefault
 public class MatterVendorIDs {
 
     /**

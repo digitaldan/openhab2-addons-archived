@@ -39,22 +39,22 @@ import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
-import org.openhab.binding.matter.internal.client.model.Endpoint;
-import org.openhab.binding.matter.internal.client.model.Node;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.BaseCluster;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.ClusterRegistry;
-import org.openhab.binding.matter.internal.client.model.ws.AttributeChangedMessage;
-import org.openhab.binding.matter.internal.client.model.ws.BridgeEventAttributeChanged;
-import org.openhab.binding.matter.internal.client.model.ws.BridgeEventMessage;
-import org.openhab.binding.matter.internal.client.model.ws.BridgeEventTriggered;
-import org.openhab.binding.matter.internal.client.model.ws.Event;
-import org.openhab.binding.matter.internal.client.model.ws.EventTriggeredMessage;
-import org.openhab.binding.matter.internal.client.model.ws.Message;
-import org.openhab.binding.matter.internal.client.model.ws.NodeStateMessage;
-import org.openhab.binding.matter.internal.client.model.ws.Path;
-import org.openhab.binding.matter.internal.client.model.ws.Request;
-import org.openhab.binding.matter.internal.client.model.ws.Response;
-import org.openhab.binding.matter.internal.client.model.ws.TriggerEvent;
+import org.openhab.binding.matter.internal.client.dto.Endpoint;
+import org.openhab.binding.matter.internal.client.dto.Node;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.BaseCluster;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.ClusterRegistry;
+import org.openhab.binding.matter.internal.client.dto.ws.AttributeChangedMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.BridgeEventAttributeChanged;
+import org.openhab.binding.matter.internal.client.dto.ws.BridgeEventMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.BridgeEventTriggered;
+import org.openhab.binding.matter.internal.client.dto.ws.Event;
+import org.openhab.binding.matter.internal.client.dto.ws.EventTriggeredMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.Message;
+import org.openhab.binding.matter.internal.client.dto.ws.NodeStateMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.Path;
+import org.openhab.binding.matter.internal.client.dto.ws.Request;
+import org.openhab.binding.matter.internal.client.dto.ws.Response;
+import org.openhab.binding.matter.internal.client.dto.ws.TriggerEvent;
 import org.openhab.core.common.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -612,6 +612,9 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
         }
     }
 
+    /**
+     * Get the Gson instance for use in tests
+     */
     Gson getGson() {
         return gson;
     }

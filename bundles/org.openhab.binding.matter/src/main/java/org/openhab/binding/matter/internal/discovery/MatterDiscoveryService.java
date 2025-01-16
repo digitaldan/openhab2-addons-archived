@@ -19,8 +19,8 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.matter.internal.client.model.Endpoint;
-import org.openhab.binding.matter.internal.client.model.Node;
+import org.openhab.binding.matter.internal.client.dto.Endpoint;
+import org.openhab.binding.matter.internal.client.dto.Node;
 import org.openhab.binding.matter.internal.util.MatterLabelUtils;
 import org.openhab.core.config.discovery.AbstractDiscoveryService;
 import org.openhab.core.config.discovery.DiscoveryResult;

@@ -18,7 +18,7 @@ rm -rf out/*
 echo "Running 'npm run start'..."
 npm run start
 
-gen_directory="../src/main/java/org/openhab/binding/matter/internal/client/model/cluster/gen/"
+gen_directory="../src/main/java/org/openhab/binding/matter/internal/client/dto/cluster/gen/"
 echo "Removing all files from '${gen_directory}'..."
 rm -rf "${gen_directory:?}"*
 

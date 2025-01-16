@@ -14,6 +14,7 @@ package org.openhab.binding.matter.internal.util;
 
 import java.math.BigInteger;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.matter.internal.MatterBindingConstants;
 import org.openhab.core.thing.ThingTypeUID;
@@ -23,6 +24,7 @@ import org.openhab.core.thing.ThingTypeUID;
  *
  * @author Dan Cunningham - Initial contribution
  */
+@NonNullByDefault
 public class MatterUIDUtils {
 
     /**

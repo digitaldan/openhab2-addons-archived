@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.matter.internal.client.MatterWebsocketClient;
-import org.openhab.binding.matter.internal.client.model.ws.BridgeCommissionState;
+import org.openhab.binding.matter.internal.client.dto.ws.BridgeCommissionState;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;

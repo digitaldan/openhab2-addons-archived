@@ -16,11 +16,14 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The {@link SetupPayload}
  *
  * @author Dan Cunningham - Initial contribution
  */
+@NonNullByDefault
 public class SetupPayload {
     public enum CommissioningFlow {
         Standard(0),

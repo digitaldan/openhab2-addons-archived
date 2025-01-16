@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.matter.internal.client.model.PairingCodes;
+import org.openhab.binding.matter.internal.client.dto.PairingCodes;
 import org.openhab.binding.matter.internal.controller.MatterControllerClient;
 import org.openhab.binding.matter.internal.handler.NodeHandler;
 import org.openhab.binding.matter.internal.util.MatterVendorIDs;

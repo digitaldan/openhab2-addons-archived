@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.matter.internal.bridge.MatterBridgeClient;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.WindowCoveringCluster;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.WindowCoveringCluster;
 import org.openhab.core.items.GenericItem;
 import org.openhab.core.items.GroupItem;
 import org.openhab.core.items.Item;
@@ -41,7 +41,6 @@ import org.openhab.core.library.types.StringType;
 import org.openhab.core.library.types.UpDownType;
 import org.openhab.core.types.State;
 
-import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
 /**
@@ -51,7 +50,6 @@ import com.google.gson.internal.LinkedTreeMap;
  */
 @NonNullByDefault
 public class WindowCoveringDevice extends GenericDevice {
-    private final Gson gson = new Gson();
     private ScheduledExecutorService operationalStateScheduler = Executors.newSingleThreadScheduledExecutor();
     private @Nullable ScheduledFuture<?> operationalStateTimer = null;
     private @Nullable Integer lastTargetPercent = null;

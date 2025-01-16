@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DeviceTypes;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.DeviceTypes;
 import org.openhab.binding.matter.internal.handler.MatterBaseThingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

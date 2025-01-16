@@ -22,9 +22,9 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.matter.internal.client.model.cluster.ClusterCommand;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DoorLockCluster;
-import org.openhab.binding.matter.internal.client.model.ws.AttributeChangedMessage;
+import org.openhab.binding.matter.internal.client.dto.cluster.ClusterCommand;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.DoorLockCluster;
+import org.openhab.binding.matter.internal.client.dto.ws.AttributeChangedMessage;
 import org.openhab.binding.matter.internal.handler.MatterBaseThingHandler;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.thing.Channel;

@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.common.ThreadPoolManager;
 import org.osgi.service.component.annotations.Activate;
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author Dan Cunningham - Initial contribution
  */
 @Component(service = MatterWebsocketService.class, scope = ServiceScope.SINGLETON)
+@NonNullByDefault
 public class MatterWebsocketService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final Pattern LOG_PATTERN = Pattern
@@ -61,6 +63,7 @@ public class MatterWebsocketService {
     // The path to the Node.js executable (node or node.exe)
     private final String nodePath;
     // The Node.js process running the matter.js script
+    @Nullable
     private Process nodeProcess;
     // The state of the service, STARTING, READY, SHUTTING_DOWN
     private ServiceState state = ServiceState.STARTING;
@@ -101,6 +104,7 @@ public class MatterWebsocketService {
         logger.debug("stopNode");
         state = ServiceState.SHUTTING_DOWN;
         cancelFutures();
+        Process nodeProcess = this.nodeProcess;
         if (nodeProcess != null && nodeProcess.isAlive()) {
             nodeProcess.destroy();
             try {
@@ -159,8 +163,11 @@ public class MatterWebsocketService {
         executorService.submit(() -> {
             int exitCode = -1;
             try {
-                exitCode = nodeProcess.waitFor();
-                logger.debug("Node process exited with code: {}", exitCode);
+                Process nodeProcess = this.nodeProcess;
+                if (nodeProcess != null) {
+                    exitCode = nodeProcess.waitFor();
+                    logger.debug("Node process exited with code: {}", exitCode);
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 logger.debug("Interrupted while waiting for Node process to exit", e);
@@ -189,11 +196,17 @@ public class MatterWebsocketService {
     }
 
     private void readOutputStream() {
-        processStream(nodeProcess.getInputStream(), "Error reading Node process output", true);
+        Process nodeProcess = this.nodeProcess;
+        if (nodeProcess != null) {
+            processStream(nodeProcess.getInputStream(), "Error reading Node process output", true);
+        }
     }
 
     private void readErrorStream() {
-        processStream(nodeProcess.getErrorStream(), "Error reading Node process error stream", false);
+        Process nodeProcess = this.nodeProcess;
+        if (nodeProcess != null) {
+            processStream(nodeProcess.getErrorStream(), "Error reading Node process error stream", false);
+        }
     }
 
     private void processStream(InputStream inputStream, String errorMessage, boolean triggerNotify) {

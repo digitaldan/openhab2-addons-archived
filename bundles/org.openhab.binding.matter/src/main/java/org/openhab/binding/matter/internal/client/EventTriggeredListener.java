@@ -13,7 +13,7 @@
 package org.openhab.binding.matter.internal.client;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.matter.internal.client.model.ws.EventTriggeredMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.EventTriggeredMessage;
 
 /**
  * The {@link EventTriggeredListener}

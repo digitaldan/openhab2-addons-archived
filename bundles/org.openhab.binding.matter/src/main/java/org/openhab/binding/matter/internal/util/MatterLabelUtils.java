@@ -21,14 +21,14 @@ import java.util.stream.IntStream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.matter.internal.client.model.Endpoint;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.BaseCluster;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.BasicInformationCluster;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.BridgedDeviceBasicInformationCluster;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DescriptorCluster;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DescriptorCluster.DeviceTypeStruct;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.DeviceTypes;
-import org.openhab.binding.matter.internal.client.model.cluster.gen.FixedLabelCluster;
+import org.openhab.binding.matter.internal.client.dto.Endpoint;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.BaseCluster;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.BasicInformationCluster;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.BridgedDeviceBasicInformationCluster;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.DescriptorCluster;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.DescriptorCluster.DeviceTypeStruct;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.DeviceTypes;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.FixedLabelCluster;
 
 /**
  * @author Dan Cunningham - Initial contribution
