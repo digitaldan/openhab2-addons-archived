@@ -611,4 +611,8 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
             return new EventTriggeredMessage(path, events);
         }
     }
+
+    Gson getGson() {
+        return gson;
+    }
 }
