@@ -42,6 +42,7 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.openhab.binding.matter.internal.client.model.Endpoint;
 import org.openhab.binding.matter.internal.client.model.Node;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.BaseCluster;
+import org.openhab.binding.matter.internal.client.model.cluster.gen.ClusterRegistry;
 import org.openhab.binding.matter.internal.client.model.ws.AttributeChangedMessage;
 import org.openhab.binding.matter.internal.client.model.ws.BridgeEventAttributeChanged;
 import org.openhab.binding.matter.internal.client.model.ws.BridgeEventMessage;
@@ -53,6 +54,7 @@ import org.openhab.binding.matter.internal.client.model.ws.NodeStateMessage;
 import org.openhab.binding.matter.internal.client.model.ws.Path;
 import org.openhab.binding.matter.internal.client.model.ws.Request;
 import org.openhab.binding.matter.internal.client.model.ws.Response;
+import org.openhab.binding.matter.internal.client.model.ws.TriggerEvent;
 import org.openhab.core.common.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +90,8 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
 
     protected final Gson gson = new GsonBuilder().registerTypeAdapter(Node.class, new NodeDeserializer())
             .registerTypeAdapter(BigInteger.class, new BigIntegerSerializer())
-            .registerTypeHierarchyAdapter(BaseCluster.MatterEnum.class, new MatterEnumDeserializer()).create();
+            .registerTypeHierarchyAdapter(BaseCluster.MatterEnum.class, new MatterEnumDeserializer())
+            .registerTypeAdapter(EventTriggeredMessage.class, new EventTriggeredMessageDeserializer()).create();
 
     protected final WebSocketClient client = new WebSocketClient();
     protected final ConcurrentHashMap<String, CompletableFuture<JsonElement>> pendingRequests = new ConcurrentHashMap<>();
@@ -498,22 +501,53 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
 
             JsonElement valueElement = jsonObject.get("value");
             Object value = null;
-            if (valueElement.isJsonPrimitive()) {
-                JsonPrimitive primitive = valueElement.getAsJsonPrimitive();
-                if (primitive.isNumber()) {
-                    value = primitive.getAsNumber();
-                } else if (primitive.isString()) {
-                    value = primitive.getAsString();
-                } else if (primitive.isBoolean()) {
-                    value = primitive.getAsBoolean();
+
+            // Use ClusterRegistry to find the cluster class
+            Class<? extends BaseCluster> clusterClass = ClusterRegistry.CLUSTER_IDS.get(path.clusterId);
+            if (clusterClass != null) {
+                try {
+                    // Use reflection to find the field type
+                    Field field = getField(clusterClass, path.attributeName);
+                    if (field != null) {
+                        value = context.deserialize(valueElement, field.getType());
+                    }
+                } catch (NoSuchFieldException e) {
+                    logger.debug("Field not found for attribute: {}", path.attributeName, e);
                 }
-            } else if (valueElement.isJsonArray()) {
-                value = context.deserialize(valueElement.getAsJsonArray(), List.class);
-            } else {
-                value = valueElement.toString();
+            }
+
+            if (value == null) {
+                // Fallback to primitive types if no specific class is found
+                if (valueElement.isJsonPrimitive()) {
+                    JsonPrimitive primitive = valueElement.getAsJsonPrimitive();
+                    if (primitive.isNumber()) {
+                        value = primitive.getAsNumber();
+                    } else if (primitive.isString()) {
+                        value = primitive.getAsString();
+                    } else if (primitive.isBoolean()) {
+                        value = primitive.getAsBoolean();
+                    }
+                } else if (valueElement.isJsonArray()) {
+                    value = context.deserialize(valueElement.getAsJsonArray(), List.class);
+                } else {
+                    value = valueElement.toString();
+                }
             }
 
             return new AttributeChangedMessage(path, version, value);
+        }
+
+        private Field getField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+            try {
+                return clazz.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                Class<?> superClass = clazz.getSuperclass();
+                if (superClass == null) {
+                    throw e;
+                } else {
+                    return getField(superClass, fieldName);
+                }
+            }
         }
     }
 
@@ -543,6 +577,38 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
             }
 
             throw new JsonParseException("Unable to deserialize " + typeOfT);
+        }
+    }
+
+    @NonNullByDefault({})
+    class EventTriggeredMessageDeserializer implements JsonDeserializer<EventTriggeredMessage> {
+        @SuppressWarnings("null")
+        @Override
+        public EventTriggeredMessage deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
+            JsonObject jsonObject = json.getAsJsonObject();
+            Path path = context.deserialize(jsonObject.get("path"), Path.class);
+            JsonArray eventsArray = jsonObject.getAsJsonArray("events");
+
+            TriggerEvent[] events = new TriggerEvent[eventsArray.size()];
+            Class<? extends BaseCluster> clusterClass = ClusterRegistry.CLUSTER_IDS.get(path.clusterId);
+
+            String eventName = path.eventName;
+            String className = Character.toUpperCase(eventName.charAt(0)) + eventName.substring(1);
+            for (int i = 0; i < eventsArray.size(); i++) {
+                JsonObject eventObject = eventsArray.get(i).getAsJsonObject();
+                TriggerEvent event = context.deserialize(eventObject, TriggerEvent.class);
+                if (clusterClass != null) {
+                    try {
+                        Class<?> eventClass = Class.forName(clusterClass.getName() + "$" + className);
+                        event.data = context.deserialize(eventObject.get("data"), eventClass);
+                    } catch (ClassNotFoundException e) {
+                        logger.debug("Event class not found for event: {}", path.eventName, e);
+                    }
+                }
+                events[i] = event;
+            }
+            return new EventTriggeredMessage(path, events);
         }
     }
 }

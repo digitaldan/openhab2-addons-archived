@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_MODESELECT_MODE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_MODESELECT_MODE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_NUMBER;
 
@@ -51,8 +52,7 @@ public class ModeSelectConverter extends GenericConverter<ModeSelectCluster> {
 
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
-        Channel channel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_MODESELECT_MODE.getId()), ITEM_TYPE_NUMBER)
+        Channel channel = ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_ID_MODESELECT_MODE), ITEM_TYPE_NUMBER)
                 .withType(CHANNEL_MODESELECT_MODE).withLabel(formatLabel(initializingCluster.description)).build();
 
         List<StateOption> modeOptions = new ArrayList<>();
@@ -81,7 +81,7 @@ public class ModeSelectConverter extends GenericConverter<ModeSelectCluster> {
         switch (message.path.attributeName) {
             case "currentMode":
                 initializingCluster.currentMode = numberValue;
-                updateState(CHANNEL_MODESELECT_MODE, new DecimalType(numberValue));
+                updateState(CHANNEL_ID_MODESELECT_MODE, new DecimalType(numberValue));
                 break;
         }
         super.onEvent(message);
@@ -89,6 +89,6 @@ public class ModeSelectConverter extends GenericConverter<ModeSelectCluster> {
 
     @Override
     public void initState() {
-        updateState(CHANNEL_MODESELECT_MODE, new DecimalType(initializingCluster.currentMode));
+        updateState(CHANNEL_ID_MODESELECT_MODE, new DecimalType(initializingCluster.currentMode));
     }
 }

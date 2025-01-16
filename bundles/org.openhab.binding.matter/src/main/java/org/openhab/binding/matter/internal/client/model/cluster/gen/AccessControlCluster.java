@@ -72,6 +72,92 @@ public class AccessControlCluster extends BaseCluster {
     public Integer accessControlEntriesPerFabric; // 4 uint16 R V
     // Structs
 
+    /**
+     * The cluster shall send AccessControlEntryChanged events whenever its ACL attribute data is changed by an
+     * Administrator.
+     * • Each added entry shall generate an event with ChangeType Added.
+     * • Each changed entry shall generate an event with ChangeType Changed.
+     * • Each removed entry shall generate an event with ChangeType Removed.
+     */
+    public class AccessControlEntryChanged {
+        /**
+         * The Node ID of the Administrator that made the change, if the change occurred via a CASE session.
+         * Exactly one of AdminNodeID and AdminPasscodeID shall be set, depending on whether the change occurred via a
+         * CASE or PASE session; the other shall be null.
+         */
+        public BigInteger adminNodeId; // node-id
+        /**
+         * The Passcode ID of the Administrator that made the change, if the change occurred via a PASE session.
+         * Non-zero values are reserved for future use (see PasscodeId generation in PBKDFParamRequest).
+         * Exactly one of AdminNodeID and AdminPasscodeID shall be set, depending on whether the change occurred via a
+         * CASE or PASE session; the other shall be null.
+         */
+        public Integer adminPasscodeId; // uint16
+        /**
+         * The type of change as appropriate.
+         */
+        public ChangeTypeEnum changeType; // ChangeTypeEnum
+        /**
+         * The latest value of the changed entry.
+         * This field SHOULD be set if resources are adequate for it; otherwise it shall be set to NULL if resources are
+         * scarce.
+         */
+        public AccessControlEntryStruct latestValue; // AccessControlEntryStruct
+        public Integer fabricIndex; // FabricIndex
+
+        public AccessControlEntryChanged(BigInteger adminNodeId, Integer adminPasscodeId, ChangeTypeEnum changeType,
+                AccessControlEntryStruct latestValue, Integer fabricIndex) {
+            this.adminNodeId = adminNodeId;
+            this.adminPasscodeId = adminPasscodeId;
+            this.changeType = changeType;
+            this.latestValue = latestValue;
+            this.fabricIndex = fabricIndex;
+        }
+    }
+
+    /**
+     * The cluster shall send AccessControlExtensionChanged events whenever its extension attribute data is changed by
+     * an Administrator.
+     * • Each added extension shall generate an event with ChangeType Added.
+     * • Each changed extension shall generate an event with ChangeType Changed.
+     * • Each removed extension shall generate an event with ChangeType Removed.
+     */
+    public class AccessControlExtensionChanged {
+        /**
+         * The Node ID of the Administrator that made the change, if the change occurred via a CASE session.
+         * Exactly one of AdminNodeID and AdminPasscodeID shall be set, depending on whether the change occurred via a
+         * CASE or PASE session; the other shall be null.
+         */
+        public BigInteger adminNodeId; // node-id
+        /**
+         * The Passcode ID of the Administrator that made the change, if the change occurred via a PASE session.
+         * Non-zero values are reserved for future use (see PasscodeId generation in PBKDFParamRequest).
+         * Exactly one of AdminNodeID and AdminPasscodeID shall be set, depending on whether the change occurred via a
+         * CASE or PASE session; the other shall be null.
+         */
+        public Integer adminPasscodeId; // uint16
+        /**
+         * The type of change as appropriate.
+         */
+        public ChangeTypeEnum changeType; // ChangeTypeEnum
+        /**
+         * The latest value of the changed extension.
+         * This field SHOULD be set if resources are adequate for it; otherwise it shall be set to NULL if resources are
+         * scarce.
+         */
+        public AccessControlExtensionStruct latestValue; // AccessControlExtensionStruct
+        public Integer fabricIndex; // FabricIndex
+
+        public AccessControlExtensionChanged(BigInteger adminNodeId, Integer adminPasscodeId, ChangeTypeEnum changeType,
+                AccessControlExtensionStruct latestValue, Integer fabricIndex) {
+            this.adminNodeId = adminNodeId;
+            this.adminPasscodeId = adminPasscodeId;
+            this.changeType = changeType;
+            this.latestValue = latestValue;
+            this.fabricIndex = fabricIndex;
+        }
+    }
+
     public class AccessControlTargetStruct {
         public Integer cluster; // cluster-id
         public Integer endpoint; // endpoint-no

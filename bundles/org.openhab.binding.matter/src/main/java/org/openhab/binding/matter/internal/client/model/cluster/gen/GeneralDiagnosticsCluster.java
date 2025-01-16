@@ -108,6 +108,84 @@ public class GeneralDiagnosticsCluster extends BaseCluster {
     // Structs
 
     /**
+     * The HardwareFaultChange Event shall indicate a change in the set of hardware faults currently detected by the
+     * Node.
+     */
+    public class HardwareFaultChange {
+        /**
+         * This field shall represent the set of faults currently detected, as per Section 11.12.5.1, “HardwareFaultEnum
+         * Type”.
+         */
+        public List<HardwareFaultEnum> current; // list
+        /**
+         * This field shall represent the set of faults detected prior to this change event, as per Section 11.12.5.1,
+         * “HardwareFaultEnum Type”.
+         */
+        public List<HardwareFaultEnum> previous; // list
+
+        public HardwareFaultChange(List<HardwareFaultEnum> current, List<HardwareFaultEnum> previous) {
+            this.current = current;
+            this.previous = previous;
+        }
+    }
+
+    /**
+     * The RadioFaultChange Event shall indicate a change in the set of radio faults currently detected by the Node.
+     */
+    public class RadioFaultChange {
+        /**
+         * This field shall represent the set of faults currently detected, as per Section 11.12.5.2, “RadioFaultEnum
+         * Type”.
+         */
+        public List<RadioFaultEnum> current; // list
+        /**
+         * This field shall represent the set of faults detected prior to this change event, as per Section 11.12.5.2,
+         * “RadioFaultEnum Type”.
+         */
+        public List<RadioFaultEnum> previous; // list
+
+        public RadioFaultChange(List<RadioFaultEnum> current, List<RadioFaultEnum> previous) {
+            this.current = current;
+            this.previous = previous;
+        }
+    }
+
+    /**
+     * The NetworkFaultChange Event shall indicate a change in the set of network faults currently detected by the Node.
+     */
+    public class NetworkFaultChange {
+        /**
+         * This field shall represent the set of faults currently detected, as per Section 11.12.5.3, “NetworkFaultEnum
+         * Type”.
+         */
+        public List<NetworkFaultEnum> current; // list
+        /**
+         * This field shall represent the set of faults detected prior to this change event, as per Section 11.12.5.3,
+         * “NetworkFaultEnum Type”.
+         */
+        public List<NetworkFaultEnum> previous; // list
+
+        public NetworkFaultChange(List<NetworkFaultEnum> current, List<NetworkFaultEnum> previous) {
+            this.current = current;
+            this.previous = previous;
+        }
+    }
+
+    /**
+     * The BootReason Event shall indicate the reason that caused the device to start-up.
+     */
+    public class BootReason {
+        /**
+         * This field shall contain the reason for this BootReason event.
+         */
+        public BootReasonEnum bootReason; // BootReasonEnum
+
+        public BootReason(BootReasonEnum bootReason) {
+            this.bootReason = bootReason;
+        }
+    }
+
+    /**
      * This structure describes a network interface supported by the Node, as provided in the NetworkInterfaces
      * attribute.
      */

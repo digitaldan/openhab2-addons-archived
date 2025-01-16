@@ -50,6 +50,22 @@ public class TargetNavigatorCluster extends BaseCluster {
     // Structs
 
     /**
+     * This event shall be generated when there is a change in either the active target or the list of available targets
+     * or both.
+     */
+    public class TargetUpdated {
+        public List<TargetInfoStruct> targetList; // list
+        public Integer currentTarget; // uint8
+        public String data; // octstr
+
+        public TargetUpdated(List<TargetInfoStruct> targetList, Integer currentTarget, String data) {
+            this.targetList = targetList;
+            this.currentTarget = currentTarget;
+            this.data = data;
+        }
+    }
+
+    /**
      * This indicates an object describing the navigable target.
      */
     public class TargetInfoStruct {

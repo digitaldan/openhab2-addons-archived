@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_POWER_BATTERYPERCENT;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_POWER_CHARGELEVEL;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_POWER_BATTERYPERCENT;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_POWER_CHARGELEVEL;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_POWER_BATTERYPERCENT;
@@ -60,14 +62,14 @@ public class PowerSourceConverter extends GenericConverter<PowerSourceCluster> {
         if (initializingCluster.featureMap.battery) {
             if (initializingCluster.batPercentRemaining != null) {
                 Channel channel = ChannelBuilder
-                        .create(new ChannelUID(thingUID, CHANNEL_POWER_BATTERYPERCENT.getId()), ITEM_TYPE_NUMBER)
+                        .create(new ChannelUID(thingUID, CHANNEL_ID_POWER_BATTERYPERCENT), ITEM_TYPE_NUMBER)
                         .withType(CHANNEL_POWER_BATTERYPERCENT)
                         .withLabel(formatLabel(CHANNEL_LABEL_POWER_BATTERYPERCENT)).build();
                 channels.put(channel, null);
             }
             if (initializingCluster.batChargeLevel != null) {
                 Channel channel = ChannelBuilder
-                        .create(new ChannelUID(thingUID, CHANNEL_POWER_CHARGELEVEL.getId()), ITEM_TYPE_NUMBER)
+                        .create(new ChannelUID(thingUID, CHANNEL_ID_POWER_CHARGELEVEL), ITEM_TYPE_NUMBER)
                         .withType(CHANNEL_POWER_CHARGELEVEL).withLabel(formatLabel(CHANNEL_LABEL_POWER_CHARGELEVEL))
                         .build();
                 List<StateOption> options = new ArrayList<>();
@@ -87,10 +89,10 @@ public class PowerSourceConverter extends GenericConverter<PowerSourceCluster> {
         Integer numberValue = message.value instanceof Number number ? number.intValue() : 0;
         switch (message.path.attributeName) {
             case "batPercentRemaining":
-                updateState(CHANNEL_POWER_BATTERYPERCENT, convertToPercentage(numberValue));
+                updateState(CHANNEL_ID_POWER_BATTERYPERCENT, convertToPercentage(numberValue));
                 break;
             case "batChargeLevel":
-                updateState(CHANNEL_POWER_CHARGELEVEL, new DecimalType(numberValue));
+                updateState(CHANNEL_ID_POWER_CHARGELEVEL, new DecimalType(numberValue));
                 break;
             default:
                 logger.debug("Unknown attribute {}", message.path.attributeName);
@@ -101,11 +103,11 @@ public class PowerSourceConverter extends GenericConverter<PowerSourceCluster> {
     @Override
     public void initState() {
         if (initializingCluster.batPercentRemaining != null) {
-            updateState(CHANNEL_POWER_BATTERYPERCENT, convertToPercentage(initializingCluster.batPercentRemaining));
+            updateState(CHANNEL_ID_POWER_BATTERYPERCENT, convertToPercentage(initializingCluster.batPercentRemaining));
         }
 
         if (initializingCluster.batChargeLevel != null) {
-            updateState(CHANNEL_POWER_CHARGELEVEL, new DecimalType(initializingCluster.batChargeLevel.value));
+            updateState(CHANNEL_ID_POWER_CHARGELEVEL, new DecimalType(initializingCluster.batChargeLevel.value));
         }
     }
 

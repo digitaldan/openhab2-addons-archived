@@ -91,6 +91,64 @@ public class WiFiNetworkDiagnosticsCluster extends BaseCluster {
      * upon a reboot of the Node.
      */
     public BigInteger overrunCount; // 12 uint64 R V
+    // Structs
+
+    /**
+     * The Disconnection Event shall indicate that a Node’s Wi-Fi connection has been disconnected as a result of
+     * de-authenticated or dis-association and indicates the reason.
+     */
+    public class Disconnection {
+        /**
+         * This field shall contain the Reason Code field value for the Disassociation or Deauthentication event that
+         * caused the disconnection and the value shall align with Table 9-49 &quot;Reason codes&quot; of IEEE
+         * 802.11-2020.
+         */
+        public Integer reasonCode; // uint16
+
+        public Disconnection(Integer reasonCode) {
+            this.reasonCode = reasonCode;
+        }
+    }
+
+    /**
+     * The AssociationFailure event shall indicate that a Node has attempted to connect, or reconnect, to a Wi-Fi access
+     * point, but is unable to successfully associate or authenticate, after exhausting all internal retries of its
+     * supplicant.
+     */
+    public class AssociationFailure {
+        /**
+         * The Status field shall be set to a value from the AssociationFailureCauseEnum.
+         */
+        public AssociationFailureCauseEnum associationFailureCause; // AssociationFailureCauseEnum
+        /**
+         * The Status field shall be set to the Status Code value that was present in the last frame related to
+         * association where Status Code was not equal to zero and which caused the failure of a last trial
+         * attempt, if this last failure was due to one of the following Management frames:
+         * • Association Response (Type 0, Subtype 1)
+         * • Reassociation Response (Type 0, Subtype 3)
+         * • Authentication (Type 0, Subtype 11)
+         * Table 9-50 &quot;Status codes&quot; of IEEE 802.11-2020 contains a description of all values possible.
+         */
+        public Integer status; // uint16
+
+        public AssociationFailure(AssociationFailureCauseEnum associationFailureCause, Integer status) {
+            this.associationFailureCause = associationFailureCause;
+            this.status = status;
+        }
+    }
+
+    /**
+     * The ConnectionStatus Event shall indicate that a Node’s connection status to a Wi-Fi network has changed.
+     * Connected, in this context, shall mean that a Node acting as a Wi-Fi station is successfully associated to a
+     * Wi-Fi Access Point.
+     */
+    public class ConnectionStatus {
+        public ConnectionStatusEnum connectionStatus; // ConnectionStatusEnum
+
+        public ConnectionStatus(ConnectionStatusEnum connectionStatus) {
+            this.connectionStatus = connectionStatus;
+        }
+    }
 
     // Enums
     public enum SecurityTypeEnum implements MatterEnum {

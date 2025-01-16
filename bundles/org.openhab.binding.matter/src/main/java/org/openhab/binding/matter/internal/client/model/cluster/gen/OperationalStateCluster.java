@@ -83,6 +83,51 @@ public class OperationalStateCluster extends BaseCluster {
     // Structs
 
     /**
+     * This event is generated when a reportable error condition is detected. A device that generates this event shall
+     * also set the OperationalState attribute to Error, indicating an error condition.
+     * This event shall contain the following fields:
+     */
+    public class OperationalError {
+        public ErrorStateStruct errorState; // ErrorStateStruct
+
+        public OperationalError(ErrorStateStruct errorState) {
+            this.errorState = errorState;
+        }
+    }
+
+    /**
+     * This event is generated when the overall operation ends, successfully or otherwise. For example, the completion
+     * of a cleaning operation in a Robot Vacuum Cleaner, or the completion of a wash cycle in a Washing Machine.
+     * This event shall contain the following fields:
+     */
+    public class OperationCompletion {
+        /**
+         * This field provides an indication of the state at the end of the operation. This field shall have a value
+         * from the ErrorStateEnum set. A value of NoError indicates success, that is, no error has been detected.
+         */
+        public Integer completionErrorCode; // enum8
+        /**
+         * The total operational time, in seconds, from when the operation was started via an initial Start command or
+         * manual action, until the operation completed. This includes any time spent while paused. There may be cases
+         * whereby the total operational time exceeds the maximum value that can be conveyed by this attribute, in such
+         * instances, this attribute shall be populated with null.
+         */
+        public Integer totalOperationalTime; // elapsed-s
+        /**
+         * The total time spent in the paused state, in seconds. There may be cases whereby the total paused time
+         * exceeds the maximum value that can be conveyed by this attribute, in such instances, this attribute shall be
+         * populated with null.
+         */
+        public Integer pausedTime; // elapsed-s
+
+        public OperationCompletion(Integer completionErrorCode, Integer totalOperationalTime, Integer pausedTime) {
+            this.completionErrorCode = completionErrorCode;
+            this.totalOperationalTime = totalOperationalTime;
+            this.pausedTime = pausedTime;
+        }
+    }
+
+    /**
      * The OperationalStateStruct is used to indicate a possible state of the device.
      */
     public class OperationalStateStruct {

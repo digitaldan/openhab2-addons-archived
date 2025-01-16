@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_WIFINETWORKDIAGNOSTICS_RSSI;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_WIFINETWORKDIAGNOSTICS_RSSI;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_WIFINETWORKDIAGNOSTICS_RSSI;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_NUMBER_POWER;
@@ -48,7 +49,7 @@ public class WiFiNetworkDiagnosticsConverter extends GenericConverter<WiFiNetwor
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Channel channel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_WIFINETWORKDIAGNOSTICS_RSSI.getId()), ITEM_TYPE_NUMBER_POWER)
+                .create(new ChannelUID(thingUID, CHANNEL_ID_WIFINETWORKDIAGNOSTICS_RSSI), ITEM_TYPE_NUMBER_POWER)
                 .withType(CHANNEL_WIFINETWORKDIAGNOSTICS_RSSI)
                 .withLabel(formatLabel(CHANNEL_LABEL_WIFINETWORKDIAGNOSTICS_RSSI)).build();
         return Collections.singletonMap(channel, null);
@@ -59,7 +60,7 @@ public class WiFiNetworkDiagnosticsConverter extends GenericConverter<WiFiNetwor
         switch (message.path.attributeName) {
             case "rssi":
                 if (message.value instanceof Number number) {
-                    updateState(CHANNEL_WIFINETWORKDIAGNOSTICS_RSSI, new DecimalType(number));
+                    updateState(CHANNEL_ID_WIFINETWORKDIAGNOSTICS_RSSI, new DecimalType(number));
 
                 }
         }
@@ -68,7 +69,7 @@ public class WiFiNetworkDiagnosticsConverter extends GenericConverter<WiFiNetwor
 
     @Override
     public void initState() {
-        updateState(CHANNEL_WIFINETWORKDIAGNOSTICS_RSSI,
+        updateState(CHANNEL_ID_WIFINETWORKDIAGNOSTICS_RSSI,
                 initializingCluster.rssi != null ? new DecimalType(initializingCluster.rssi) : UnDefType.NULL);
     }
 }

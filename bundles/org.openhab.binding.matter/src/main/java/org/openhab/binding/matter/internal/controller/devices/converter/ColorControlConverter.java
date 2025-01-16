@@ -15,6 +15,9 @@ package org.openhab.binding.matter.internal.controller.devices.converter;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_COLOR_COLOR;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_COLOR_TEMPERATURE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_COLOR_TEMPERATURE_ABS;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_COLOR_COLOR;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_COLOR_TEMPERATURE;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_COLOR_TEMPERATURE_ABS;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_COLOR_COLOR;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_COLOR_TEMPERATURE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_COLOR_TEMPERATURE_ABS;
@@ -97,12 +100,12 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Map<Channel, @Nullable StateDescription> map = new HashMap<>();
 
-        map.put(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_COLOR_COLOR.getId()), ITEM_TYPE_COLOR)
+        map.put(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_ID_COLOR_COLOR), ITEM_TYPE_COLOR)
                 .withType(CHANNEL_COLOR_COLOR).withLabel(formatLabel(CHANNEL_LABEL_COLOR_COLOR)).build(), null);
 
         // see Matter spec 3.2.6.1. For more information on color temperature
         if (initializingCluster.featureMap.colorTemperature) {
-            map.put(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_COLOR_TEMPERATURE.getId()), ITEM_TYPE_DIMMER)
+            map.put(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_ID_COLOR_TEMPERATURE), ITEM_TYPE_DIMMER)
                     .withType(CHANNEL_COLOR_TEMPERATURE).withLabel(formatLabel(CHANNEL_LABEL_COLOR_TEMPERATURE))
                     .build(), null);
             Optional.ofNullable(initializingCluster.colorTempPhysicalMinMireds)
@@ -116,8 +119,7 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
                         .withMaximum(BigDecimal.valueOf(colorTempPhysicalMaxMireds)).build().toStateDescription();
             }
             map.put(ChannelBuilder
-                    .create(new ChannelUID(thingUID, CHANNEL_COLOR_TEMPERATURE_ABS.getId()),
-                            ITEM_TYPE_NUMBER_TEMPERATURE)
+                    .create(new ChannelUID(thingUID, CHANNEL_ID_COLOR_TEMPERATURE_ABS), ITEM_TYPE_NUMBER_TEMPERATURE)
                     .withType(CHANNEL_COLOR_TEMPERATURE_ABS).withLabel(formatLabel(CHANNEL_LABEL_COLOR_TEMPERATURE_ABS))
                     .build(), stateDescription);
         }
@@ -140,7 +142,7 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
             ClusterCommand onOffCommand = onOffType == OnOffType.ON ? OnOffCluster.on() : OnOffCluster.off();
             handler.sendClusterCommand(endpointNumber, OnOffCluster.CLUSTER_NAME, onOffCommand);
         } else if (command instanceof PercentType percentType) {
-            if (channelUID.getIdWithoutGroup().equals(CHANNEL_COLOR_TEMPERATURE.getId())) {
+            if (channelUID.getIdWithoutGroup().equals(CHANNEL_ID_COLOR_TEMPERATURE)) {
                 ClusterCommand tempCommand = ColorControlCluster
                         .moveToColorTemperature(percentTypeToMireds(percentType), 0, optionsMask, optionsMask);
                 handler.sendClusterCommand(endpointNumber, ColorControlCluster.CLUSTER_NAME, tempCommand);
@@ -149,12 +151,12 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
                         optionsBitmap, optionsBitmap);
                 handler.sendClusterCommand(endpointNumber, LevelControlCluster.CLUSTER_NAME, levelCommand);
             }
-        } else if (channelUID.getIdWithoutGroup().equals(CHANNEL_COLOR_TEMPERATURE_ABS.getId())
+        } else if (channelUID.getIdWithoutGroup().equals(CHANNEL_ID_COLOR_TEMPERATURE_ABS)
                 && command instanceof DecimalType decimal) {
             ClusterCommand tempCommand = ColorControlCluster.moveToColorTemperature(decimal.intValue(), 0, optionsMask,
                     optionsMask);
             handler.sendClusterCommand(endpointNumber, ColorControlCluster.CLUSTER_NAME, tempCommand);
-        } else if (channelUID.getIdWithoutGroup().equals(CHANNEL_COLOR_TEMPERATURE_ABS.getId())
+        } else if (channelUID.getIdWithoutGroup().equals(CHANNEL_ID_COLOR_TEMPERATURE_ABS)
                 && command instanceof QuantityType<?> quantity) {
             quantity = quantity.toInvertibleUnit(Units.MIRED);
             if (quantity != null) {
@@ -248,7 +250,7 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
         lastOnOff = onOff;
         HSBType hsb = new HSBType(lastHSB.getHue(), lastHSB.getSaturation(),
                 lastOnOff ? lastHSB.getBrightness() : new PercentType(0));
-        updateState(CHANNEL_COLOR_COLOR, hsb);
+        updateState(CHANNEL_ID_COLOR_COLOR, hsb);
     }
 
     private void updateBrightness(PercentType brightness) {
@@ -256,7 +258,7 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
         HSBType oldHSB = lastHSB;
         HSBType newHSB = new HSBType(oldHSB.getHue(), oldHSB.getSaturation(), brightness);
         lastHSB = newHSB;
-        updateState(CHANNEL_COLOR_COLOR, newHSB);
+        updateState(CHANNEL_ID_COLOR_COLOR, newHSB);
     }
 
     private void updateColorHSB() {
@@ -266,8 +268,8 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
         PercentType saturation = new PercentType(Float.valueOf(saturationValue).toString());
         updateColorHSB(hue, saturation);
         if (supportsColorTemperature) {
-            updateState(CHANNEL_COLOR_TEMPERATURE, UnDefType.UNDEF);
-            updateState(CHANNEL_COLOR_TEMPERATURE_ABS, UnDefType.UNDEF);
+            updateState(CHANNEL_ID_COLOR_TEMPERATURE, UnDefType.UNDEF);
+            updateState(CHANNEL_ID_COLOR_TEMPERATURE_ABS, UnDefType.UNDEF);
         }
     }
 
@@ -277,9 +279,10 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
         HSBType newHSB = new HSBType(hue, saturation, oldHSB.getBrightness());
         lastHSB = newHSB;
         if (!lastOnOff) {
-            updateState(CHANNEL_COLOR_COLOR, new HSBType(newHSB.getHue(), newHSB.getSaturation(), new PercentType(0)));
+            updateState(CHANNEL_ID_COLOR_COLOR,
+                    new HSBType(newHSB.getHue(), newHSB.getSaturation(), new PercentType(0)));
         } else {
-            updateState(CHANNEL_COLOR_COLOR, newHSB);
+            updateState(CHANNEL_ID_COLOR_COLOR, newHSB);
         }
     }
 
@@ -290,8 +293,8 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
         PercentType y = new PercentType(Float.valueOf(yValue * 100.0f).toString());
         updateColorXY(x, y);
         if (supportsColorTemperature) {
-            updateState(CHANNEL_COLOR_TEMPERATURE, UnDefType.UNDEF);
-            updateState(CHANNEL_COLOR_TEMPERATURE_ABS, UnDefType.UNDEF);
+            updateState(CHANNEL_ID_COLOR_TEMPERATURE, UnDefType.UNDEF);
+            updateState(CHANNEL_ID_COLOR_TEMPERATURE_ABS, UnDefType.UNDEF);
         }
     }
 
@@ -300,7 +303,7 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
             HSBType color = ColorUtil.xyToHsb(new double[] { x.floatValue() / 100.0f, y.floatValue() / 100.0f });
             updateColorHSB(color.getHue(), color.getSaturation());
         } catch (IllegalArgumentException e) {
-            updateState(CHANNEL_COLOR_COLOR, UnDefType.UNDEF);
+            updateState(CHANNEL_ID_COLOR_COLOR, UnDefType.UNDEF);
         }
     }
 
@@ -308,16 +311,16 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
         Integer mirek = lastColorTemperatureMireds;
         if (mirek != null) {
             if (mirek == 0) {
-                updateState(CHANNEL_COLOR_TEMPERATURE, UnDefType.UNDEF);
-                updateState(CHANNEL_COLOR_TEMPERATURE_ABS, UnDefType.UNDEF);
+                updateState(CHANNEL_ID_COLOR_TEMPERATURE, UnDefType.UNDEF);
+                updateState(CHANNEL_ID_COLOR_TEMPERATURE_ABS, UnDefType.UNDEF);
             } else {
-                updateState(CHANNEL_COLOR_TEMPERATURE, miredsToPercenType(mirek));
-                updateState(CHANNEL_COLOR_TEMPERATURE_ABS, QuantityType.valueOf(Double.valueOf(mirek), Units.MIRED));
+                updateState(CHANNEL_ID_COLOR_TEMPERATURE, miredsToPercenType(mirek));
+                updateState(CHANNEL_ID_COLOR_TEMPERATURE_ABS, QuantityType.valueOf(Double.valueOf(mirek), Units.MIRED));
                 try {
                     HSBType color = ColorUtil.xyToHsb(ColorUtil.kelvinToXY(1000000.0 / mirek));
                     updateColorHSB(color.getHue(), color.getSaturation());
                 } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
-                    updateState(CHANNEL_COLOR_COLOR, UnDefType.UNDEF);
+                    updateState(CHANNEL_ID_COLOR_COLOR, UnDefType.UNDEF);
                 }
             }
         }

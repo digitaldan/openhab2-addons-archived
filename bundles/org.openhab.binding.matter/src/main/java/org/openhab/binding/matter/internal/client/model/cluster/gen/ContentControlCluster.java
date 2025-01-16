@@ -125,6 +125,23 @@ public class ContentControlCluster extends BaseCluster {
     public List<TimeWindowStruct> blockContentTimeWindow; // 10 list R V
     // Structs
 
+    /**
+     * This event shall be generated when the RemainingScreenTime equals 0.
+     */
+    public class RemainingScreenTimeExpired {
+        public RemainingScreenTimeExpired() {
+        }
+    }
+
+    /**
+     * This event shall be generated when entering a period of blocked content as configured in the
+     * BlockContentTimeWindow attribute.
+     */
+    public class EnteringBlockContentTimeWindow {
+        public EnteringBlockContentTimeWindow() {
+        }
+    }
+
     public class RatingNameStruct {
         /**
          * This field shall indicate the name of the rating level of the applied rating system. The applied rating

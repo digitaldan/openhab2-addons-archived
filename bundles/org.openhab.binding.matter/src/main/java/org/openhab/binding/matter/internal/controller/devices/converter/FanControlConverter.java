@@ -14,6 +14,8 @@ package org.openhab.binding.matter.internal.controller.devices.converter;
 
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_FANCONTROL_MODE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_FANCONTROL_PERCENT;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_FANCONTROL_MODE;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_FANCONTROL_PERCENT;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_FANCONTROL_MODE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_FANCONTROL_PERCENT;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_DIMMER;
@@ -63,13 +65,13 @@ public class FanControlConverter extends GenericConverter<FanControlCluster> {
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Map<Channel, @Nullable StateDescription> channels = new HashMap<>();
         Channel percentChannel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_FANCONTROL_PERCENT.getId()), ITEM_TYPE_DIMMER)
+                .create(new ChannelUID(thingUID, CHANNEL_ID_FANCONTROL_PERCENT), ITEM_TYPE_DIMMER)
                 .withType(CHANNEL_FANCONTROL_PERCENT).withLabel(formatLabel(CHANNEL_LABEL_FANCONTROL_PERCENT)).build();
         channels.put(percentChannel, null);
 
         if (initializingCluster.fanModeSequence != null) {
             Channel modeChannel = ChannelBuilder
-                    .create(new ChannelUID(thingUID, CHANNEL_FANCONTROL_MODE.getId()), ITEM_TYPE_NUMBER)
+                    .create(new ChannelUID(thingUID, CHANNEL_ID_FANCONTROL_MODE), ITEM_TYPE_NUMBER)
                     .withType(CHANNEL_FANCONTROL_MODE).withLabel(CHANNEL_LABEL_FANCONTROL_MODE).build();
 
             List<StateOption> modeOptions = new ArrayList<>();
@@ -127,7 +129,7 @@ public class FanControlConverter extends GenericConverter<FanControlCluster> {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (channelUID.getIdWithoutGroup().equals(CHANNEL_FANCONTROL_PERCENT.getId())) {
+        if (channelUID.getIdWithoutGroup().equals(CHANNEL_ID_FANCONTROL_PERCENT)) {
             if (command instanceof IncreaseDecreaseType increaseDecreaseType) {
                 switch (increaseDecreaseType) {
                     case INCREASE:
@@ -144,7 +146,7 @@ public class FanControlConverter extends GenericConverter<FanControlCluster> {
                         percentType.toString());
             }
         }
-        if (channelUID.getIdWithoutGroup().equals(CHANNEL_FANCONTROL_MODE.getId())) {
+        if (channelUID.getIdWithoutGroup().equals(CHANNEL_ID_FANCONTROL_MODE)) {
             if (command instanceof DecimalType decimalType) {
                 handler.writeAttribute(endpointNumber, FanControlCluster.CLUSTER_NAME, "fanMode",
                         decimalType.toString());
@@ -158,10 +160,10 @@ public class FanControlConverter extends GenericConverter<FanControlCluster> {
         Integer numberValue = message.value instanceof Number number ? number.intValue() : 0;
         switch (message.path.attributeName) {
             case "fanMode":
-                updateState(CHANNEL_FANCONTROL_MODE, new DecimalType(numberValue));
+                updateState(CHANNEL_ID_FANCONTROL_MODE, new DecimalType(numberValue));
                 break;
             case "percentSetting":
-                updateState(CHANNEL_FANCONTROL_PERCENT, new PercentType(numberValue));
+                updateState(CHANNEL_ID_FANCONTROL_PERCENT, new PercentType(numberValue));
                 break;
             default:
                 logger.debug("Unknown attribute {}", message.path.attributeName);
@@ -172,10 +174,10 @@ public class FanControlConverter extends GenericConverter<FanControlCluster> {
     @Override
     public void initState() {
         if (initializingCluster.fanMode != null) {
-            updateState(CHANNEL_FANCONTROL_MODE, new DecimalType(initializingCluster.fanMode.value));
+            updateState(CHANNEL_ID_FANCONTROL_MODE, new DecimalType(initializingCluster.fanMode.value));
         }
         if (initializingCluster.percentSetting != null) {
-            updateState(CHANNEL_FANCONTROL_PERCENT, new PercentType(initializingCluster.percentSetting));
+            updateState(CHANNEL_ID_FANCONTROL_PERCENT, new PercentType(initializingCluster.percentSetting));
         }
     }
 

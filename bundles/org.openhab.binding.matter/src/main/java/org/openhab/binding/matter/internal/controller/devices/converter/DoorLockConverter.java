@@ -13,6 +13,7 @@
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_DOORLOCK_STATE;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_DOORLOCK_STATE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_DOORLOCK_STATE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_SWITCH;
 
@@ -48,8 +49,7 @@ public class DoorLockConverter extends GenericConverter<DoorLockCluster> {
 
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
-        Channel channel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_DOORLOCK_STATE.getId()), ITEM_TYPE_SWITCH)
+        Channel channel = ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_ID_DOORLOCK_STATE), ITEM_TYPE_SWITCH)
                 .withType(CHANNEL_DOORLOCK_STATE).withLabel(formatLabel(CHANNEL_LABEL_DOORLOCK_STATE)).build();
 
         return Collections.singletonMap(channel, null);
@@ -70,7 +70,7 @@ public class DoorLockConverter extends GenericConverter<DoorLockCluster> {
         Integer numberValue = message.value instanceof Number number ? number.intValue() : 0;
         switch (message.path.attributeName) {
             case "lockState":
-                updateState(CHANNEL_DOORLOCK_STATE,
+                updateState(CHANNEL_ID_DOORLOCK_STATE,
                         numberValue.equals(DoorLockCluster.LockStateEnum.LOCKED.getValue()) ? OnOffType.ON
                                 : OnOffType.OFF);
             default:
@@ -81,7 +81,7 @@ public class DoorLockConverter extends GenericConverter<DoorLockCluster> {
 
     @Override
     public void initState() {
-        updateState(CHANNEL_DOORLOCK_STATE,
+        updateState(CHANNEL_ID_DOORLOCK_STATE,
                 initializingCluster.lockState.getValue().equals(DoorLockCluster.LockStateEnum.LOCKED.getValue())
                         ? OnOffType.ON
                         : OnOffType.OFF);

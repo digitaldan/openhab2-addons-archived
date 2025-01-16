@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_WINDOWCOVERING_LIFT;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_WINDOWCOVERING_LIFT;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_WINDOWCOVERING_LIFT;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_ROLLERSHUTTER;
@@ -51,7 +52,7 @@ public class WindowCoveringConverter extends GenericConverter<WindowCoveringClus
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Channel channel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_WINDOWCOVERING_LIFT.getId()), ITEM_TYPE_ROLLERSHUTTER)
+                .create(new ChannelUID(thingUID, CHANNEL_ID_WINDOWCOVERING_LIFT), ITEM_TYPE_ROLLERSHUTTER)
                 .withType(CHANNEL_WINDOWCOVERING_LIFT).withLabel(formatLabel(CHANNEL_LABEL_WINDOWCOVERING_LIFT))
                 .build();
         return Collections.singletonMap(channel, null);
@@ -89,10 +90,10 @@ public class WindowCoveringConverter extends GenericConverter<WindowCoveringClus
         Integer numberValue = message.value instanceof Number number ? number.intValue() : 0;
         switch (message.path.attributeName) {
             case "currentPositionLiftPercentage":
-                updateState(CHANNEL_WINDOWCOVERING_LIFT, new PercentType(numberValue));
+                updateState(CHANNEL_ID_WINDOWCOVERING_LIFT, new PercentType(numberValue));
                 break;
             case "currentPositionLiftPercent100ths":
-                updateState(CHANNEL_WINDOWCOVERING_LIFT, new PercentType(numberValue / 100));
+                updateState(CHANNEL_ID_WINDOWCOVERING_LIFT, new PercentType(numberValue / 100));
                 break;
             default:
                 logger.debug("Unknown attribute {}", message.path.attributeName);
@@ -108,7 +109,7 @@ public class WindowCoveringConverter extends GenericConverter<WindowCoveringClus
         } else if (initializingCluster.currentPositionLiftPercent100ths != null) {
             pos = initializingCluster.currentPositionLiftPercent100ths / 100;
         }
-        updateState(CHANNEL_WINDOWCOVERING_LIFT, new PercentType(pos));
+        updateState(CHANNEL_ID_WINDOWCOVERING_LIFT, new PercentType(pos));
     }
 
     private void moveCommand(ClusterCommand command) {

@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_ILLUMINANCEMEASURMENT_MEASUREDVALUE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ILLUMINANCEMEASURMENT_MEASUREDVALUE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_ILLUMINANCEMEASURMENT_MEASUREDVALUE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_NUMBER_ILLUMINANCE;
@@ -48,7 +49,7 @@ public class IlluminanceMeasurementConverter extends GenericConverter<Illuminanc
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Channel channel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_ILLUMINANCEMEASURMENT_MEASUREDVALUE.getId()),
+                .create(new ChannelUID(thingUID, CHANNEL_ID_ILLUMINANCEMEASURMENT_MEASUREDVALUE),
                         ITEM_TYPE_NUMBER_ILLUMINANCE)
                 .withType(CHANNEL_ILLUMINANCEMEASURMENT_MEASUREDVALUE)
                 .withLabel(formatLabel(CHANNEL_LABEL_ILLUMINANCEMEASURMENT_MEASUREDVALUE)).build();
@@ -59,7 +60,7 @@ public class IlluminanceMeasurementConverter extends GenericConverter<Illuminanc
     public void onEvent(AttributeChangedMessage message) {
         switch (message.path.attributeName) {
             case "measuredValue":
-                updateState(CHANNEL_ILLUMINANCEMEASURMENT_MEASUREDVALUE, new DecimalType((Number) message.value));
+                updateState(CHANNEL_ID_ILLUMINANCEMEASURMENT_MEASUREDVALUE, new DecimalType((Number) message.value));
                 break;
         }
         super.onEvent(message);
@@ -67,7 +68,7 @@ public class IlluminanceMeasurementConverter extends GenericConverter<Illuminanc
 
     @Override
     public void initState() {
-        updateState(CHANNEL_ILLUMINANCEMEASURMENT_MEASUREDVALUE,
+        updateState(CHANNEL_ID_ILLUMINANCEMEASURMENT_MEASUREDVALUE,
                 initializingCluster.measuredValue != null ? new DecimalType(initializingCluster.measuredValue)
                         : UnDefType.UNDEF);
     }

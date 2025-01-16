@@ -198,6 +198,173 @@ public class EnergyEvseCluster extends BaseCluster {
     // Structs
 
     /**
+     * This event shall be generated when the EV is plugged in.
+     */
+    public class EvConnected {
+        /**
+         * This is the new session ID created after the vehicle is plugged in.
+         */
+        public Integer sessionId; // uint32
+
+        public EvConnected(Integer sessionId) {
+            this.sessionId = sessionId;
+        }
+    }
+
+    /**
+     * This event shall be generated when the EV is unplugged or not detected (having been previously plugged in). When
+     * the vehicle is unplugged then the session is ended.
+     */
+    public class EvNotDetected {
+        /**
+         * This field shall indicate the current value of the SessionID attribute.
+         */
+        public Integer sessionId; // uint32
+        /**
+         * This field shall indicate the value of the State attribute prior to the EV not being detected.
+         */
+        public StateEnum state; // StateEnum
+        /**
+         * This field shall indicate the total duration of the session, from the start of the session when the EV was
+         * plugged in, until it was unplugged.
+         */
+        public Integer sessionDuration; // elapsed-s
+        /**
+         * This field shall indicate the total amount of energy transferred from the EVSE to the EV during the session.
+         * This value shall always be positive.
+         * Note that if bi-directional charging occurs during the session, then this value shall only include the sum of
+         * energy transferred from the EVSE to the EV, and shall NOT be a net value of charging and discharging energy.
+         */
+        public BigInteger sessionEnergyCharged; // energy-mWh
+        /**
+         * This field shall indicate the total amount of energy transferred from the EV to the EVSE during the session.
+         * This value shall always be positive.
+         * Note that if bi-directional discharging occurs during the session, then this value shall only include the sum
+         * of energy transferred from the EV to the EVSE, and shall NOT be a net value of charging and discharging
+         * energy.
+         */
+        public BigInteger sessionEnergyDischarged; // energy-mWh
+
+        public EvNotDetected(Integer sessionId, StateEnum state, Integer sessionDuration,
+                BigInteger sessionEnergyCharged, BigInteger sessionEnergyDischarged) {
+            this.sessionId = sessionId;
+            this.state = state;
+            this.sessionDuration = sessionDuration;
+            this.sessionEnergyCharged = sessionEnergyCharged;
+            this.sessionEnergyDischarged = sessionEnergyDischarged;
+        }
+    }
+
+    /**
+     * This event shall be generated when the EV starts charging or discharging.
+     */
+    public class EnergyTransferStarted {
+        /**
+         * This field shall indicate the value of the SessionID attribute at the time the event was generated.
+         */
+        public Integer sessionId; // uint32
+        /**
+         * This field shall indicate the value of the State attribute at the time the event was generated.
+         */
+        public StateEnum state; // StateEnum
+        /**
+         * This field shall indicate the value of the maximum charging or discharging current at the time the event was
+         * generated.
+         * This field is signed. A positive value indicates the EV has been enabled for charging and the value is taken
+         * directly from the MaximumChargeCurrent attribute.
+         * A negative value indicates that the EV has been enabled for discharging and the value can be taken from the
+         * MaximumDischargeCurrent attribute with its sign inverted. i.e. if the MaximumDischargeCurrent was 32000mA,
+         * this would be represented here as -32000mA.
+         */
+        public BigInteger maximumCurrent; // amperage-mA
+
+        public EnergyTransferStarted(Integer sessionId, StateEnum state, BigInteger maximumCurrent) {
+            this.sessionId = sessionId;
+            this.state = state;
+            this.maximumCurrent = maximumCurrent;
+        }
+    }
+
+    /**
+     * This event shall be generated when the EV stops charging or discharging.
+     */
+    public class EnergyTransferStopped {
+        /**
+         * This field shall indicate the value of the SessionID attribute prior to the energy transfer stopping.
+         */
+        public Integer sessionId; // uint32
+        /**
+         * This field shall indicate the value of the State attribute prior to the energy transfer stopping.
+         */
+        public StateEnum state; // StateEnum
+        /**
+         * This field shall indicate the reason why the energy transferred stopped.
+         */
+        public EnergyTransferStoppedReasonEnum reason; // EnergyTransferStoppedReasonEnum
+        public BigInteger energyTransferred; // energy-mWh
+
+        public EnergyTransferStopped(Integer sessionId, StateEnum state, EnergyTransferStoppedReasonEnum reason,
+                BigInteger energyTransferred) {
+            this.sessionId = sessionId;
+            this.state = state;
+            this.reason = reason;
+            this.energyTransferred = energyTransferred;
+        }
+    }
+
+    /**
+     * If the EVSE detects a fault it shall generate a Fault Event. The SupplyState attribute shall be set to
+     * DisabledError and the type of fault detected by the EVSE shall be stored in the FaultState attribute.
+     * This event shall be generated when the FaultState changes from any error state. i.e. if it changes from NoError
+     * to any other state and if the error then clears, this would generate 2 events.
+     * It is assumed that the fault will be cleared locally on the EVSE device. When all faults have been cleared, the
+     * EVSE device shall set the FaultState attribute to NoError and the SupplyState attribute shall be set back to its
+     * previous state.
+     */
+    public class Fault {
+        /**
+         * This field shall indicate the value of the SessionID attribute prior to the Fault State being changed. A
+         * value of null indicates no sessions have occurred before the fault occurred.
+         */
+        public Integer sessionId; // uint32
+        /**
+         * This field shall indicate the value of the State attribute prior to the Fault State being changed.
+         */
+        public StateEnum state; // StateEnum
+        /**
+         * This field shall indicate the value of the FaultState attribute prior to the Fault State being changed.
+         */
+        public FaultStateEnum faultStatePreviousState; // FaultStateEnum
+        /**
+         * This field shall indicate the current value of the FaultState attribute.
+         */
+        public FaultStateEnum faultStateCurrentState; // FaultStateEnum
+
+        public Fault(Integer sessionId, StateEnum state, FaultStateEnum faultStatePreviousState,
+                FaultStateEnum faultStateCurrentState) {
+            this.sessionId = sessionId;
+            this.state = state;
+            this.faultStatePreviousState = faultStatePreviousState;
+            this.faultStateCurrentState = faultStateCurrentState;
+        }
+    }
+
+    /**
+     * This event shall be generated when a RFID card has been read. This allows a controller to register the card ID
+     * and use this to authenticate and start the charging session.
+     */
+    public class Rfid {
+        /**
+         * The UID field (ISO 14443A UID) is either 4, 7 or 10 bytes.
+         */
+        public String uid; // octstr
+
+        public Rfid(String uid) {
+            this.uid = uid;
+        }
+    }
+
+    /**
      * This represents a single user specified charging target for an EV.
      * An EVSE or EMS system optimizer may use this information to take the Time of Use Tariff, grid carbon intensity,
      * local generation (solar PV) into account to provide the cheapest and cleanest energy to the EV.

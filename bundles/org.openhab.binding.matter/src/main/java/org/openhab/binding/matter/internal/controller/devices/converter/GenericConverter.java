@@ -35,7 +35,6 @@ import org.openhab.core.library.unit.SIUnits;
 import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelGroupUID;
 import org.openhab.core.thing.ChannelUID;
-import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 import org.openhab.core.types.State;
@@ -62,7 +61,7 @@ public abstract class GenericConverter<T extends BaseCluster> implements Attribu
     protected int endpointNumber;
     protected String labelPrefix;
     // used to REFRESH channels
-    protected ConcurrentHashMap<ChannelTypeUID, State> stateCache = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, State> stateCache = new ConcurrentHashMap<>();
 
     public GenericConverter(T cluster, MatterBaseThingHandler handler, int endpointNumber, String labelPrefix) {
         this.initializingCluster = cluster;
@@ -80,7 +79,7 @@ public abstract class GenericConverter<T extends BaseCluster> implements Attribu
 
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (command instanceof RefreshType) {
-            stateCache.forEach((channelTypeUID, state) -> handler.updateState(endpointNumber, channelTypeUID, state));
+            stateCache.forEach((channelId, state) -> handler.updateState(endpointNumber, channelId, state));
         }
     }
 
@@ -96,13 +95,13 @@ public abstract class GenericConverter<T extends BaseCluster> implements Attribu
         return initializingCluster;
     }
 
-    public final void updateState(ChannelTypeUID channelTypeUID, State state) {
-        handler.updateState(endpointNumber, channelTypeUID, state);
-        stateCache.put(channelTypeUID, state);
+    public final void updateState(String channelId, State state) {
+        handler.updateState(endpointNumber, channelId, state);
+        stateCache.put(channelId, state);
     }
 
-    public final void triggerChannel(ChannelTypeUID channelTypeUID, String event) {
-        handler.triggerChannel(endpointNumber, channelTypeUID, event);
+    public final void triggerChannel(String channelId, String event) {
+        handler.triggerChannel(endpointNumber, channelId, event);
     }
 
     /**

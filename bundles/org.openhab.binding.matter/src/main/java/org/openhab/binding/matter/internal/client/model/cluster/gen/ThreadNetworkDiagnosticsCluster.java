@@ -387,6 +387,38 @@ public class ThreadNetworkDiagnosticsCluster extends BaseCluster {
     public List<NetworkFaultEnum> activeNetworkFaultsList; // 62 list R V
     // Structs
 
+    /**
+     * The ConnectionStatus Event shall indicate that a Node’s connection status to a Thread network has changed.
+     */
+    public class ConnectionStatus {
+        public ConnectionStatusEnum connectionStatus; // ConnectionStatusEnum
+
+        public ConnectionStatus(ConnectionStatusEnum connectionStatus) {
+            this.connectionStatus = connectionStatus;
+        }
+    }
+
+    /**
+     * The NetworkFaultChange Event shall indicate a change in the set of network faults currently detected by the Node.
+     */
+    public class NetworkFaultChange {
+        /**
+         * This field shall represent the set of faults currently detected, as per Section 11.14.5.1, “NetworkFaultEnum
+         * Type”.
+         */
+        public List<NetworkFaultEnum> current; // list
+        /**
+         * This field shall represent the set of faults detected prior to this change event, as per Section 11.14.5.1,
+         * “NetworkFaultEnum Type”.
+         */
+        public List<NetworkFaultEnum> previous; // list
+
+        public NetworkFaultChange(List<NetworkFaultEnum> current, List<NetworkFaultEnum> previous) {
+            this.current = current;
+            this.previous = previous;
+        }
+    }
+
     public class NeighborTableStruct {
         /**
          * This field shall specify the IEEE 802.15.4 extended address for the neighboring Node.

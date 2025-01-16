@@ -22,9 +22,9 @@ gen_directory="../src/main/java/org/openhab/binding/matter/internal/client/model
 echo "Removing all files from '${gen_directory}'..."
 rm -rf "${gen_directory:?}"*
 
-echo "Copying all files from 'out' to '${gen_directory}'..."
+echo "Moving all files from 'out' to '${gen_directory}'..."
 mkdir -p "${gen_directory}" # Ensure target directory exists
-cp -r out/* "${gen_directory}"
+mv out/* "${gen_directory}"
 
 echo "Changing back to the original directory..."
 cd "$original_dir"

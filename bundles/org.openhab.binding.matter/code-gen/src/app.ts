@@ -292,7 +292,7 @@ const clusters = Matter.children.filter(c => c.tag == 'cluster').filter(c => !sk
     const dataTypes = cluster.children?.filter(c => c.tag == 'datatype');
     const maps = cluster.children?.filter(c => c.type?.startsWith('map'));
     const enums = cluster.children?.filter(c => c.type?.startsWith('enum'));
-    const structs = cluster.children?.filter(dt => dt.type == 'struct').map(dt => typeMapper(typeMapping, dt as AnyValueElement));
+    const structs = cluster.children?.filter(dt => dt.type == 'struct' || dt.tag == 'event').map(dt => typeMapper(typeMapping, dt as AnyValueElement));
     if (cluster.type) {
         function combineArray(array1: any[] | undefined, array2: any[] | undefined) {
             if (!array1 || !array2) {

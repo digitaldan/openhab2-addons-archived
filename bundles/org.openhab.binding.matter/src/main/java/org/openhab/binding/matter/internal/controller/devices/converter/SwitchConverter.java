@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_SWITCH_SWITCH;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_SWITCH_INITIALPRESS;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_SWITCH_LONGPRESS;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_SWITCH_LONGRELEASE;
@@ -40,6 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.matter.internal.client.model.cluster.gen.SwitchCluster;
 import org.openhab.binding.matter.internal.client.model.ws.AttributeChangedMessage;
 import org.openhab.binding.matter.internal.client.model.ws.EventTriggeredMessage;
+import org.openhab.binding.matter.internal.client.model.ws.TriggerEvent;
 import org.openhab.binding.matter.internal.handler.MatterBaseThingHandler;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.thing.Channel;
@@ -98,8 +100,7 @@ public class SwitchConverter extends GenericConverter<SwitchCluster> {
                                 .withType(type).withLabel(formatLabel(label)).withKind(ChannelKind.TRIGGER).build(),
                                 null));
 
-        Channel channel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_SWITCH_SWITCH.getId()), ITEM_TYPE_NUMBER)
+        Channel channel = ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_ID_SWITCH_SWITCH), ITEM_TYPE_NUMBER)
                 .withType(CHANNEL_SWITCH_SWITCH).withLabel(formatLabel(CHANNEL_LABEL_SWITCH_SWITCH)).build();
 
         List<StateOption> options = new ArrayList<>();
@@ -121,7 +122,7 @@ public class SwitchConverter extends GenericConverter<SwitchCluster> {
         switch (message.path.attributeName) {
             case "currentPosition":
                 initializingCluster.currentPosition = numberValue;
-                updateState(CHANNEL_SWITCH_SWITCH, new DecimalType(numberValue));
+                updateState(CHANNEL_ID_SWITCH_SWITCH, new DecimalType(numberValue));
                 break;
         }
         super.onEvent(message);
@@ -130,14 +131,13 @@ public class SwitchConverter extends GenericConverter<SwitchCluster> {
     @Override
     public void onEvent(EventTriggeredMessage message) {
         String eventName = message.path.eventName.toLowerCase();
-        // TODO: check if there are any switch events that actually have more then one event data, I don't think there
-        // are.
-        String eventData = message.events.length >= 0 ? gson.toJson(message.events[0].data) : "{}";
-        triggerChannel(new ChannelTypeUID("matter:switch-" + eventName), eventData);
+        for (TriggerEvent event : message.events) {
+            triggerChannel("switch-" + eventName, gson.toJson(event.data));
+        }
     }
 
     @Override
     public void initState() {
-        updateState(CHANNEL_SWITCH_SWITCH, new DecimalType(initializingCluster.currentPosition));
+        updateState(CHANNEL_ID_SWITCH_SWITCH, new DecimalType(initializingCluster.currentPosition));
     }
 }

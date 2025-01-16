@@ -12,16 +12,16 @@
  */
 package org.openhab.binding.matter.internal.client.model.ws;
 
-import java.util.Map;
-
 /**
  * TriggerEvent
  *
+ * Updated to include a data field for specific event deserialization.
+ * 
  * @author Dan Cunningham - Initial contribution
  */
 public class TriggerEvent {
     public String eventNumber;
     public int priority;
     public String epochTimestamp;
-    public Map<String, Object> data;
+    public Object data;
 }

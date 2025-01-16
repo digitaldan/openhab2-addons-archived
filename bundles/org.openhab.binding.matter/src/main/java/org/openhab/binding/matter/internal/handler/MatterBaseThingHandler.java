@@ -59,7 +59,6 @@ import org.openhab.core.thing.type.ChannelGroupDefinition;
 import org.openhab.core.thing.type.ChannelGroupType;
 import org.openhab.core.thing.type.ChannelGroupTypeBuilder;
 import org.openhab.core.thing.type.ChannelGroupTypeUID;
-import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.thing.type.ThingTypeBuilder;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.State;
@@ -174,15 +173,15 @@ public abstract class MatterBaseThingHandler extends BaseThingHandler
         }
     }
 
-    public void updateState(Integer endpointNumber, ChannelTypeUID channelTypeUID, State state) {
+    public void updateState(Integer endpointNumber, String channelId, State state) {
         ChannelGroupUID channelGroupUID = new ChannelGroupUID(getThing().getUID(), endpointNumber.toString());
-        ChannelUID channelUID = new ChannelUID(channelGroupUID, channelTypeUID.getId());
+        ChannelUID channelUID = new ChannelUID(channelGroupUID, channelId);
         super.updateState(channelUID, state);
     }
 
-    public void triggerChannel(Integer endpointNumber, ChannelTypeUID channelTypeUID, String event) {
+    public void triggerChannel(Integer endpointNumber, String channelId, String event) {
         ChannelGroupUID channelGroupUID = new ChannelGroupUID(getThing().getUID(), endpointNumber.toString());
-        ChannelUID channelUID = new ChannelUID(channelGroupUID, channelTypeUID.getId());
+        ChannelUID channelUID = new ChannelUID(channelGroupUID, channelId);
         super.triggerChannel(channelUID, event);
     }
 

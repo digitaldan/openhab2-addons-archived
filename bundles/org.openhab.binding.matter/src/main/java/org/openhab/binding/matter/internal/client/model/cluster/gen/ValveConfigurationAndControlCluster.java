@@ -126,6 +126,42 @@ public class ValveConfigurationAndControlCluster extends BaseCluster {
      * The values of 0 and 100 shall always be supported, regardless of the value of this attribute.
      */
     public Integer levelStep; // 10 uint8 R V
+    // Structs
+
+    /**
+     * This event shall be generated when the valve state changed. For level changes, after the end of movement, for
+     * state changes when the new state has been reached.
+     */
+    public class ValveStateChanged {
+        /**
+         * This field shall indicate the new state of the valve.
+         */
+        public ValveStateEnum valveState; // ValveStateEnum
+        /**
+         * This field shall indicate the new level of the valve.
+         */
+        public Integer valveLevel; // percent
+
+        public ValveStateChanged(ValveStateEnum valveState, Integer valveLevel) {
+            this.valveState = valveState;
+            this.valveLevel = valveLevel;
+        }
+    }
+
+    /**
+     * This event shall be generated when the valve registers or clears a fault, e.g. not being able to transition to
+     * the requested target level or state.
+     */
+    public class ValveFault {
+        /**
+         * This field shall indicate the value of the ValveFault attribute, at the time this event is generated.
+         */
+        public ValveFaultBitmap valveFault; // ValveFaultBitmap
+
+        public ValveFault(ValveFaultBitmap valveFault) {
+            this.valveFault = valveFault;
+        }
+    }
 
     // Enums
     public enum ValveStateEnum implements MatterEnum {

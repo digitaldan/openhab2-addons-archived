@@ -125,6 +125,75 @@ public class MediaPlaybackCluster extends BaseCluster {
     // Structs
 
     /**
+     * If supported, this event shall be generated when there is a change in any of the supported attributes of the
+     * Media Playback cluster.
+     */
+    public class StateChanged {
+        /**
+         * This field shall indicate the updated playback state as defined by the CurrentState attribute, and has the
+         * same constraint as that attribute.
+         */
+        public PlaybackStateEnum currentState; // PlaybackStateEnum
+        /**
+         * This field shall indicate the updated start time as defined by the StartTime attribute, and has the same
+         * constraint as that attribute.
+         */
+        public BigInteger startTime; // epoch-us
+        /**
+         * This field shall indicate the updated duration as defined by the Duration attribute, and has the same
+         * constraint as that attribute.
+         */
+        public BigInteger duration; // uint64
+        /**
+         * This field shall indicate the updated position of playback as defined by the SampledPosition attribute, and
+         * has the same constraint as that attribute.
+         */
+        public PlaybackPositionStruct sampledPosition; // PlaybackPositionStruct
+        /**
+         * This field shall indicate the updated speed at which the current media is being played as defined by the
+         * PlaybackSpeed attribute, and has the same constraint as that attribute.
+         */
+        public Float playbackSpeed; // single
+        /**
+         * This field shall indicate the updated start of the seek range end as defined by the SeekRangeEnd attribute,
+         * and has the same constraint as that attribute.
+         */
+        public BigInteger seekRangeEnd; // uint64
+        /**
+         * This field shall indicate the updated start of the seek range start as defined by the SeekRangeStart
+         * attribute, and has the same constraint as that attribute.
+         */
+        public BigInteger seekRangeStart; // uint64
+        /**
+         * This field shall indicate Optional app-specific data.
+         */
+        public String data; // octstr
+        /**
+         * This field shall indicate whether audio is unmuted by the player due to a FF or REW command. This field is
+         * only meaningful when the PlaybackSpeed is present and not equal to 0 (paused) or 1 (normal playback).
+         * Typically the value will be false (muted), however, some players will play audio during certain fast forward
+         * and rewind speeds, and in these cases, the value will be true (not muted).
+         * A value of true does not guarantee that audio can be heard by the user since the speaker may be muted, turned
+         * down to a low level and/or unplugged.
+         */
+        public Boolean audioAdvanceUnmuted; // bool
+
+        public StateChanged(PlaybackStateEnum currentState, BigInteger startTime, BigInteger duration,
+                PlaybackPositionStruct sampledPosition, Float playbackSpeed, BigInteger seekRangeEnd,
+                BigInteger seekRangeStart, String data, Boolean audioAdvanceUnmuted) {
+            this.currentState = currentState;
+            this.startTime = startTime;
+            this.duration = duration;
+            this.sampledPosition = sampledPosition;
+            this.playbackSpeed = playbackSpeed;
+            this.seekRangeEnd = seekRangeEnd;
+            this.seekRangeStart = seekRangeStart;
+            this.data = data;
+            this.audioAdvanceUnmuted = audioAdvanceUnmuted;
+        }
+    }
+
+    /**
      * This structure defines a playback position within a media stream being played.
      */
     public class PlaybackPositionStruct {

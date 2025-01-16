@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_OCCUPANCYSENSING_OCCUPIED;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_OCCUPANCYSENSING_OCCUPIED;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_OCCUPANCYSENSING_OCCUPIED;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_SWITCH;
@@ -31,8 +32,6 @@ import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.binding.builder.ChannelBuilder;
 import org.openhab.core.types.StateDescription;
 
-import com.google.gson.internal.LinkedTreeMap;
-
 /**
  * The {@link OccupancySensingConverter}
  *
@@ -49,7 +48,7 @@ public class OccupancySensingConverter extends GenericConverter<OccupancySensing
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Channel channel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_OCCUPANCYSENSING_OCCUPIED.getId()), ITEM_TYPE_SWITCH)
+                .create(new ChannelUID(thingUID, CHANNEL_ID_OCCUPANCYSENSING_OCCUPIED), ITEM_TYPE_SWITCH)
                 .withType(CHANNEL_OCCUPANCYSENSING_OCCUPIED)
                 .withLabel(formatLabel(CHANNEL_LABEL_OCCUPANCYSENSING_OCCUPIED)).build();
         return Collections.singletonMap(channel, null);
@@ -59,11 +58,8 @@ public class OccupancySensingConverter extends GenericConverter<OccupancySensing
     public void onEvent(AttributeChangedMessage message) {
         switch (message.path.attributeName) {
             case "occupancy":
-                if (message.value instanceof LinkedTreeMap linkedTreeMap) {
-                    Object value = linkedTreeMap.get("occupied");
-                    if (value != null && value instanceof Boolean occupied) {
-                        updateState(CHANNEL_OCCUPANCYSENSING_OCCUPIED, OnOffType.from(occupied));
-                    }
+                if (message.value instanceof OccupancySensingCluster.OccupancyBitmap occupancyBitmap) {
+                    updateState(CHANNEL_ID_OCCUPANCYSENSING_OCCUPIED, OnOffType.from(occupancyBitmap.occupied));
                     break;
                 }
         }
@@ -72,6 +68,6 @@ public class OccupancySensingConverter extends GenericConverter<OccupancySensing
 
     @Override
     public void initState() {
-        updateState(CHANNEL_OCCUPANCYSENSING_OCCUPIED, OnOffType.from(initializingCluster.occupancy.occupied));
+        updateState(CHANNEL_ID_OCCUPANCYSENSING_OCCUPIED, OnOffType.from(initializingCluster.occupancy.occupied));
     }
 }

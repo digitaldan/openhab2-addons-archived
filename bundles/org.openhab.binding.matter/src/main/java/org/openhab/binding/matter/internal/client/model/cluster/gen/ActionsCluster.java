@@ -62,6 +62,81 @@ public class ActionsCluster extends BaseCluster {
     // Structs
 
     /**
+     * This event shall be generated when there is a change in the State of an ActionID during the execution of an
+     * action and the most recent command using that ActionID used an InvokeID data field.
+     * It provides feedback to the client about the progress of the action.
+     * Example: When InstantActionWithTransition is invoked (with an InvokeID data field), two StateChanged events will
+     * be generated:
+     * • one when the transition starts (NewState&#x3D;Active)
+     * • one when the transition completed (NewState&#x3D;Inactive)
+     */
+    public class StateChanged {
+        /**
+         * This field shall be set to the ActionID of the action which has changed state.
+         */
+        public Integer actionId; // uint16
+        /**
+         * This field shall be set to the InvokeID which was provided to the most recent command referencing this
+         * ActionID.
+         */
+        public Integer invokeId; // uint32
+        /**
+         * This field shall be set to state that the action has changed to.
+         */
+        public ActionStateEnum newState; // ActionStateEnum
+
+        public StateChanged(Integer actionId, Integer invokeId, ActionStateEnum newState) {
+            this.actionId = actionId;
+            this.invokeId = invokeId;
+            this.newState = newState;
+        }
+    }
+
+    /**
+     * This event shall be generated when there is some error which prevents the action from its normal planned
+     * execution and the most recent command using that ActionID used an InvokeID data field.
+     * It provides feedback to the client about the non-successful progress of the action.
+     * Example: When InstantActionWithTransition is invoked (with an InvokeID data field), and another controller
+     * changes the state of one or more of the involved endpoints during the transition, thus interrupting the
+     * transition triggered by the action, two events would be generated:
+     * • StateChanged when the transition starts (NewState&#x3D;Active)
+     * • ActionFailed when the interrupting command occurs (NewState&#x3D;Inactive, Error&#x3D;interrupted)
+     * Example: When InstantActionWithTransition is invoked (with an InvokeID data field &#x3D; 1), and the same client
+     * invokes an InstantAction with (the same or another ActionId and) InvokeID &#x3D; 2, and this second command
+     * interrupts the transition triggered by the first command, these events would be generated:
+     * • StateChanged (InvokeID&#x3D;1, NewState&#x3D;Active) when the transition starts
+     * • ActionFailed (InvokeID&#x3D;2, NewState&#x3D;Inactive, Error&#x3D;interrupted) when the second command
+     * interrupts the transition
+     * • StateChanged (InvokeID&#x3D;2, NewState&#x3D;Inactive) upon the execution of the action for the second command
+     */
+    public class ActionFailed {
+        /**
+         * This field shall be set to the ActionID of the action which encountered an error.
+         */
+        public Integer actionId; // uint16
+        /**
+         * This field shall be set to the InvokeID which was provided to the most recent command referencing this
+         * ActionID.
+         */
+        public Integer invokeId; // uint32
+        /**
+         * This field shall be set to state that the action is in at the time of generating the event.
+         */
+        public ActionStateEnum newState; // ActionStateEnum
+        /**
+         * This field shall be set to indicate the reason for non-successful progress of the action.
+         */
+        public ActionErrorEnum error; // ActionErrorEnum
+
+        public ActionFailed(Integer actionId, Integer invokeId, ActionStateEnum newState, ActionErrorEnum error) {
+            this.actionId = actionId;
+            this.invokeId = invokeId;
+            this.newState = newState;
+            this.error = error;
+        }
+    }
+
+    /**
      * This data type holds the details of a single action, and contains the data fields below.
      */
     public class ActionStruct {

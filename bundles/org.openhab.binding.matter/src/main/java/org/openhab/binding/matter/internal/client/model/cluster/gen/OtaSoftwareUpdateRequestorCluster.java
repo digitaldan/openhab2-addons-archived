@@ -69,6 +69,99 @@ public class OtaSoftwareUpdateRequestorCluster extends BaseCluster {
     // Structs
 
     /**
+     * This event shall be generated when a change of the UpdateState attribute occurs due to an OTA Requestor moving
+     * through the states necessary to query for updates.
+     */
+    public class StateTransition {
+        /**
+         * This field shall be set to the state that preceded the transition causing this event to be generated, if such
+         * a state existed. If no previous state exists, the value shall be Unknown.
+         */
+        public UpdateStateEnum previousState; // UpdateStateEnum
+        /**
+         * This field shall be set to the state now in effect through the transition causing this event to be generated.
+         */
+        public UpdateStateEnum newState; // UpdateStateEnum
+        /**
+         * This field shall be set to the reason why this event was generated.
+         */
+        public ChangeReasonEnum reason; // ChangeReasonEnum
+        /**
+         * This field shall be set to the target SoftwareVersion which is the subject of the operation, whenever the
+         * NewState is Downloading, Applying or RollingBack. Otherwise TargetSoftwareVersion shall be null.
+         */
+        public Integer targetSoftwareVersion; // uint32
+
+        public StateTransition(UpdateStateEnum previousState, UpdateStateEnum newState, ChangeReasonEnum reason,
+                Integer targetSoftwareVersion) {
+            this.previousState = previousState;
+            this.newState = newState;
+            this.reason = reason;
+            this.targetSoftwareVersion = targetSoftwareVersion;
+        }
+    }
+
+    /**
+     * This event shall be generated whenever a new version starts executing after being applied due to a software
+     * update. This event SHOULD be generated even if a software update was done using means outside of this cluster.
+     */
+    public class VersionApplied {
+        /**
+         * This field shall be set to the same value as the one available in the Software Version attribute of the Basic
+         * Information Cluster for the newly executing version.
+         */
+        public Integer softwareVersion; // uint32
+        /**
+         * This field shall be set to the ProductID applying to the executing version, as reflected by the Basic
+         * Information Cluster. This can be used to detect a product updating its definition due to a large-scale
+         * functional update that may impact aspects of the product reflected in the DeviceModel schema of the
+         * Distributed Compliance Ledger.
+         */
+        public Integer productId; // uint16
+
+        public VersionApplied(Integer softwareVersion, Integer productId) {
+            this.softwareVersion = softwareVersion;
+            this.productId = productId;
+        }
+    }
+
+    /**
+     * This event shall be generated whenever an error occurs during OTA Requestor download operation.
+     */
+    public class DownloadError {
+        /**
+         * This field shall be set to the value of the SoftwareVersion being downloaded, matching the SoftwareVersion
+         * field of the QueryImageResponse that caused the failing download to take place.
+         */
+        public Integer softwareVersion; // uint32
+        /**
+         * This field shall be set to the number of bytes that have been downloaded during the failing transfer that
+         * caused this event to be generated.
+         */
+        public BigInteger bytesDownloaded; // uint64
+        /**
+         * This field shall be set to the nearest integer percent value reflecting how far within the transfer the
+         * failure occurred during the failing transfer that caused this event to be generated, unless the total length
+         * of the transfer is unknown, in which case it shall be null.
+         */
+        public Integer progressPercent; // uint8
+        /**
+         * This field SHOULD be set to some internal product-specific error code, closest in temporal/functional
+         * proximity to the failure that caused this event to be generated. Otherwise, it shall be null. This event
+         * field may be used for debugging purposes and no uniform definition exists related to its meaning.
+         */
+        public BigInteger platformCode; // int64
+
+        public DownloadError(Integer softwareVersion, BigInteger bytesDownloaded, Integer progressPercent,
+                BigInteger platformCode) {
+            this.softwareVersion = softwareVersion;
+            this.bytesDownloaded = bytesDownloaded;
+            this.progressPercent = progressPercent;
+            this.platformCode = platformCode;
+        }
+    }
+
+    /**
      * This structure encodes a fabric-scoped location of an OTA provider on a given fabric.
      */
     public class ProviderLocation {

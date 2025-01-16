@@ -223,6 +223,68 @@ public class PowerSourceCluster extends BaseCluster {
      * battery backup would list the endpoints that have a battery backup.
      */
     public List<Integer> endpointList; // 31 list R V
+    // Structs
+
+    /**
+     * The WiredFaultChange Event shall be generated when the set of wired faults currently detected by the Node on this
+     * wired power source changes. This event shall correspond to a change in value of ActiveWiredFaults.
+     */
+    public class WiredFaultChange {
+        /**
+         * This field shall represent the set of faults currently detected, as per ActiveWiredFaults.
+         */
+        public List<WiredFaultEnum> current; // list
+        /**
+         * This field shall represent the set of faults detected prior to this change event, as per ActiveWiredFaults.
+         */
+        public List<WiredFaultEnum> previous; // list
+
+        public WiredFaultChange(List<WiredFaultEnum> current, List<WiredFaultEnum> previous) {
+            this.current = current;
+            this.previous = previous;
+        }
+    }
+
+    /**
+     * The BatFaultChange Event shall be generated when the set of battery faults currently detected by the Node on this
+     * battery power source changes. This event shall correspond to a change in value of ActiveBatFaults.
+     */
+    public class BatFaultChange {
+        /**
+         * This field shall represent the set of faults currently detected, as per ActiveBatFaults.
+         */
+        public List<BatFaultEnum> current; // list
+        /**
+         * This field shall represent the set of faults detected prior to this change event, as per ActiveBatFaults.
+         */
+        public List<BatFaultEnum> previous; // list
+
+        public BatFaultChange(List<BatFaultEnum> current, List<BatFaultEnum> previous) {
+            this.current = current;
+            this.previous = previous;
+        }
+    }
+
+    /**
+     * The BatChargeFaultChange Event shall be generated when the set of charge faults currently detected by the Node on
+     * this battery power source changes. This event shall correspond to a change in value of ActiveBatChargeFaults.
+     */
+    public class BatChargeFaultChange {
+        /**
+         * This field shall represent the set of faults currently detected, as per ActiveBatChargeFaults.
+         */
+        public List<BatChargeFaultEnum> current; // list
+        /**
+         * This field shall represent the set of faults detected prior to this change event, as per
+         * ActiveBatChargeFaults.
+         */
+        public List<BatChargeFaultEnum> previous; // list
+
+        public BatChargeFaultChange(List<BatChargeFaultEnum> current, List<BatChargeFaultEnum> previous) {
+            this.current = current;
+            this.previous = previous;
+        }
+    }
 
     // Enums
     public enum WiredFaultEnum implements MatterEnum {

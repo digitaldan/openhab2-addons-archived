@@ -91,6 +91,52 @@ public class ElectricalEnergyMeasurementCluster extends BaseCluster {
     // Structs
 
     /**
+     * This event shall be generated when the server takes a snapshot of the cumulative energy imported by the server,
+     * exported from the server, or both, but not more frequently than the rate mentioned in the description above of
+     * the related attribute.
+     */
+    public class CumulativeEnergyMeasured {
+        /**
+         * This field shall be the value of CumulativeEnergyImported attribute at the timestamp indicated in its
+         * EndTimestamp field, EndSystime field, or both.
+         */
+        public EnergyMeasurementStruct energyImported; // EnergyMeasurementStruct
+        /**
+         * This field shall be the value of CumulativeEnergyExported attribute at the timestamp indicated in its
+         * EndTimestamp field, EndSystime field, or both.
+         */
+        public EnergyMeasurementStruct energyExported; // EnergyMeasurementStruct
+
+        public CumulativeEnergyMeasured(EnergyMeasurementStruct energyImported,
+                EnergyMeasurementStruct energyExported) {
+            this.energyImported = energyImported;
+            this.energyExported = energyExported;
+        }
+    }
+
+    /**
+     * This event shall be generated when the server reaches the end of a reporting period for imported energy, exported
+     * energy, or both.
+     */
+    public class PeriodicEnergyMeasured {
+        /**
+         * This field shall be the value of PeriodicEnergyImported attribute at the timestamp indicated in its
+         * EndTimestamp field, EndSystime field, or both.
+         */
+        public EnergyMeasurementStruct energyImported; // EnergyMeasurementStruct
+        /**
+         * This field shall be the value of PeriodicEnergyExported attribute at the timestamp indicated in its
+         * EndTimestamp field, EndSystime field, or both.
+         */
+        public EnergyMeasurementStruct energyExported; // EnergyMeasurementStruct
+
+        public PeriodicEnergyMeasured(EnergyMeasurementStruct energyImported, EnergyMeasurementStruct energyExported) {
+            this.energyImported = energyImported;
+            this.energyExported = energyExported;
+        }
+    }
+
+    /**
      * This struct shall indicate the amount of energy measured during a given measurement period.
      * A server which does not have the ability to determine the time in UTC, or has not yet done so, shall use the
      * system time fields to specify the measurement period and observation times.

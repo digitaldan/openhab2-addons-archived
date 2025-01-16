@@ -17,6 +17,7 @@ package org.openhab.binding.matter.internal.client.model.cluster.gen;
 
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -303,6 +304,205 @@ public class DoorLockCluster extends BaseCluster {
      */
     public EventMaskBitmap rfidProgrammingEventMask; // 71 EventMaskBitmap RW VA
     // Structs
+
+    /**
+     * The door lock server provides several alarms which can be sent when there is a critical state on the door lock.
+     * The alarms available for the door lock server are listed in AlarmCodeEnum.
+     */
+    public class DoorLockAlarm {
+        /**
+         * This field shall indicate the alarm code of the event that has happened.
+         */
+        public AlarmCodeEnum alarmCode; // AlarmCodeEnum
+
+        public DoorLockAlarm(AlarmCodeEnum alarmCode) {
+            this.alarmCode = alarmCode;
+        }
+    }
+
+    /**
+     * The door lock server sends out a DoorStateChange event when the door lock door state changes.
+     */
+    public class DoorStateChange {
+        /**
+         * This field shall indicate the new door state for this door event.
+         */
+        public DoorStateEnum doorState; // DoorStateEnum
+
+        public DoorStateChange(DoorStateEnum doorState) {
+            this.doorState = doorState;
+        }
+    }
+
+    /**
+     * The door lock server sends out a LockOperation event when the event is triggered by the various lock operation
+     * sources.
+     * • If the door lock server supports the Unbolt Door command, it shall generate a LockOperation event with
+     * LockOperationType set to Unlock after an Unbolt Door command succeeds.
+     * • If the door lock server supports the Unbolting feature and an Unlock Door command is performed, it shall
+     * generate a LockOperation event with LockOperationType set to Unlatch when the unlatched state is reached and a
+     * LockOperation event with LockOperationType set to Unlock when the lock successfully completes the unlock → hold
+     * latch → release latch and return to unlock state operation.
+     * • If the command fails during holding or releasing the latch but after passing the unlocked state, the door lock
+     * server shall generate a LockOperationError event with LockOperationType set to Unlatch and a LockOperation event
+     * with LockOperationType set to Unlock.
+     * ◦ If it fails before reaching the unlocked state, the door lock server shall generate only a LockOperationError
+     * event with LockOperationType set to Unlock.
+     * • Upon manual actuation, a door lock server that supports the Unbolting feature:
+     * ◦ shall generate a LockOperation event of LockOperationType Unlatch when it is actuated from the outside.
+     * ◦ may generate a LockOperation event of LockOperationType Unlatch when it is actuated from the inside.
+     */
+    public class LockOperation {
+        /**
+         * This field shall indicate the type of the lock operation that was performed.
+         */
+        public LockOperationTypeEnum lockOperationType; // LockOperationTypeEnum
+        /**
+         * This field shall indicate the source of the lock operation that was performed.
+         */
+        public OperationSourceEnum operationSource; // OperationSourceEnum
+        /**
+         * This field shall indicate the UserIndex who performed the lock operation. This shall be null if there is no
+         * user index that can be determined for the given operation source. This shall NOT be null if a user index can
+         * be determined. In particular, this shall NOT be null if the operation was associated with a valid credential.
+         */
+        public Integer userIndex; // uint16
+        /**
+         * This field shall indicate the fabric index of the fabric that performed the lock operation. This shall be
+         * null if there is no fabric that can be determined for the given operation source. This shall NOT be null if
+         * the operation source is &quot;Remote&quot;.
+         */
+        public Integer fabricIndex; // fabric-idx
+        /**
+         * This field shall indicate the Node ID of the node that performed the lock operation. This shall be null if
+         * there is no Node associated with the given operation source. This shall NOT be null if the operation source
+         * is &quot;Remote&quot;.
+         */
+        public BigInteger sourceNode; // node-id
+        /**
+         * This field shall indicate the list of credentials used in performing the lock operation. This shall be null
+         * if no credentials were involved.
+         */
+        public List<CredentialStruct> credentials; // list
+
+        public LockOperation(LockOperationTypeEnum lockOperationType, OperationSourceEnum operationSource,
+                Integer userIndex, Integer fabricIndex, BigInteger sourceNode, List<CredentialStruct> credentials) {
+            this.lockOperationType = lockOperationType;
+            this.operationSource = operationSource;
+            this.userIndex = userIndex;
+            this.fabricIndex = fabricIndex;
+            this.sourceNode = sourceNode;
+            this.credentials = credentials;
+        }
+    }
+
+    /**
+     * The door lock server sends out a LockOperationError event when a lock operation fails for various reasons.
+     */
+    public class LockOperationError {
+        /**
+         * This field shall indicate the type of the lock operation that was performed.
+         */
+        public LockOperationTypeEnum lockOperationType; // LockOperationTypeEnum
+        /**
+         * This field shall indicate the source of the lock operation that was performed.
+         */
+        public OperationSourceEnum operationSource; // OperationSourceEnum
+        /**
+         * This field shall indicate the lock operation error triggered when the operation was performed.
+         */
+        public OperationErrorEnum operationError; // OperationErrorEnum
+        /**
+         * This field shall indicate the lock UserIndex who performed the lock operation. This shall be null if there is
+         * no user id that can be determined for the given operation source.
+         */
+        public Integer userIndex; // uint16
+        /**
+         * This field shall indicate the fabric index of the fabric that performed the lock operation. This shall be
+         * null if there is no fabric that can be determined for the given operation source. This shall NOT be null if
+         * the operation source is &quot;Remote&quot;.
+         */
+        public Integer fabricIndex; // fabric-idx
+        /**
+         * This field shall indicate the Node ID of the node that performed the lock operation. This shall be null if
+         * there is no Node associated with the given operation source. This shall NOT be null if the operation source
+         * is &quot;Remote&quot;.
+         */
+        public BigInteger sourceNode; // node-id
+        /**
+         * This field shall indicate the list of credentials used in performing the lock operation. This shall be null
+         * if no credentials were involved.
+         */
+        public List<CredentialStruct> credentials; // list
+
+        public LockOperationError(LockOperationTypeEnum lockOperationType, OperationSourceEnum operationSource,
+                OperationErrorEnum operationError, Integer userIndex, Integer fabricIndex, BigInteger sourceNode,
+                List<CredentialStruct> credentials) {
+            this.lockOperationType = lockOperationType;
+            this.operationSource = operationSource;
+            this.operationError = operationError;
+            this.userIndex = userIndex;
+            this.fabricIndex = fabricIndex;
+            this.sourceNode = sourceNode;
+            this.credentials = credentials;
+        }
+    }
+
+    /**
+     * The door lock server sends out a LockUserChange event when a lock user, schedule, or credential change has
+     * occurred.
+     */
+    public class LockUserChange {
+        /**
+         * This field shall indicate the lock data type that was changed.
+         */
+        public LockDataTypeEnum lockDataType; // LockDataTypeEnum
+        /**
+         * This field shall indicate the data operation performed on the lock data type changed.
+         */
+        public DataOperationTypeEnum dataOperationType; // DataOperationTypeEnum
+        /**
+         * This field shall indicate the source of the user data change.
+         */
+        public OperationSourceEnum operationSource; // OperationSourceEnum
+        /**
+         * This field shall indicate the lock UserIndex associated with the change (if any). This shall be null if there
+         * is no specific user associated with the data operation. This shall be 0xFFFE if all users are affected (e.g.
+         * Clear Users).
+         */
+        public Integer userIndex; // uint16
+        /**
+         * This field shall indicate the fabric index of the fabric that performed the change (if any). This shall be
+         * null if there is no fabric that can be determined to have caused the change. This shall NOT be null if the
+         * operation source is &quot;Remote&quot;.
+         */
+        public Integer fabricIndex; // fabric-idx
+        /**
+         * This field shall indicate the Node ID that performed the change (if any). The Node ID of the node that
+         * performed the change. This shall be null if there was no Node involved in the change. This shall NOT be null
+         * if the operation source is &quot;Remote&quot;.
+         */
+        public BigInteger sourceNode; // node-id
+        /**
+         * This field shall indicate the index of the specific item that was changed (e.g. schedule, PIN, RFID, etc.) in
+         * the list of items identified by LockDataType. This shall be null if the LockDataType does not correspond to a
+         * list that can be indexed into (e.g. ProgrammingUser). This shall be 0xFFFE if all indices are affected (e.g.
+         * ClearPINCode, ClearRFIDCode, ClearWeekDaySchedule, ClearYearDaySchedule, etc.).
+         */
+        public Integer dataIndex; // uint16
+
+        public LockUserChange(LockDataTypeEnum lockDataType, DataOperationTypeEnum dataOperationType,
+                OperationSourceEnum operationSource, Integer userIndex, Integer fabricIndex, BigInteger sourceNode,
+                Integer dataIndex) {
+            this.lockDataType = lockDataType;
+            this.dataOperationType = dataOperationType;
+            this.operationSource = operationSource;
+            this.userIndex = userIndex;
+            this.fabricIndex = fabricIndex;
+            this.sourceNode = sourceNode;
+            this.dataIndex = dataIndex;
+        }
+    }
 
     /**
      * This struct shall indicate the credential types and their corresponding indices (if any) for the event or user

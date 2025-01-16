@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_LEVEL_LEVEL;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_LEVEL_LEVEL;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LEVEL_LEVEL;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_DIMMER;
@@ -53,7 +54,7 @@ public class LevelControlConverter extends GenericConverter<LevelControlCluster>
 
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
-        Channel channel = ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_LEVEL_LEVEL.getId()), ITEM_TYPE_DIMMER)
+        Channel channel = ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_ID_LEVEL_LEVEL), ITEM_TYPE_DIMMER)
                 .withType(CHANNEL_LEVEL_LEVEL).withLabel(formatLabel(CHANNEL_LABEL_LEVEL_LEVEL)).build();
         return Collections.singletonMap(channel, null);
     }
@@ -80,13 +81,13 @@ public class LevelControlConverter extends GenericConverter<LevelControlCluster>
                 lastLevel = levelToPercent(numberValue);
                 logger.debug("currentLevel {}", lastLevel);
                 if (lastOnOff == OnOffType.ON) {
-                    updateState(CHANNEL_LEVEL_LEVEL, lastLevel);
+                    updateState(CHANNEL_ID_LEVEL_LEVEL, lastLevel);
                 }
                 break;
             case "onOff":
                 logger.debug("onOff {}", message.value);
                 lastOnOff = OnOffType.from((Boolean) message.value);
-                updateState(CHANNEL_LEVEL_LEVEL, lastOnOff);
+                updateState(CHANNEL_ID_LEVEL_LEVEL, lastOnOff);
                 break;
         }
         super.onEvent(message);
@@ -101,6 +102,6 @@ public class LevelControlConverter extends GenericConverter<LevelControlCluster>
     public void initState(boolean onOff) {
         lastOnOff = OnOffType.from(onOff);
         lastLevel = levelToPercent(initializingCluster.currentLevel);
-        updateState(CHANNEL_LEVEL_LEVEL, onOff ? lastLevel : OnOffType.OFF);
+        updateState(CHANNEL_ID_LEVEL_LEVEL, onOff ? lastLevel : OnOffType.OFF);
     }
 }

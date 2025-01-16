@@ -13,6 +13,7 @@
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_BOOLEANSTATE_STATEVALUE;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_BOOLEANSTATE_STATEVALUE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_BOOLEANSTATE_STATEVALUE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_SWITCH;
 
@@ -47,7 +48,7 @@ public class BooleanStateConverter extends GenericConverter<BooleanStateCluster>
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Channel channel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_BOOLEANSTATE_STATEVALUE.getId()), ITEM_TYPE_SWITCH)
+                .create(new ChannelUID(thingUID, CHANNEL_ID_BOOLEANSTATE_STATEVALUE), ITEM_TYPE_SWITCH)
                 .withType(CHANNEL_BOOLEANSTATE_STATEVALUE).withLabel(formatLabel(CHANNEL_LABEL_BOOLEANSTATE_STATEVALUE))
                 .build();
         return Collections.singletonMap(channel, null);
@@ -58,7 +59,7 @@ public class BooleanStateConverter extends GenericConverter<BooleanStateCluster>
         switch (message.path.attributeName) {
             case "stateValue":
                 if (message.value instanceof Boolean booleanValue) {
-                    updateState(CHANNEL_BOOLEANSTATE_STATEVALUE, OnOffType.from(booleanValue));
+                    updateState(CHANNEL_ID_BOOLEANSTATE_STATEVALUE, OnOffType.from(booleanValue));
 
                 }
         }
@@ -67,6 +68,6 @@ public class BooleanStateConverter extends GenericConverter<BooleanStateCluster>
 
     @Override
     public void initState() {
-        updateState(CHANNEL_BOOLEANSTATE_STATEVALUE, OnOffType.from(initializingCluster.stateValue));
+        updateState(CHANNEL_ID_BOOLEANSTATE_STATEVALUE, OnOffType.from(initializingCluster.stateValue));
     }
 }

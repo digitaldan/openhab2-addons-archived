@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_ONOFF_ONOFF;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_ONOFF_ONOFF;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ONOFF_ONOFF;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_SWITCH;
@@ -48,7 +49,7 @@ public class OnOffConverter extends GenericConverter<OnOffCluster> {
 
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
-        Channel channel = ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_ONOFF_ONOFF.getId()), ITEM_TYPE_SWITCH)
+        Channel channel = ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_ID_ONOFF_ONOFF), ITEM_TYPE_SWITCH)
                 .withType(CHANNEL_ONOFF_ONOFF).withLabel(formatLabel(CHANNEL_LABEL_ONOFF_ONOFF)).build();
         return Collections.singletonMap(channel, null);
     }
@@ -66,7 +67,7 @@ public class OnOffConverter extends GenericConverter<OnOffCluster> {
     public void onEvent(AttributeChangedMessage message) {
         switch (message.path.attributeName) {
             case "onOff":
-                updateState(CHANNEL_ONOFF_ONOFF, OnOffType.from((Boolean) message.value));
+                updateState(CHANNEL_ID_ONOFF_ONOFF, OnOffType.from((Boolean) message.value));
                 break;
         }
         super.onEvent(message);
@@ -74,6 +75,6 @@ public class OnOffConverter extends GenericConverter<OnOffCluster> {
 
     @Override
     public void initState() {
-        updateState(CHANNEL_ONOFF_ONOFF, OnOffType.from(Boolean.valueOf(initializingCluster.onOff)));
+        updateState(CHANNEL_ID_ONOFF_ONOFF, OnOffType.from(Boolean.valueOf(initializingCluster.onOff)));
     }
 }

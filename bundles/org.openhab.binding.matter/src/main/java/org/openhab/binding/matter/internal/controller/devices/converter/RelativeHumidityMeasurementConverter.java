@@ -13,6 +13,7 @@
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_HUMIDITYMEASURMENT_MEASUREDVALUE;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_HUMIDITYMEASURMENT_MEASUREDVALUE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_HUMIDITYMEASURMENT_MEASUREDVALUE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_NUMBER_DIMENSIONLESS;
 
@@ -51,7 +52,7 @@ public class RelativeHumidityMeasurementConverter extends GenericConverter<Relat
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Channel channel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_HUMIDITYMEASURMENT_MEASUREDVALUE.getId()),
+                .create(new ChannelUID(thingUID, CHANNEL_ID_HUMIDITYMEASURMENT_MEASUREDVALUE),
                         ITEM_TYPE_NUMBER_DIMENSIONLESS)
                 .withType(CHANNEL_HUMIDITYMEASURMENT_MEASUREDVALUE)
                 .withLabel(formatLabel(CHANNEL_LABEL_HUMIDITYMEASURMENT_MEASUREDVALUE)).build();
@@ -62,7 +63,7 @@ public class RelativeHumidityMeasurementConverter extends GenericConverter<Relat
     public void onEvent(AttributeChangedMessage message) {
         switch (message.path.attributeName) {
             case "measuredValue":
-                updateState(CHANNEL_HUMIDITYMEASURMENT_MEASUREDVALUE, humidityToPercent((Number) message.value));
+                updateState(CHANNEL_ID_HUMIDITYMEASURMENT_MEASUREDVALUE, humidityToPercent((Number) message.value));
                 break;
         }
         super.onEvent(message);
@@ -70,7 +71,7 @@ public class RelativeHumidityMeasurementConverter extends GenericConverter<Relat
 
     @Override
     public void initState() {
-        updateState(CHANNEL_HUMIDITYMEASURMENT_MEASUREDVALUE, humidityToPercent(initializingCluster.measuredValue));
+        updateState(CHANNEL_ID_HUMIDITYMEASURMENT_MEASUREDVALUE, humidityToPercent(initializingCluster.measuredValue));
     }
 
     private QuantityType<Dimensionless> humidityToPercent(Number number) {

@@ -242,6 +242,21 @@ public class ElectricalPowerMeasurementCluster extends BaseCluster {
     // Structs
 
     /**
+     * If supported, this event shall be generated at the end of a measurement period. The start and end times for
+     * measurement periods shall be determined by the server, and may represent overlapping periods.
+     */
+    public class MeasurementPeriodRanges {
+        /**
+         * This shall indicate the value of the Ranges attribute at the time of event generation.
+         */
+        public List<MeasurementRangeStruct> ranges; // list
+
+        public MeasurementPeriodRanges(List<MeasurementRangeStruct> ranges) {
+            this.ranges = ranges;
+        }
+    }
+
+    /**
      * This struct shall indicate the maximum and minimum values of a given measurement type during a measurement
      * period, along with the observation times of these values.
      * A server which does not have the ability to determine the time in UTC, or has not yet done so, shall use the

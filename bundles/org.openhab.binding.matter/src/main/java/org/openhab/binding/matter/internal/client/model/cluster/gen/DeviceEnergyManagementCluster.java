@@ -123,6 +123,63 @@ public class DeviceEnergyManagementCluster extends BaseCluster {
     // Structs
 
     /**
+     * This event shall be generated when the Power Adjustment session is started.
+     */
+    public class PowerAdjustStart {
+        public PowerAdjustStart() {
+        }
+    }
+
+    /**
+     * This event shall be generated when the Power Adjustment session ends.
+     */
+    public class PowerAdjustEnd {
+        /**
+         * This field shall indicate the reason why the power adjustment session ended.
+         */
+        public CauseEnum cause; // CauseEnum
+        /**
+         * This field shall indicate the number of seconds that the power adjustment session lasted before ending.
+         */
+        public Integer duration; // elapsed-s
+        /**
+         * This field shall indicate the approximate energy used by the ESA during the session.
+         * For example, if the ESA was on and was adjusted to be switched off, then this shall be 0W. If this was a
+         * battery inverter that was requested to charge it would have a negative energy use. If this was a normal load
+         * that was turned on, then it will have positive value.
+         */
+        public BigInteger energyUse; // energy-mWh
+
+        public PowerAdjustEnd(CauseEnum cause, Integer duration, BigInteger energyUse) {
+            this.cause = cause;
+            this.duration = duration;
+            this.energyUse = energyUse;
+        }
+    }
+
+    /**
+     * This event shall be generated when the ESA enters the Paused state. There is no data for this event.
+     */
+    public class Paused {
+        public Paused() {
+        }
+    }
+
+    /**
+     * This event shall be generated when the ESA leaves the Paused state and resumes operation.
+     */
+    public class Resumed {
+        /**
+         * This field shall indicate the reason why the pause ended.
+         */
+        public CauseEnum cause; // CauseEnum
+
+        public Resumed(CauseEnum cause) {
+            this.cause = cause;
+        }
+    }
+
+    /**
      * This indicates a generic mechanism for expressing cost to run an appliance, in terms of financial, GHG emissions,
      * comfort value etc.
      */

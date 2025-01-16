@@ -106,6 +106,128 @@ public class SmokeCoAlarmCluster extends BaseCluster {
      * based on the ExpiryDate by up to 24 hours to best align with the local time zone.
      */
     public Integer expiryDate; // 12 epoch-s R V
+    // Structs
+
+    /**
+     * This event shall be generated when SmokeState attribute changes to either Warning or Critical state.
+     */
+    public class SmokeAlarm {
+        /**
+         * This field shall indicate the current value of the SmokeState attribute.
+         */
+        public AlarmStateEnum alarmSeverityLevel; // AlarmStateEnum
+
+        public SmokeAlarm(AlarmStateEnum alarmSeverityLevel) {
+            this.alarmSeverityLevel = alarmSeverityLevel;
+        }
+    }
+
+    /**
+     * This event shall be generated when COState attribute changes to either Warning or Critical state.
+     */
+    public class CoAlarm {
+        /**
+         * This field shall indicate the current value of the COState attribute.
+         */
+        public AlarmStateEnum alarmSeverityLevel; // AlarmStateEnum
+
+        public CoAlarm(AlarmStateEnum alarmSeverityLevel) {
+            this.alarmSeverityLevel = alarmSeverityLevel;
+        }
+    }
+
+    /**
+     * This event shall be generated when BatteryAlert attribute changes to either Warning or Critical state.
+     */
+    public class LowBattery {
+        /**
+         * This field shall indicate the current value of the BatteryAlert attribute.
+         */
+        public AlarmStateEnum alarmSeverityLevel; // AlarmStateEnum
+
+        public LowBattery(AlarmStateEnum alarmSeverityLevel) {
+            this.alarmSeverityLevel = alarmSeverityLevel;
+        }
+    }
+
+    /**
+     * This event shall be generated when the device detects a hardware fault that leads to setting HardwareFaultAlert
+     * to True.
+     */
+    public class HardwareFault {
+        public HardwareFault() {
+        }
+    }
+
+    /**
+     * This event shall be generated when the EndOfServiceAlert is set to Expired.
+     */
+    public class EndOfService {
+        public EndOfService() {
+        }
+    }
+
+    /**
+     * This event shall be generated when the SelfTest completes, and the attribute TestInProgress changes to False.
+     */
+    public class SelfTestComplete {
+        public SelfTestComplete() {
+        }
+    }
+
+    /**
+     * This event shall be generated when the DeviceMuted attribute changes to Muted.
+     */
+    public class AlarmMuted {
+        public AlarmMuted() {
+        }
+    }
+
+    /**
+     * This event shall be generated when DeviceMuted attribute changes to NotMuted.
+     */
+    public class MuteEnded {
+        public MuteEnded() {
+        }
+    }
+
+    /**
+     * This event shall be generated when the device hosting the server receives a smoke alarm from an interconnected
+     * sensor.
+     */
+    public class InterconnectSmokeAlarm {
+        /**
+         * This field shall indicate the current value of the InterconnectSmokeAlarm attribute.
+         */
+        public AlarmStateEnum alarmSeverityLevel; // AlarmStateEnum
+
+        public InterconnectSmokeAlarm(AlarmStateEnum alarmSeverityLevel) {
+            this.alarmSeverityLevel = alarmSeverityLevel;
+        }
+    }
+
+    /**
+     * This event shall be generated when the device hosting the server receives a CO alarm from an interconnected
+     * sensor.
+     */
+    public class InterconnectCoAlarm {
+        /**
+         * This field shall indicate the current value of the InterconnectCOAlarm attribute.
+         */
+        public AlarmStateEnum alarmSeverityLevel; // AlarmStateEnum
+
+        public InterconnectCoAlarm(AlarmStateEnum alarmSeverityLevel) {
+            this.alarmSeverityLevel = alarmSeverityLevel;
+        }
+    }
+
+    /**
+     * This event shall be generated when ExpressedState attribute returns to Normal state.
+     */
+    public class AllClear {
+        public AllClear() {
+        }
+    }
 
     // Enums
     public enum AlarmStateEnum implements MatterEnum {

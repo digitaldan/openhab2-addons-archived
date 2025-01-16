@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_TEMPERATUREMEASURMENT_MEASUREDVALUE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_TEMPERATUREMEASURMENT_MEASUREDVALUE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_TEMPERATUREMEASURMENT_MEASUREDVALUE;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_NUMBER_TEMPERATURE;
@@ -46,7 +47,7 @@ public class TemperatureMeasurementConverter extends GenericConverter<Temperatur
     @Override
     public Map<Channel, @Nullable StateDescription> createChannels(ChannelGroupUID thingUID) {
         Channel channel = ChannelBuilder
-                .create(new ChannelUID(thingUID, CHANNEL_TEMPERATUREMEASURMENT_MEASUREDVALUE.getId()),
+                .create(new ChannelUID(thingUID, CHANNEL_ID_TEMPERATUREMEASURMENT_MEASUREDVALUE),
                         ITEM_TYPE_NUMBER_TEMPERATURE)
                 .withType(CHANNEL_TEMPERATUREMEASURMENT_MEASUREDVALUE)
                 .withLabel(formatLabel(CHANNEL_LABEL_TEMPERATUREMEASURMENT_MEASUREDVALUE)).build();
@@ -57,7 +58,7 @@ public class TemperatureMeasurementConverter extends GenericConverter<Temperatur
     public void onEvent(AttributeChangedMessage message) {
         switch (message.path.attributeName) {
             case "measuredValue":
-                updateState(CHANNEL_TEMPERATUREMEASURMENT_MEASUREDVALUE,
+                updateState(CHANNEL_ID_TEMPERATUREMEASURMENT_MEASUREDVALUE,
                         valueToTemperature(message.value instanceof Number number ? number.intValue() : 0));
                 break;
         }
@@ -66,6 +67,7 @@ public class TemperatureMeasurementConverter extends GenericConverter<Temperatur
 
     @Override
     public void initState() {
-        updateState(CHANNEL_TEMPERATUREMEASURMENT_MEASUREDVALUE, valueToTemperature(initializingCluster.measuredValue));
+        updateState(CHANNEL_ID_TEMPERATUREMEASURMENT_MEASUREDVALUE,
+                valueToTemperature(initializingCluster.measuredValue));
     }
 }

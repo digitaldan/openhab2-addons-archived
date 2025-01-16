@@ -55,6 +55,33 @@ public class SoftwareDiagnosticsCluster extends BaseCluster {
     public BigInteger currentHeapHighWatermark; // 3 uint64 R V
     // Structs
 
+    /**
+     * The SoftwareFault Event shall be generated when a software fault takes place on the Node.
+     */
+    public class SoftwareFault {
+        /**
+         * The ID field shall be set to the ID of the software thread in which the last software fault occurred.
+         */
+        public BigInteger id; // uint64
+        /**
+         * The Name field shall be set to a manufacturer-specified name or prefix of the software thread in which the
+         * last software fault occurred.
+         */
+        public String name; // string
+        /**
+         * The FaultRecording field shall be a manufacturer-specified payload intended to convey information to assist
+         * in further diagnosing or debugging a software fault. The FaultRecording field may be used to convey
+         * information such as, but not limited to, thread backtraces or register contents.
+         */
+        public String faultRecording; // octstr
+
+        public SoftwareFault(BigInteger id, String name, String faultRecording) {
+            this.id = id;
+            this.name = name;
+            this.faultRecording = faultRecording;
+        }
+    }
+
     public class ThreadMetricsStruct {
         /**
          * The Id field shall be a server-assigned per-thread unique ID that is constant for the duration of the thread.

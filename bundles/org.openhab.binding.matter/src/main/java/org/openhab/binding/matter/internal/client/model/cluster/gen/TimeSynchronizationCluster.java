@@ -145,6 +145,78 @@ public class TimeSynchronizationCluster extends BaseCluster {
     public Boolean supportsDnsResolve; // 12 bool R V
     // Structs
 
+    /**
+     * This event shall be generated when the node stops applying the current DSTOffset and there are no entries in the
+     * list with a larger ValidStarting time, indicating the need to possibly get new DST data. This event shall also be
+     * generated if the DSTOffset list is cleared either by a SetTimeZone command, or by a SetDSTOffset command with an
+     * empty list.
+     * The node shall generate this event if the node has not generated a DSTTableEmpty event in the last hour, and the
+     * DSTOffset list is empty when the node attempts to update its time. DSTTableEmpty events corresponding to a time
+     * update SHOULD NOT be generated more often than once per hour.
+     * There is no data for this event.
+     */
+    public class DstTableEmpty {
+        public DstTableEmpty() {
+        }
+    }
+
+    /**
+     * This event shall be generated when the node starts or stops applying a DST offset.
+     * DSTOffsetActive
+     * Indicates whether the current DST offset is being applied (i.e, daylight savings time is applied, as opposed to
+     * standard time).
+     */
+    public class DstStatus {
+        public Boolean dstOffsetActive; // bool
+
+        public DstStatus(Boolean dstOffsetActive) {
+            this.dstOffsetActive = dstOffsetActive;
+        }
+    }
+
+    /**
+     * This event shall be generated when the node changes its time zone offset or name. It shall NOT be sent for DST
+     * changes that are not accompanied by a time zone change.
+     */
+    public class TimeZoneStatus {
+        /**
+         * Current time zone offset from UTC in seconds.
+         */
+        public Integer offset; // int32
+        /**
+         * Current time zone name. This name SHOULD use the country/city format specified by the IANA Time Zone
+         * Database.
+         */
+        public String name; // string
+
+        public TimeZoneStatus(Integer offset, String name) {
+            this.offset = offset;
+            this.name = name;
+        }
+    }
+
+    /**
+     * This event shall be generated if the node has not generated a TimeFailure event in the last hour, and the node is
+     * unable to get a time from any source. This event SHOULD NOT be generated more often than once per hour.
+     */
+    public class TimeFailure {
+        public TimeFailure() {
+        }
+    }
+
+    /**
+     * This event shall be generated if the TrustedTimeSource is set to null upon fabric removal or by a
+     * SetTrustedTimeSource command.
+     * This event shall also be generated if the node has not generated a MissingTrustedTimeSource event in the last
+     * hour, and the node fails to update its time from the TrustedTimeSource because the TrustedTimeSource is null or
+     * the specified peer cannot be reached. MissingTrustedTimeSource events corresponding to a time update SHOULD NOT
+     * be generated more often than once per hour.
+     */
+    public class MissingTrustedTimeSource {
+        public MissingTrustedTimeSource() {
+        }
+    }
+
     public class TrustedTimeSourceStruct {
         /**
          * The Fabric Index associated with the Fabric of the client which last set the value of the trusted time source

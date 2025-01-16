@@ -48,6 +48,132 @@ public class SwitchCluster extends BaseCluster {
      * not quad press and beyond).
      */
     public Integer multiPressMax; // 2 uint8 R V
+    // Structs
+
+    /**
+     * This event shall be generated, when the latching switch is moved to a new position. It may have been delayed by
+     * debouncing within the switch.
+     */
+    public class SwitchLatched {
+        /**
+         * This field shall indicate the new value of the CurrentPosition attribute, i.e. after the move.
+         */
+        public Integer newPosition; // uint8
+
+        public SwitchLatched(Integer newPosition) {
+            this.newPosition = newPosition;
+        }
+    }
+
+    /**
+     * This event shall be generated, when the momentary switch starts to be pressed (after debouncing).
+     */
+    public class InitialPress {
+        /**
+         * This field shall indicate the new value of the CurrentPosition attribute, i.e. while pressed.
+         */
+        public Integer newPosition; // uint8
+
+        public InitialPress(Integer newPosition) {
+            this.newPosition = newPosition;
+        }
+    }
+
+    /**
+     * This event shall be generated, when the momentary switch has been pressed for a &quot;long&quot; time (this time
+     * interval is manufacturer determined (e.g. since it depends on the switch physics)).
+     */
+    public class LongPress {
+        /**
+         * This field shall indicate the new value of the CurrentPosition attribute, i.e. while pressed.
+         */
+        public Integer newPosition; // uint8
+
+        public LongPress(Integer newPosition) {
+            this.newPosition = newPosition;
+        }
+    }
+
+    /**
+     * This event shall be generated, when the momentary switch has been released (after debouncing).
+     * • If the server supports the Momentary Switch LongPress (MSL) feature, this event shall be generated when the
+     * switch is released if no LongPress event had been generated since the previous InitialPress event.
+     * • If the server does not support the Momentary Switch LongPress (MSL) feature, this event shall be generated when
+     * the switch is released - even when the switch was pressed for a long time.
+     * • Also see Section 1.13.7, “Sequence of generated events”.
+     */
+    public class ShortRelease {
+        /**
+         * This field shall indicate the previous value of the CurrentPosition attribute, i.e. just prior to release.
+         */
+        public Integer previousPosition; // uint8
+
+        public ShortRelease(Integer previousPosition) {
+            this.previousPosition = previousPosition;
+        }
+    }
+
+    /**
+     * This event shall be generated, when the momentary switch has been released (after debouncing) and after having
+     * been pressed for a long time, i.e. this event shall be generated when the switch is released if a LongPress event
+     * has been generated since the previous InitialPress event. Also see Section 1.13.7, “Sequence of generated
+     * events”.
+     */
+    public class LongRelease {
+        /**
+         * This field shall indicate the previous value of the CurrentPosition attribute, i.e. just prior to release.
+         */
+        public Integer previousPosition; // uint8
+
+        public LongRelease(Integer previousPosition) {
+            this.previousPosition = previousPosition;
+        }
+    }
+
+    /**
+     * This event shall be generated to indicate how many times the momentary switch has been pressed in a multi-press
+     * sequence, during that sequence. See Multi Press Details below.
+     */
+    public class MultiPressOngoing {
+        /**
+         * This field shall indicate the new value of the CurrentPosition attribute, i.e. while pressed.
+         */
+        public Integer newPosition; // uint8
+        /**
+         * This field shall contain:
+         * • a value of 2 when the second press of a multi-press sequence has been detected,
+         * • a value of 3 when the third press of a multi-press sequence has been detected,
+         * • a value of N when the Nth press of a multi-press sequence has been detected.
+         */
+        public Integer currentNumberOfPressesCounted; // uint8
+
+        public MultiPressOngoing(Integer newPosition, Integer currentNumberOfPressesCounted) {
+            this.newPosition = newPosition;
+            this.currentNumberOfPressesCounted = currentNumberOfPressesCounted;
+        }
+    }
+
+    /**
+     * This event shall be generated to indicate how many times the momentary switch has been pressed in a multi-press
+     * sequence, after it has been detected that the sequence has ended. See Multi Press Details.
+     * The PreviousPosition field shall indicate the previous value of the CurrentPosition attribute, i.e. just prior to
+     * release.
+     * The TotalNumberOfPressesCounted field shall contain:
+     * • a value of 1 when there was one press in a multi-press sequence (and the sequence has ended),
+     * i.e. there was no double press (or more),
+     * • a value of 2 when there were exactly two presses in a multi-press sequence (and the sequence has ended),
+     * • a value of 3 when there were exactly three presses in a multi-press sequence (and the sequence has ended),
+     * • a value of N when there were exactly N presses in a multi-press sequence (and the sequence has ended).
+     */
+    public class MultiPressComplete {
+        public Integer previousPosition; // uint8
+        public Integer totalNumberOfPressesCounted; // uint8
+
+        public MultiPressComplete(Integer previousPosition, Integer totalNumberOfPressesCounted) {
+            this.previousPosition = previousPosition;
+            this.totalNumberOfPressesCounted = totalNumberOfPressesCounted;
+        }
+    }
 
     // Bitmaps
     public static class FeatureMap {

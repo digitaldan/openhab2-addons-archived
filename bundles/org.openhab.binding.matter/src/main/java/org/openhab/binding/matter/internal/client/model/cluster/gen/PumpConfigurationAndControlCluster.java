@@ -212,6 +212,92 @@ public class PumpConfigurationAndControlCluster extends BaseCluster {
      * returned.
      */
     public ControlModeEnum controlMode; // 33 ControlModeEnum RW VM
+    // Structs
+
+    public class SupplyVoltageLow {
+        public SupplyVoltageLow() {
+        }
+    }
+
+    public class SupplyVoltageHigh {
+        public SupplyVoltageHigh() {
+        }
+    }
+
+    public class PowerMissingPhase {
+        public PowerMissingPhase() {
+        }
+    }
+
+    public class SystemPressureLow {
+        public SystemPressureLow() {
+        }
+    }
+
+    public class SystemPressureHigh {
+        public SystemPressureHigh() {
+        }
+    }
+
+    public class DryRunning {
+        public DryRunning() {
+        }
+    }
+
+    public class MotorTemperatureHigh {
+        public MotorTemperatureHigh() {
+        }
+    }
+
+    public class PumpMotorFatalFailure {
+        public PumpMotorFatalFailure() {
+        }
+    }
+
+    public class ElectronicTemperatureHigh {
+        public ElectronicTemperatureHigh() {
+        }
+    }
+
+    public class PumpBlocked {
+        public PumpBlocked() {
+        }
+    }
+
+    public class SensorFailure {
+        public SensorFailure() {
+        }
+    }
+
+    public class ElectronicNonFatalFailure {
+        public ElectronicNonFatalFailure() {
+        }
+    }
+
+    public class ElectronicFatalFailure {
+        public ElectronicFatalFailure() {
+        }
+    }
+
+    public class GeneralFault {
+        public GeneralFault() {
+        }
+    }
+
+    public class Leakage {
+        public Leakage() {
+        }
+    }
+
+    public class AirDetection {
+        public AirDetection() {
+        }
+    }
+
+    public class TurbineOperation {
+        public TurbineOperation() {
+        }
+    }
 
     // Enums
     public enum OperationModeEnum implements MatterEnum {
