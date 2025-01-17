@@ -537,7 +537,14 @@ public class MatterBridge implements MatterClientListener {
         }
     }
 
+    /**
+     * This should be called by changes to items or metadata
+     */
     private synchronized void updateModifyFuture() {
+        // if the bridge is not initialized, we don't need to update the future
+        if (!bridgeInitialized) {
+            return;
+        }
         ScheduledFuture<?> modifyFuture = this.modifyFuture;
         if (modifyFuture != null) {
             modifyFuture.cancel(false);
