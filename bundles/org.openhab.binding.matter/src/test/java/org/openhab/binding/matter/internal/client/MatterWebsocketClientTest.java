@@ -15,8 +15,12 @@ package org.openhab.binding.matter.internal.client;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.math.BigInteger;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openhab.binding.matter.internal.client.dto.Endpoint;
+import org.openhab.binding.matter.internal.client.dto.Node;
 import org.openhab.binding.matter.internal.client.dto.cluster.gen.DescriptorCluster;
 import org.openhab.binding.matter.internal.client.dto.cluster.gen.LevelControlCluster;
 import org.openhab.binding.matter.internal.client.dto.cluster.gen.OnOffCluster;
@@ -41,8 +45,57 @@ class MatterWebsocketClientTest {
     }
 
     @Test
+    void testDeserializeNode() {
+        String json = """
+                {
+                    "id": "1234567890",
+                    "rootEndpoint": {
+                        "number": 0,
+                        "clusters": {
+                            "Descriptor": {
+                                "id": 29,
+                                "name": "Descriptor"
+                            },
+                            "BasicInformation": {
+                                "id": 40,
+                                "name": "BasicInformation"
+                            }
+                        },
+                        "children": [
+                            {
+                                "number": 1,
+                                "clusters": {
+                                    "Descriptor": {
+                                        "id": 29,
+                                        "name": "Descriptor"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+                    """;
+        Node node = client.getGson().fromJson(json, Node.class);
+        assertNotNull(node);
+        assertEquals(new BigInteger("1234567890"), node.id);
+        assertEquals(1, node.rootEndpoint.children.size());
+        Endpoint endpoint = node.rootEndpoint.children.get(0);
+        assertNotNull(endpoint);
+        assertEquals(1, endpoint.clusters.size());
+    }
+
+    @Test
     void testDeserializeAttributeChangedMessage() {
-        String json = "{ \"path\": { \"clusterId\": 1, \"attributeName\": \"testAttribute\" }, \"version\": 1, \"value\": \"testValue\" }";
+        String json = """
+                {
+                    "path": {
+                        "clusterId": 1,
+                        "attributeName": "testAttribute"
+                    },
+                    "version": 1,
+                    "value": "testValue"
+                }
+                """;
         AttributeChangedMessage message = client.getGson().fromJson(json, AttributeChangedMessage.class);
         assertNotNull(message);
         assertEquals("testAttribute", message.path.attributeName);
@@ -52,7 +105,15 @@ class MatterWebsocketClientTest {
 
     @Test
     void testDeserializeEventTriggeredMessage() {
-        String json = "{ \"path\": { \"clusterId\": 1, \"eventName\": \"testEvent\" }, \"events\": [] }";
+        String json = """
+                {
+                    "path": {
+                        "clusterId": 1,
+                        "eventName": "testEvent"
+                    },
+                    "events": []
+                }
+                """;
         EventTriggeredMessage message = client.getGson().fromJson(json, EventTriggeredMessage.class);
         assertNotNull(message);
         assertEquals("testEvent", message.path.eventName);
@@ -61,7 +122,16 @@ class MatterWebsocketClientTest {
 
     @Test
     void testDeserializeGenericMessage() {
-        String json = "{\"type\":\"response\",\"message\":{\"type\":\"resultSuccess\",\"id\":\"1\",\"result\":{}}}";
+        String json = """
+                {
+                    "type": "response",
+                    "message": {
+                        "type": "resultSuccess",
+                        "id": "1",
+                        "result": {}
+                    }
+                }
+                """;
         Message message = client.getGson().fromJson(json, Message.class);
         assertNotNull(message);
         assertEquals("response", message.type);
@@ -69,7 +139,33 @@ class MatterWebsocketClientTest {
 
     @Test
     void testDeserializeBasicCluster() {
-        String json = "{ \"type\": \"response\", \"message\": { \"type\": \"resultSuccess\", \"id\": \"example-id\", \"result\": { \"id\": \"8507467286360628650\", \"rootEndpoint\": { \"number\": 0, \"clusters\": { \"Descriptor\": { \"id\": 29, \"name\": \"Descriptor\", \"deviceTypeList\": [{ \"deviceType\": 22, \"revision\": 1 }] } } } } } }";
+        String json = """
+                {
+                    "type": "response",
+                    "message": {
+                        "type": "resultSuccess",
+                        "id": "example-id",
+                        "result": {
+                            "id": "8507467286360628650",
+                            "rootEndpoint": {
+                                "number": 0,
+                                "clusters": {
+                                    "Descriptor": {
+                                        "id": 29,
+                                        "name": "Descriptor",
+                                        "deviceTypeList": [
+                                            {
+                                                "deviceType": 22,
+                                                "revision": 1
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                """;
         Message message = client.getGson().fromJson(json, Message.class);
         assertNotNull(message);
         JsonObject descriptorJson = message.message.getAsJsonObject("result").getAsJsonObject("rootEndpoint")
@@ -86,7 +182,36 @@ class MatterWebsocketClientTest {
 
     @Test
     void testDeserializeOnOffCluster() {
-        String json = "{ \"type\": \"response\", \"message\": { \"type\": \"resultSuccess\", \"id\": \"example-id\", \"result\": { \"id\": \"4596455042137293483\", \"endpoints\": { \"1\": { \"number\": 1, \"clusters\": { \"OnOff\": { \"id\": 6, \"name\": \"OnOff\", \"onOff\": false, \"clusterRevision\": 4, \"featureMap\": { \"lighting\": true, \"deadFrontBehavior\": false, \"offOnly\": false } } } } } } } }";
+        String json = """
+                {
+                    "type": "response",
+                    "message": {
+                        "type": "resultSuccess",
+                        "id": "example-id",
+                        "result": {
+                            "id": "4596455042137293483",
+                            "endpoints": {
+                                "1": {
+                                    "number": 1,
+                                    "clusters": {
+                                        "OnOff": {
+                                            "id": 6,
+                                            "name": "OnOff",
+                                            "onOff": false,
+                                            "clusterRevision": 4,
+                                            "featureMap": {
+                                                "lighting": true,
+                                                "deadFrontBehavior": false,
+                                                "offOnly": false
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                """;
         Message message = client.getGson().fromJson(json, Message.class);
         assertNotNull(message);
         JsonObject onOffClusterJson = message.message.getAsJsonObject("result").getAsJsonObject("endpoints")
@@ -103,7 +228,44 @@ class MatterWebsocketClientTest {
 
     @Test
     void testDeserializeLevelControlCluster() {
-        String json = "{ \"type\": \"response\", \"message\": { \"type\": \"resultSuccess\", \"id\": \"example-id\", \"result\": { \"id\": \"4596455042137293483\", \"endpoints\": { \"1\": { \"number\": 1, \"clusters\": { \"LevelControl\": { \"id\": 8, \"name\": \"LevelControl\", \"currentLevel\": 254, \"maxLevel\": 254, \"options\": { \"executeIfOff\": false, \"coupleColorTempToLevel\": false }, \"onOffTransitionTime\": 5, \"onLevel\": 254, \"defaultMoveRate\": 50, \"clusterRevision\": 5, \"featureMap\": { \"onOff\": true, \"lighting\": true, \"frequency\": false } } } } } } } }";
+        String json = """
+                {
+                    "type": "response",
+                    "message": {
+                        "type": "resultSuccess",
+                        "id": "example-id",
+                        "result": {
+                            "id": "4596455042137293483",
+                            "endpoints": {
+                                "1": {
+                                    "number": 1,
+                                    "clusters": {
+                                        "LevelControl": {
+                                            "id": 8,
+                                            "name": "LevelControl",
+                                            "currentLevel": 254,
+                                            "maxLevel": 254,
+                                            "options": {
+                                                "executeIfOff": false,
+                                                "coupleColorTempToLevel": false
+                                            },
+                                            "onOffTransitionTime": 5,
+                                            "onLevel": 254,
+                                            "defaultMoveRate": 50,
+                                            "clusterRevision": 5,
+                                            "featureMap": {
+                                                "onOff": true,
+                                                "lighting": true,
+                                                "frequency": false
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                """;
         Message message = client.getGson().fromJson(json, Message.class);
         assertNotNull(message);
         JsonObject levelControlClusterJson = message.message.getAsJsonObject("result").getAsJsonObject("endpoints")
