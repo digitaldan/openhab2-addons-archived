@@ -18,13 +18,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.matter.internal.client.dto.cluster.gen.DescriptorCluster;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.LevelControlCluster;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.OnOffCluster;
 import org.openhab.binding.matter.internal.client.dto.ws.AttributeChangedMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.EventTriggeredMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.Message;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 /**
  * Test class for the MatterWebsocketClient class.
@@ -43,9 +43,7 @@ class MatterWebsocketClientTest {
     @Test
     void testDeserializeAttributeChangedMessage() {
         String json = "{ \"path\": { \"clusterId\": 1, \"attributeName\": \"testAttribute\" }, \"version\": 1, \"value\": \"testValue\" }";
-        JsonElement jsonElement = JsonParser.parseString(json);
-        AttributeChangedMessage message = client.getGson().fromJson(jsonElement, AttributeChangedMessage.class);
-
+        AttributeChangedMessage message = client.getGson().fromJson(json, AttributeChangedMessage.class);
         assertNotNull(message);
         assertEquals("testAttribute", message.path.attributeName);
         assertEquals(1, message.version);
@@ -55,9 +53,7 @@ class MatterWebsocketClientTest {
     @Test
     void testDeserializeEventTriggeredMessage() {
         String json = "{ \"path\": { \"clusterId\": 1, \"eventName\": \"testEvent\" }, \"events\": [] }";
-        JsonElement jsonElement = JsonParser.parseString(json);
-        EventTriggeredMessage message = client.getGson().fromJson(jsonElement, EventTriggeredMessage.class);
-
+        EventTriggeredMessage message = client.getGson().fromJson(json, EventTriggeredMessage.class);
         assertNotNull(message);
         assertEquals("testEvent", message.path.eventName);
         assertEquals(0, message.events.length);
@@ -66,28 +62,61 @@ class MatterWebsocketClientTest {
     @Test
     void testDeserializeGenericMessage() {
         String json = "{\"type\":\"response\",\"message\":{\"type\":\"resultSuccess\",\"id\":\"1\",\"result\":{}}}";
-        JsonElement jsonElement = JsonParser.parseString(json);
-        Message message = client.getGson().fromJson(jsonElement, Message.class);
-
+        Message message = client.getGson().fromJson(json, Message.class);
         assertNotNull(message);
         assertEquals("response", message.type);
     }
 
     @Test
-    void testDeserializeComplexCluster() {
+    void testDeserializeBasicCluster() {
         String json = "{ \"type\": \"response\", \"message\": { \"type\": \"resultSuccess\", \"id\": \"example-id\", \"result\": { \"id\": \"8507467286360628650\", \"rootEndpoint\": { \"number\": 0, \"clusters\": { \"Descriptor\": { \"id\": 29, \"name\": \"Descriptor\", \"deviceTypeList\": [{ \"deviceType\": 22, \"revision\": 1 }] } } } } } }";
-        JsonElement jsonElement = JsonParser.parseString(json);
-        JsonObject descriptorJson = jsonElement.getAsJsonObject().getAsJsonObject("message").getAsJsonObject("result")
-                .getAsJsonObject("rootEndpoint").getAsJsonObject("clusters").getAsJsonObject("Descriptor");
-
+        Message message = client.getGson().fromJson(json, Message.class);
+        assertNotNull(message);
+        JsonObject descriptorJson = message.message.getAsJsonObject("result").getAsJsonObject("rootEndpoint")
+                .getAsJsonObject("clusters").getAsJsonObject("Descriptor");
         DescriptorCluster descriptorCluster = client.getGson().fromJson(descriptorJson, DescriptorCluster.class);
-
         assertNotNull(descriptorCluster);
-        assertEquals(29, descriptorCluster.CLUSTER_ID);
-        assertEquals("Descriptor", descriptorCluster.CLUSTER_NAME);
+        assertEquals(29, DescriptorCluster.CLUSTER_ID);
+        assertEquals("Descriptor", DescriptorCluster.CLUSTER_NAME);
         assertNotNull(descriptorCluster.deviceTypeList);
         assertEquals(1, descriptorCluster.deviceTypeList.size());
         assertEquals(22, descriptorCluster.deviceTypeList.get(0).deviceType);
         assertEquals(1, descriptorCluster.deviceTypeList.get(0).revision);
+    }
+
+    @Test
+    void testDeserializeOnOffCluster() {
+        String json = "{ \"type\": \"response\", \"message\": { \"type\": \"resultSuccess\", \"id\": \"example-id\", \"result\": { \"id\": \"4596455042137293483\", \"endpoints\": { \"1\": { \"number\": 1, \"clusters\": { \"OnOff\": { \"id\": 6, \"name\": \"OnOff\", \"onOff\": false, \"clusterRevision\": 4, \"featureMap\": { \"lighting\": true, \"deadFrontBehavior\": false, \"offOnly\": false } } } } } } } }";
+        Message message = client.getGson().fromJson(json, Message.class);
+        assertNotNull(message);
+        JsonObject onOffClusterJson = message.message.getAsJsonObject("result").getAsJsonObject("endpoints")
+                .getAsJsonObject("1").getAsJsonObject("clusters").getAsJsonObject("OnOff");
+        OnOffCluster onOffCluster = client.getGson().fromJson(onOffClusterJson, OnOffCluster.class);
+        assertNotNull(onOffCluster);
+        assertEquals(6, onOffCluster.id);
+        assertEquals("OnOff", onOffCluster.name);
+        assertEquals(false, onOffCluster.onOff);
+        assertEquals(4, onOffCluster.clusterRevision);
+        assertNotNull(onOffCluster.featureMap);
+        assertEquals(true, onOffCluster.featureMap.lighting);
+    }
+
+    @Test
+    void testDeserializeLevelControlCluster() {
+        String json = "{ \"type\": \"response\", \"message\": { \"type\": \"resultSuccess\", \"id\": \"example-id\", \"result\": { \"id\": \"4596455042137293483\", \"endpoints\": { \"1\": { \"number\": 1, \"clusters\": { \"LevelControl\": { \"id\": 8, \"name\": \"LevelControl\", \"currentLevel\": 254, \"maxLevel\": 254, \"options\": { \"executeIfOff\": false, \"coupleColorTempToLevel\": false }, \"onOffTransitionTime\": 5, \"onLevel\": 254, \"defaultMoveRate\": 50, \"clusterRevision\": 5, \"featureMap\": { \"onOff\": true, \"lighting\": true, \"frequency\": false } } } } } } } }";
+        Message message = client.getGson().fromJson(json, Message.class);
+        assertNotNull(message);
+        JsonObject levelControlClusterJson = message.message.getAsJsonObject("result").getAsJsonObject("endpoints")
+                .getAsJsonObject("1").getAsJsonObject("clusters").getAsJsonObject("LevelControl");
+
+        LevelControlCluster levelControlCluster = client.getGson().fromJson(levelControlClusterJson,
+                LevelControlCluster.class);
+        assertNotNull(levelControlCluster);
+        assertEquals(8, levelControlCluster.id);
+        assertEquals("LevelControl", levelControlCluster.name);
+        assertEquals(254, levelControlCluster.currentLevel);
+        assertEquals(5, levelControlCluster.onOffTransitionTime);
+        assertNotNull(levelControlCluster.featureMap);
+        assertEquals(true, levelControlCluster.featureMap.onOff);
     }
 }
