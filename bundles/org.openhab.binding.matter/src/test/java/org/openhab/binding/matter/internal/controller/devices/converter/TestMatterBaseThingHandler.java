@@ -41,6 +41,11 @@ public class TestMatterBaseThingHandler extends MatterBaseThingHandler {
     }
 
     @Override
+    public void triggerChannel(String channelId, String event) {
+        super.triggerChannel(channelId, event);
+    }
+
+    @Override
     public BigInteger getNodeId() {
         return BigInteger.ONE;
     }

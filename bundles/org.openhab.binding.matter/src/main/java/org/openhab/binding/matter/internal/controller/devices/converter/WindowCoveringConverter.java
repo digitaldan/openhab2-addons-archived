@@ -104,7 +104,7 @@ public class WindowCoveringConverter extends GenericConverter<WindowCoveringClus
     @Override
     public void initState() {
         Integer pos = 0;
-        if (initializingCluster.currentPositionLift != null) {
+        if (initializingCluster.currentPositionLiftPercentage != null) {
             pos = initializingCluster.currentPositionLiftPercentage;
         } else if (initializingCluster.currentPositionLiftPercent100ths != null) {
             pos = initializingCluster.currentPositionLiftPercent100ths / 100;

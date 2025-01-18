@@ -13,9 +13,13 @@
 package org.openhab.binding.matter.internal.controller.devices.converter;
 
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ELECTRICALENERGYMEASUREMENT_ENERGYMEASUREMENT_ENERGY;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYEXPORTED_ENERGY;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYIMPORTED_ENERGY;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_PERIODICENERGYEXPORTED_ENERGY;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_PERIODICENERGYIMPORTED_ENERGY;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYEXPORTED_ENERGY;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYIMPORTED_ENERGY;
+import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_ELECTRICALENERGYMEASUREMENT_PERIODICENERGYEXPORTED_ENERGY;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.CHANNEL_LABEL_ELECTRICALENERGYMEASUREMENT_PERIODICENERGYIMPORTED_ENERGY;
 import static org.openhab.binding.matter.internal.MatterBindingConstants.ITEM_TYPE_NUMBER_ENERGY;
 
@@ -58,11 +62,11 @@ public class ElectricalEnergyMeasurementConverter extends GenericConverter<Elect
             if (initializingCluster.featureMap.exportedEnergy) {
                 Channel exportedEnergyChannel = ChannelBuilder
                         .create(new ChannelUID(thingUID,
-                                CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYIMPORTED_ENERGY),
+                                CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYEXPORTED_ENERGY),
                                 ITEM_TYPE_NUMBER_ENERGY)
                         .withType(CHANNEL_ELECTRICALENERGYMEASUREMENT_ENERGYMEASUREMENT_ENERGY)
                         .withLabel(
-                                formatLabel(CHANNEL_LABEL_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYIMPORTED_ENERGY))
+                                formatLabel(CHANNEL_LABEL_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYEXPORTED_ENERGY))
                         .build();
                 map.put(exportedEnergyChannel, null);
             }
@@ -83,10 +87,10 @@ public class ElectricalEnergyMeasurementConverter extends GenericConverter<Elect
             if (initializingCluster.featureMap.exportedEnergy) {
                 Channel exportedEnergyChannel = ChannelBuilder
                         .create(new ChannelUID(thingUID,
-                                CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_PERIODICENERGYIMPORTED_ENERGY),
+                                CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_PERIODICENERGYEXPORTED_ENERGY),
                                 ITEM_TYPE_NUMBER_ENERGY)
                         .withType(CHANNEL_ELECTRICALENERGYMEASUREMENT_ENERGYMEASUREMENT_ENERGY)
-                        .withLabel(formatLabel(CHANNEL_LABEL_ELECTRICALENERGYMEASUREMENT_PERIODICENERGYIMPORTED_ENERGY))
+                        .withLabel(formatLabel(CHANNEL_LABEL_ELECTRICALENERGYMEASUREMENT_PERIODICENERGYEXPORTED_ENERGY))
                         .build();
                 map.put(exportedEnergyChannel, null);
             }
@@ -114,18 +118,21 @@ public class ElectricalEnergyMeasurementConverter extends GenericConverter<Elect
                                 activePowerToWatts(energyMeasurement.energy));
                     }
                 }
+                    break;
                 case "cumulativeEnergyExported": {
                     if (energyMeasurement != null && energyMeasurement.energy != null) {
                         updateState(CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_CUMULATIVEENERGYIMPORTED_ENERGY,
                                 activePowerToWatts(energyMeasurement.energy));
                     }
                 }
+                    break;
                 case "periodicEnergyImported": {
                     if (energyMeasurement != null && energyMeasurement.energy != null) {
                         updateState(CHANNEL_ID_ELECTRICALENERGYMEASUREMENT_PERIODICENERGYIMPORTED_ENERGY,
                                 activePowerToWatts(energyMeasurement.energy));
                     }
                 }
+                    break;
             }
         }
         super.onEvent(message);
