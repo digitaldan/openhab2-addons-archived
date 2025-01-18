@@ -92,7 +92,7 @@ public class WindowCoveringDevice extends GenericDevice {
                     updateOperationalStatus(currentPercent);
                 }
                 // do logic to sen op state
-                boolean open = percentType.intValue() > 0;
+                boolean open = percentType.intValue() == 0;
                 Metadata primaryItemMetadata = this.primaryItemMetadata;
                 String key = open ? "OPEN" : "CLOSED";
                 if (primaryItem instanceof GroupItem groupItem) {
@@ -110,7 +110,11 @@ public class WindowCoveringDevice extends GenericDevice {
                 } else if (primaryItem instanceof SwitchItem switchItem) {
                     String value = open ? "OFF" : "ON";
                     if (primaryItemMetadata != null) {
-                        value = primaryItemMetadata.getConfiguration().getOrDefault(key, value).toString();
+                        String mapping = primaryItemMetadata.getConfiguration().getOrDefault(key, value).toString();
+                        // only use the mapping if it is ON or OFF, otherwise use the default value
+                        if (mapping.equals("ON") || mapping.equals("OFF")) {
+                            value = mapping;
+                        }
                     }
                     switchItem.send(OnOffType.from(value));
                 } else if (primaryItem instanceof StringItem stringItem) {
