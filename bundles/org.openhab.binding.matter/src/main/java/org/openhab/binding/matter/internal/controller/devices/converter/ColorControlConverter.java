@@ -74,7 +74,7 @@ import org.openhab.core.util.ColorUtil;
 public class ColorControlConverter extends GenericConverter<ColorControlCluster> {
 
     private @Nullable ColorMode lastColorMode;
-    private boolean supportsHue = false;
+    protected boolean supportsHue = false;
     private boolean lastOnOff = true;
     private int lastHue = -1;
     private int lastSaturation = -1;
@@ -83,7 +83,7 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
     private int lastY = -1;
     private boolean colorChanged = false;
     private HSBType lastHSB = new HSBType("0,0,0");
-    private boolean supportsColorTemperature = false;
+    protected boolean supportsColorTemperature = false;
     private @Nullable Integer lastColorTemperatureMireds;
     private Integer colorTempPhysicalMinMireds = 0;
     private Integer colorTempPhysicalMaxMireds = 0;
@@ -258,7 +258,12 @@ public class ColorControlConverter extends GenericConverter<ColorControlCluster>
         HSBType oldHSB = lastHSB;
         HSBType newHSB = new HSBType(oldHSB.getHue(), oldHSB.getSaturation(), brightness);
         lastHSB = newHSB;
-        updateState(CHANNEL_ID_COLOR_COLOR, newHSB);
+        if (!lastOnOff) {
+            updateState(CHANNEL_ID_COLOR_COLOR,
+                    new HSBType(newHSB.getHue(), newHSB.getSaturation(), new PercentType(0)));
+        } else {
+            updateState(CHANNEL_ID_COLOR_COLOR, newHSB);
+        }
     }
 
     private void updateColorHSB() {
