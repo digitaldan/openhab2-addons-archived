@@ -64,12 +64,7 @@ class ColorControlConverterTest {
         MockitoAnnotations.openMocks(this);
         mockHandler = Mockito.spy(new TestMatterBaseThingHandler(mockBridgeClient, mockStateDescriptionProvider,
                 mockChannelTypeProvider));
-        mockCluster.featureMap = new ColorControlCluster.FeatureMap(true, // hueSaturation
-                false, // enhancedHue
-                false, // colorLoop
-                false, // xy
-                true // colorTemperature
-        );
+        mockCluster.featureMap = new ColorControlCluster.FeatureMap(true, false, false, false, true);
         converter = new ColorControlConverter(mockCluster, mockHandler, 1, "TestLabel");
     }
 
@@ -183,9 +178,7 @@ class ColorControlConverterTest {
         msg.value = 254; // 100%
         converter.onEvent(msg);
 
-        verify(mockHandler, times(1)).updateState(eq(1), eq("colorcontrol-color"), eq(new HSBType("0,0,100"))); // Only
-                                                                                                                // brightness
-                                                                                                                // changed
+        verify(mockHandler, times(1)).updateState(eq(1), eq("colorcontrol-color"), eq(new HSBType("0,0,100")));
     }
 
     @Test
