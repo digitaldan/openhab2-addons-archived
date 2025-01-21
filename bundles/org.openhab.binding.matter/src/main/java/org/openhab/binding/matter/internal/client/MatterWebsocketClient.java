@@ -91,6 +91,7 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
     protected final Gson gson = new GsonBuilder().registerTypeAdapter(Node.class, new NodeDeserializer())
             .registerTypeAdapter(BigInteger.class, new BigIntegerSerializer())
             .registerTypeHierarchyAdapter(BaseCluster.MatterEnum.class, new MatterEnumDeserializer())
+            .registerTypeAdapter(AttributeChangedMessage.class, new AttributeChangedMessageDeserializer())
             .registerTypeAdapter(EventTriggeredMessage.class, new EventTriggeredMessageDeserializer()).create();
 
     protected final WebSocketClient client = new WebSocketClient();

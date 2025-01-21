@@ -23,6 +23,7 @@ import org.openhab.binding.matter.internal.client.dto.Endpoint;
 import org.openhab.binding.matter.internal.client.dto.Node;
 import org.openhab.binding.matter.internal.client.dto.cluster.gen.DescriptorCluster;
 import org.openhab.binding.matter.internal.client.dto.cluster.gen.LevelControlCluster;
+import org.openhab.binding.matter.internal.client.dto.cluster.gen.OccupancySensingCluster;
 import org.openhab.binding.matter.internal.client.dto.cluster.gen.OnOffCluster;
 import org.openhab.binding.matter.internal.client.dto.ws.AttributeChangedMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.EventTriggeredMessage;
@@ -280,5 +281,34 @@ class MatterWebsocketClientTest {
         assertEquals(5, levelControlCluster.onOffTransitionTime);
         assertNotNull(levelControlCluster.featureMap);
         assertEquals(true, levelControlCluster.featureMap.onOff);
+    }
+
+    @Test
+    void testDeserializeOccupancyAttributeChangedMessage() {
+        String json = """
+                {
+                    "path": {
+                        "nodeId": "4643639431978709653",
+                        "endpointId": 6,
+                        "clusterId": 1030,
+                        "attributeId": 0,
+                        "attributeName": "occupancy"
+                    },
+                    "version": 2038225370,
+                    "value": {
+                        "occupied": true
+                    }
+                }
+                """;
+        AttributeChangedMessage message = client.getGson().fromJson(json, AttributeChangedMessage.class);
+        assertNotNull(message);
+        assertEquals("occupancy", message.path.attributeName);
+        assertEquals(1030, message.path.clusterId);
+        assertEquals(0, message.path.attributeId);
+
+        // The value should already be an OccupancyBitmap
+        OccupancySensingCluster.OccupancyBitmap occupancyBitmap = (OccupancySensingCluster.OccupancyBitmap) message.value;
+        assertNotNull(occupancyBitmap);
+        assertEquals(true, occupancyBitmap.occupied);
     }
 }
