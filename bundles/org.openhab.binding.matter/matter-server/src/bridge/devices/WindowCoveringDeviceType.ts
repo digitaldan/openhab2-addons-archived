@@ -10,7 +10,6 @@ export class WindowCoveringDeviceType extends GenericDeviceType {
         const features: WindowCovering.Feature[] = [];
         features.push(WindowCovering.Feature.Lift);
         features.push(WindowCovering.Feature.PositionAwareLift);
-
         const endpoint = new Endpoint(WindowCoveringDevice.with(this.createWindowCoveringServer().with(
             ...features,
         ), ...this.defaultClusterServers()), {

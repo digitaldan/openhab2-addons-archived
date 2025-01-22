@@ -13,7 +13,6 @@
 package org.openhab.binding.matter.internal.bridge.devices;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -70,8 +69,7 @@ public class WindowCoveringDevice extends GenericDevice {
         MetaDataMapping primaryMetadata = metaDataMapping(primaryItem);
         Map<String, Object> attributeMap = primaryMetadata.getAttributeOptions();
         attributeMap.put("windowCovering.currentPositionLiftPercent100ths",
-                Optional.ofNullable(primaryItem.getStateAs(PercentType.class)).orElseGet(() -> new PercentType(0))
-                        .intValue() * 100);
+                itemStateToPercent(primaryItem.getState()) * 100);
         return new MatterDeviceOptions(attributeMap, primaryMetadata.label);
     }
 
@@ -87,7 +85,7 @@ public class WindowCoveringDevice extends GenericDevice {
             case "targetPositionLiftPercent100ths":
                 PercentType percentType = new PercentType((int) ((Double) data / 100));
                 lastTargetPercent = percentType.intValue();
-                int currentPercent = getItemState(primaryItem.getState());
+                int currentPercent = itemStateToPercent(primaryItem.getState());
                 if (currentPercent >= 0) {
                     updateOperationalStatus(currentPercent);
                 }
@@ -108,15 +106,14 @@ public class WindowCoveringDevice extends GenericDevice {
                         rollerShutterItem.send(percentType);
                     }
                 } else if (primaryItem instanceof SwitchItem switchItem) {
-                    String value = open ? "OFF" : "ON";
+                    boolean invert = false;
                     if (primaryItemMetadata != null) {
-                        String mapping = primaryItemMetadata.getConfiguration().getOrDefault(key, value).toString();
-                        // only use the mapping if it is ON or OFF, otherwise use the default value
-                        if (mapping.equals("ON") || mapping.equals("OFF")) {
-                            value = mapping;
+                        Object invertObject = primaryItemMetadata.getConfiguration().getOrDefault("invert", false);
+                        if (invertObject instanceof Boolean invertValue) {
+                            invert = invertValue;
                         }
                     }
-                    switchItem.send(OnOffType.from(value));
+                    switchItem.send(OnOffType.from(invert ? open ? "ON" : "OFF" : open ? "OFF" : "ON"));
                 } else if (primaryItem instanceof StringItem stringItem) {
                     Object value = key;
                     if (primaryItemMetadata != null) {
@@ -148,7 +145,7 @@ public class WindowCoveringDevice extends GenericDevice {
 
     @Override
     public void updateState(Item item, State state) {
-        int localPercent = getItemState(state);
+        int localPercent = itemStateToPercent(state);
         if (localPercent >= 0) {
             try {
                 setEndpointState("windowCovering", "currentPositionLiftPercent100ths", localPercent * 100).get();
@@ -164,14 +161,24 @@ public class WindowCoveringDevice extends GenericDevice {
         }
     }
 
-    private int getItemState(State state) {
+    private int itemStateToPercent(State state) {
         int localPercent = -1;
         if (state instanceof PercentType percentType) {
             localPercent = percentType.intValue();
         } else if (state instanceof OpenClosedType openClosedType) {
             localPercent = openClosedType == OpenClosedType.OPEN ? 0 : 100;
         } else if (state instanceof OnOffType onOffType) {
-            localPercent = onOffType == OnOffType.ON ? 100 : 0;
+            Metadata primaryItemMetadata = this.primaryItemMetadata;
+            boolean invert = false;
+            if (primaryItemMetadata != null) {
+                logger.debug("primaryItemMetadata: {}", primaryItemMetadata);
+                Object invertObject = primaryItemMetadata.getConfiguration().getOrDefault("invert", false);
+                if (invertObject instanceof Boolean invertValue) {
+                    logger.debug("invertObject: {}", invertObject);
+                    invert = invertValue;
+                }
+            }
+            localPercent = invert ? onOffType == OnOffType.ON ? 0 : 100 : onOffType == OnOffType.ON ? 100 : 0;
         } else if (state instanceof StringType stringType) {
             Metadata primaryItemMetadata = this.primaryItemMetadata;
             if (primaryItemMetadata != null) {

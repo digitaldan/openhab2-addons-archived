@@ -210,6 +210,59 @@ class WindowCoveringDeviceTest {
         verify(client).setEndpointState(any(), eq("windowCovering"), eq("currentPositionLiftPercent100ths"), eq(10000));
     }
 
+    @Test
+    void testSwitchItemWithInvertedLogic() {
+        // Create metadata with invert=true configuration
+        MetadataKey key = new MetadataKey("matter", "testSwitch");
+        Map<String, Object> config = Map.of("invert", true);
+        Metadata invertedMetadata = new Metadata(key, "test", config);
+        when(metadataRegistry.get(any(MetadataKey.class))).thenReturn(invertedMetadata);
+
+        // Create new device instance with inverted switch
+        SwitchItem invertedSwitchItem = Mockito.spy(new SwitchItem("testInvertedSwitch"));
+        WindowCoveringDevice invertedSwitchDevice = new WindowCoveringDevice(metadataRegistry, client,
+                invertedSwitchItem);
+
+        // Test fully closed (100%) - should result in OFF for inverted switch
+        invertedSwitchDevice.handleMatterEvent("windowCovering", "targetPositionLiftPercent100ths", 10000.0);
+        verify(invertedSwitchItem).send(OnOffType.OFF);
+
+        // Test fully open (0%) - should result in ON for inverted switch
+        invertedSwitchDevice.handleMatterEvent("windowCovering", "targetPositionLiftPercent100ths", 0.0);
+        verify(invertedSwitchItem).send(OnOffType.ON);
+
+        // Test state updates from switch to position
+        invertedSwitchItem.setState(OnOffType.ON);
+        invertedSwitchDevice.updateState(invertedSwitchItem, invertedSwitchItem.getState());
+        verify(client).setEndpointState(any(), eq("windowCovering"), eq("currentPositionLiftPercent100ths"), eq(0));
+
+        invertedSwitchItem.setState(OnOffType.OFF);
+        invertedSwitchDevice.updateState(invertedSwitchItem, invertedSwitchItem.getState());
+        verify(client).setEndpointState(any(), eq("windowCovering"), eq("currentPositionLiftPercent100ths"), eq(10000));
+
+        invertedSwitchDevice.dispose();
+    }
+
+    @Test
+    void testSwitchItemWithNormalLogic() {
+        // Test fully closed (100%) - should result in ON for normal switch
+        switchDevice.handleMatterEvent("windowCovering", "targetPositionLiftPercent100ths", 10000.0);
+        verify(switchItem).send(OnOffType.ON);
+
+        // Test fully open (0%) - should result in OFF for normal switch
+        switchDevice.handleMatterEvent("windowCovering", "targetPositionLiftPercent100ths", 0.0);
+        verify(switchItem).send(OnOffType.OFF);
+
+        // Test state updates from switch to position
+        switchItem.setState(OnOffType.ON);
+        switchDevice.updateState(switchItem, switchItem.getState());
+        verify(client).setEndpointState(any(), eq("windowCovering"), eq("currentPositionLiftPercent100ths"), eq(10000));
+
+        switchItem.setState(OnOffType.OFF);
+        switchDevice.updateState(switchItem, switchItem.getState());
+        verify(client).setEndpointState(any(), eq("windowCovering"), eq("currentPositionLiftPercent100ths"), eq(0));
+    }
+
     @AfterEach
     void tearDown() {
         device.dispose();

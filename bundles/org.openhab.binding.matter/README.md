@@ -57,7 +57,7 @@ A **controller** manages the interaction between Matter devices and other parts 
 
 A **bridge** is a special type of node that connects non-Matter devices to a Matter network, effectively translating between protocols. Bridges allow legacy devices to be controlled via the Matter standard.
 
-openHAB fully supports connecting to Matter bridges. In addition, openHAB has experimental support for running its own Matter bridge service, exposing openHAB items as Matter endpoints to 3rd party systems.  See [Matter Bridge](#Matter-Bridge) for information on running a Bridge server. 
+openHAB fully supports connecting to Matter bridges. In addition, openHAB has support for running its own Matter bridge service, exposing openHAB items as Matter endpoints to 3rd party systems.  See [Matter Bridge](#Matter-Bridge) for information on running a Bridge server. 
 
 **Example:**
 
@@ -339,19 +339,19 @@ Pairing codes and other options can be found in the MainUI under "Settings -> Ad
 
 ### Device Types
 
-| Type               | Item Type                     | Tag               | Option                                       | Notes                 |
-|--------------------|-------------------------------|-------------------|----------------------------------------------|-----------------------|
-| OnOff Light        | Switch, Dimmer                | OnOffLight        |                                              |                       |
-| Dimmable Light     | Dimmer                        | DimmableLight     |                                              |                       |
-| Color Light        | Color                         | ColorLight        |                                              |                       |
-| Plug In Unit       | Switch, Dimmer                | PlugInUnit        |                                              |                       |
-| Thermostat         | Group                         | Thermostat        |                                              |                       |
-| Window Covering    | Rollershutter, Dimmer, Switch | WindowCovering    | String types: [OPEN="OPEN", CLOSED="CLOSED"] |                       |
-| Temperature Sensor | Number                        | TemperatureSensor |                                              |                       |
-| Humidity Sensor    | Number                        | HumiditySensor    |                                              |                       |
-| Occupancy Sensor   | Switch, Contact               | OccupancySensor   |                                              |                       |
-| Contact Sensor     | Switch, Contact               | ContactSensor     |                                              |                       |
-| Door Lock          | Switch                        | DoorLock          |                                              |                       |
+| Type               | Item Type                             | Tag               | Option                                                                          | Notes |
+|--------------------|---------------------------------------|-------------------|---------------------------------------------------------------------------------|-------|
+| OnOff Light        | Switch, Dimmer                        | OnOffLight        |                                                                                 |       |
+| Dimmable Light     | Dimmer                                | DimmableLight     |                                                                                 |       |
+| Color Light        | Color                                 | ColorLight        |                                                                                 |       |
+| Plug In Unit       | Switch, Dimmer                        | PlugInUnit        |                                                                                 |       |
+| Thermostat         | Group                                 | Thermostat        |                                                                                 |       |
+| Window Covering    | Rollershutter, Dimmer, String, Switch | WindowCovering    | String types: [OPEN="OPEN", CLOSED="CLOSED"], Switch types: [invert=true/false] |       |
+| Temperature Sensor | Number                                | TemperatureSensor |                                                                                 |       |
+| Humidity Sensor    | Number                                | HumiditySensor    |                                                                                 |       |
+| Occupancy Sensor   | Switch, Contact                       | OccupancySensor   |                                                                                 |       |
+| Contact Sensor     | Switch, Contact                       | ContactSensor     |                                                                                 |       |
+| Door Lock          | Switch                                | DoorLock          |                                                                                 |       |
 
 ### Global Options
 

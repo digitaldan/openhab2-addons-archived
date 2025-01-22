@@ -8,6 +8,7 @@ import { Logger } from "@matter/main";
 import { MatterNode } from "../MatterNode";
 const logger = Logger.get("matter");
 
+// TODO Remove this list once we have verified that the system clusters are safe/useful to support
 //List of system clusters on the root endpoint that are safe/useful to support (thanks to the iobroker project for the initial list)
 const SystemClusters: ClusterId[] = [
     ClusterId(0x0004), // Groups
@@ -80,7 +81,7 @@ export class Nodes {
                 if (!cluster.id) continue;
                 
                 // Skip system clusters if the endpoint is not the root
-                if (endpoint.number == 0 && !SystemClusters.includes(cluster.id)) continue;
+                //if (endpoint.number == 0 && !SystemClusters.includes(cluster.id)) continue;
                 
                 const clusterData: any = {
                     id: cluster.id,
