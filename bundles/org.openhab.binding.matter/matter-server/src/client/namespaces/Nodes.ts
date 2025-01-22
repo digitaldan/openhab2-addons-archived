@@ -21,6 +21,7 @@ const SystemClusters: ClusterId[] = [
     ClusterId(0x002c), // Time Format Localization
     ClusterId(0x002d), // Unit Localization
     ClusterId(0x002e), // Power Source Configuration
+    ClusterId(0x002f), // Power Source
     ClusterId(0x0030), // General Commissioning
     ClusterId(0x0031), // Network Commissioning
     ClusterId(0x0032), // Diagnostic Logs
