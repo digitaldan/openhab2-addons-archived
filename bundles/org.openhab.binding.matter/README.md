@@ -13,7 +13,6 @@ This binding supports 2 different types of matter functionality.
   - See [Matter Binding Configuration](#matter-binding-configuration) for configuring a matter controller.
 - A Matter Bridge
   - This allows openHAB to expose items as Matter devices to other Matter clients.  This allows local control of openHAB devices from other ecosystems like Apple Home, Amazon, and Google Home.
-  - This is considered experimental and is still a work in progress.
   - See [Matter Bridge](#matter-bridge) for information on configuring a bridge.
 
 Please read this document in its entirety as Matter is a complex protocol with very specific requirements.

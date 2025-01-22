@@ -306,7 +306,6 @@ class MatterWebsocketClientTest {
         assertEquals(1030, message.path.clusterId);
         assertEquals(0, message.path.attributeId);
 
-        // The value should already be an OccupancyBitmap
         OccupancySensingCluster.OccupancyBitmap occupancyBitmap = (OccupancySensingCluster.OccupancyBitmap) message.value;
         assertNotNull(occupancyBitmap);
         assertEquals(true, occupancyBitmap.occupied);
