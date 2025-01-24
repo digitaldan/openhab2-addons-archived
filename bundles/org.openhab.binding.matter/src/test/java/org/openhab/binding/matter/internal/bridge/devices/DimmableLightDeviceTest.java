@@ -91,7 +91,7 @@ class DimmableLightDeviceTest {
     void testHandleMatterEventOnOff() throws InterruptedException {
         dimmerDevice.handleMatterEvent("onOff", "onOff", true);
         Thread.sleep(600);
-        verify(dimmerItem).send(new PercentType(100));
+        verify(dimmerItem).send(OnOffType.ON);
 
         dimmerDevice.handleMatterEvent("onOff", "onOff", false);
         Thread.sleep(600);
@@ -102,7 +102,7 @@ class DimmableLightDeviceTest {
     void testHandleMatterEventOnOffGroup() throws InterruptedException {
         groupDevice.handleMatterEvent("onOff", "onOff", true);
         Thread.sleep(600);
-        verify(groupItem).send(new PercentType(100));
+        verify(groupItem).send(OnOffType.ON);
 
         groupDevice.handleMatterEvent("onOff", "onOff", false);
         Thread.sleep(600);

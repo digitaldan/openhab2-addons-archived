@@ -43,7 +43,7 @@ public class DimmableLightDevice extends GenericDevice {
     private ScheduledExecutorService updateScheduler = Executors.newSingleThreadScheduledExecutor();
     private @Nullable ScheduledFuture<?> updateTimer = null;
     private boolean lastOnOff = false;
-    private PercentType lastLevel = new PercentType(100);
+    private @Nullable PercentType lastLevel;
 
     public DimmableLightDevice(MetadataRegistry metadataRegistry, MatterBridgeClient client, GenericItem item) {
         super(metadataRegistry, client, item);
@@ -103,12 +103,12 @@ public class DimmableLightDevice extends GenericDevice {
     }
 
     private synchronized void updateItemState() {
-        boolean on = lastOnOff && lastLevel.intValue() > 0;
-        OnOffType onOffType = OnOffType.from(on);
+        OnOffType onOffType = OnOffType.from(lastOnOff);
+        PercentType lastLevel = this.lastLevel;
         if (primaryItem instanceof GroupItem groupItem) {
-            groupItem.send(on ? lastLevel : onOffType);
+            groupItem.send(lastLevel != null ? lastLevel : onOffType);
         } else if (primaryItem instanceof DimmerItem) {
-            if (on) {
+            if (lastLevel != null && lastOnOff) {
                 ((DimmerItem) primaryItem).send(lastLevel);
             } else {
                 ((SwitchItem) primaryItem).send(onOffType);
@@ -116,6 +116,7 @@ public class DimmableLightDevice extends GenericDevice {
         } else {
             ((SwitchItem) primaryItem).send(onOffType);
         }
+        this.lastLevel = null;
     }
 
     private synchronized void startTimer() {
