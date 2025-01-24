@@ -78,6 +78,7 @@ public class DoorLockDevice extends GenericDevice {
         primaryItem.removeStateChangeListener(this);
     }
 
+    @Override
     public void updateState(Item item, State state) {
         if (state instanceof OnOffType onOffType) {
             setEndpointState("doorLock", "lockState",

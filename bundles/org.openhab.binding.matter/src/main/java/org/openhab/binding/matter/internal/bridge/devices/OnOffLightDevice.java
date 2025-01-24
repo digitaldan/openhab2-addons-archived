@@ -84,6 +84,7 @@ public class OnOffLightDevice extends GenericDevice {
         primaryItem.removeStateChangeListener(this);
     }
 
+    @Override
     public void updateState(Item item, State state) {
         if (state instanceof HSBType hsb) {
             setEndpointState("onOff", "onOff", hsb.getBrightness().intValue() > 0 ? true : false);

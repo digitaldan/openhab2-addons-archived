@@ -106,6 +106,7 @@ public class ThermostatDevice extends GenericDevice {
         }
     }
 
+    @Override
     public void updateState(Item item, State state) {
         attributeToItemNameMap.forEach((attribute, itemUid) -> {
             if (itemUid.equals(item.getUID())) {

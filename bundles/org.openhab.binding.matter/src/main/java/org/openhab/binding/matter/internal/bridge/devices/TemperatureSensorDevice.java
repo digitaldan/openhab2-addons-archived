@@ -59,6 +59,7 @@ public class TemperatureSensorDevice extends GenericDevice {
         primaryItem.removeStateChangeListener(this);
     }
 
+    @Override
     public void updateState(Item item, State state) {
         Integer value = temperatureToValue(state);
         if (value != null) {

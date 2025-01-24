@@ -61,6 +61,7 @@ public class OccupancySensorDevice extends GenericDevice {
         primaryItem.removeStateChangeListener(this);
     }
 
+    @Override
     public void updateState(Item item, State state) {
         setEndpointState("occupancySensing", "occupancy", occupiedState(primaryItem.getState()));
     }

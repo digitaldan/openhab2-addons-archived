@@ -88,6 +88,7 @@ public class DimmableLightDevice extends GenericDevice {
         }
     }
 
+    @Override
     public void updateState(Item item, State state) {
         if (state instanceof HSBType hsb) {
             setEndpointState("levelControl", "currentLevel", percentToLevel(hsb.getBrightness()));
