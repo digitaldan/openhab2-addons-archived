@@ -179,11 +179,11 @@ class DimmableLightDeviceTest {
     void testHandleMatterEventOnOffWithTimer() throws InterruptedException {
         dimmerDevice.handleMatterEvent("onOff", "onOff", true);
         dimmerDevice.handleMatterEvent("levelControl", "currentLevel", Double.valueOf(254));
-        
+
         // Verify that no immediate update is sent
         verify(dimmerItem, never()).send(any(OnOffType.class));
         verify(dimmerItem, never()).send(any(PercentType.class));
-        
+
         Thread.sleep(600);
         verify(dimmerItem).send(new PercentType(100));
     }
@@ -192,12 +192,12 @@ class DimmableLightDeviceTest {
     void testHandleMatterEventLevelWithTimer() throws InterruptedException {
         dimmerDevice.handleMatterEvent("onOff", "onOff", true);
         dimmerDevice.handleMatterEvent("levelControl", "currentLevel", Double.valueOf(127));
-        
+
         // Verify that no immediate update is sent
         verify(dimmerItem, never()).send(any(PercentType.class));
-        
+
         // Wait for the timer to complete and verify the update
-        Thread.sleep(600); // Sleep slightly longer than the 500ms timer
+        Thread.sleep(600);
         verify(dimmerItem).send(new PercentType(50));
     }
 
@@ -207,20 +207,19 @@ class DimmableLightDeviceTest {
         dimmerDevice.handleMatterEvent("onOff", "onOff", true);
         dimmerDevice.handleMatterEvent("levelControl", "currentLevel", Double.valueOf(127));
         dimmerDevice.handleMatterEvent("levelControl", "currentLevel", Double.valueOf(254));
-        
+
         // Verify that only the final state is sent after the timer
-        Thread.sleep(600); // Sleep slightly longer than the 500ms timer
+        Thread.sleep(600);
         verify(dimmerItem).send(new PercentType(100));
         verify(dimmerItem, times(1)).send(any(PercentType.class));
     }
 
     @Test
     void testHandleMatterEventOffStateWithTimer() throws InterruptedException {
-        // Test transition to off state
         dimmerDevice.handleMatterEvent("onOff", "onOff", false);
         dimmerDevice.handleMatterEvent("levelControl", "currentLevel", Double.valueOf(0));
-        
-        Thread.sleep(600); // Sleep slightly longer than the 500ms timer
+
+        Thread.sleep(600);
         verify(dimmerItem).send(OnOffType.OFF);
     }
 
@@ -228,8 +227,8 @@ class DimmableLightDeviceTest {
     void testHandleMatterEventGroupItemWithTimer() throws InterruptedException {
         groupDevice.handleMatterEvent("onOff", "onOff", true);
         groupDevice.handleMatterEvent("levelControl", "currentLevel", Double.valueOf(127));
-        
-        Thread.sleep(600); // Sleep slightly longer than the 500ms timer
+
+        Thread.sleep(600);
         verify(groupItem).send(new PercentType(50));
     }
 }
