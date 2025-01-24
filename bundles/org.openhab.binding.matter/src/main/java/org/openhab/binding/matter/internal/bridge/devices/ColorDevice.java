@@ -42,6 +42,7 @@ public class ColorDevice extends GenericDevice {
     private ScheduledExecutorService colorUpdateScheduler = Executors.newSingleThreadScheduledExecutor();
     private @Nullable ScheduledFuture<?> colorUpdateTimer = null;
     private HSBType lastHSB = new HSBType();
+    private boolean lastOnOff = true;
 
     public ColorDevice(MetadataRegistry metadataRegistry, MatterBridgeClient client, GenericItem item) {
         super(metadataRegistry, client, item);
@@ -65,6 +66,7 @@ public class ColorDevice extends GenericDevice {
                 Float currentHue = toHue(hsbType.getHue());
                 Float currentSaturation = toSaturation(hsbType.getSaturation());
                 Integer currentLevel = toBrightness(hsbType.getBrightness());
+                lastOnOff = currentLevel > 0;
                 attributeMap.put("levelControl.currentLevel", currentLevel);
                 attributeMap.put("colorControl.currentHue", currentHue);
                 attributeMap.put("colorControl.currentSaturation", currentSaturation);
@@ -87,17 +89,14 @@ public class ColorDevice extends GenericDevice {
         if (primaryItem instanceof ColorItem colorItem) {
             switch (attributeName) {
                 case "onOff":
-                    colorItem.send(OnOffType.from(Boolean.valueOf(data.toString())));
+                    lastOnOff = Boolean.valueOf(data.toString());
+                    startColorTimer(this::updateOnOff);
                     break;
                 case "currentHue":
                 case "currentSaturation":
                 case "currentLevel":
                     updateHSB(colorItem, clusterName, attributeName, data);
-                    if (colorUpdateTimer != null) {
-                        colorUpdateTimer.cancel(true);
-                    }
-                    colorUpdateTimer = colorUpdateScheduler.schedule(() -> updatePrimaryHSB(), 500,
-                            TimeUnit.MILLISECONDS);
+                    startColorTimer(this::updatePrimaryHSB);
                     break;
                 case "colorTemperatureMireds":
                     Double kelvin = 1e6 / (Double) data;
@@ -108,6 +107,20 @@ public class ColorDevice extends GenericDevice {
                 default:
                     break;
             }
+        }
+    }
+
+    private synchronized void startColorTimer(Runnable runnable) {
+        ScheduledFuture<?> colorUpdateTimer = this.colorUpdateTimer;
+        if (colorUpdateTimer != null) {
+            colorUpdateTimer.cancel(true);
+        }
+        this.colorUpdateTimer = colorUpdateScheduler.schedule(runnable, 500, TimeUnit.MILLISECONDS);
+    }
+
+    private synchronized void updateOnOff() {
+        if (primaryItem instanceof ColorItem colorItem) {
+            colorItem.send(OnOffType.from(lastOnOff));
         }
     }
 
@@ -125,6 +138,7 @@ public class ColorDevice extends GenericDevice {
             case "currentSaturation":
                 float saturationValue = value == 0 ? 0.0f : value.floatValue() / 254.0f * 100.0f;
                 s = new PercentType(Float.valueOf(saturationValue).toString());
+                break;
             case "currentLevel":
                 b = levelToPercent(value.intValue());
                 break;
@@ -137,13 +151,19 @@ public class ColorDevice extends GenericDevice {
     public void updateState(Item item, State state) {
         if (state instanceof HSBType hsb) {
             lastHSB = hsb;
-            setEndpointState("levelControl", "currentLevel", toBrightness(hsb.getBrightness()));
-            setEndpointState("onOff", "onOff", hsb.getBrightness().intValue() > 0);
-            setEndpointState("colorControl", "currentHue", toHue(hsb.getHue()));
-            setEndpointState("colorControl", "currentSaturation", toSaturation(hsb.getSaturation()));
+            if (hsb.getBrightness().intValue() == 0) {
+                setEndpointState("onOff", "onOff", false);
+            } else {
+                setEndpointState("onOff", "onOff", true);
+                setEndpointState("levelControl", "currentLevel", toBrightness(hsb.getBrightness()));
+                setEndpointState("colorControl", "currentHue", toHue(hsb.getHue()));
+                setEndpointState("colorControl", "currentSaturation", toSaturation(hsb.getSaturation()));
+            }
         } else if (state instanceof PercentType percentType) {
             setEndpointState("onOff", "onOff", percentType.intValue() > 0);
-            setEndpointState("levelControl", "currentLevel", toBrightness(percentType));
+            if (percentType.intValue() > 0) {
+                setEndpointState("levelControl", "currentLevel", toBrightness(percentType));
+            }
         } else if (state instanceof OnOffType onOffType) {
             setEndpointState("onOff", "onOff", onOffType == OnOffType.ON ? true : false);
         }
@@ -151,7 +171,12 @@ public class ColorDevice extends GenericDevice {
 
     private void updatePrimaryHSB() {
         if (primaryItem instanceof ColorItem colorItem) {
-            colorItem.send(lastHSB);
+            logger.debug("Updating primary HSB: {} {}", lastHSB, lastOnOff);
+            if (lastOnOff) {
+                colorItem.send(lastHSB);
+            } else {
+                colorItem.send(OnOffType.OFF);
+            }
         }
     }
 
