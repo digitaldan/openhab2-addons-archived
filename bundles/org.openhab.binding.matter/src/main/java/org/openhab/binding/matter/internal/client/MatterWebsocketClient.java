@@ -30,6 +30,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -84,6 +86,7 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final int BUFFER_SIZE = 1048576 * 2; // 2 Mb
+    private static final int REQUEST_TIMEOUT_SECONDS = 60 * 2;
 
     private final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool("matter.MatterWebsocketClient");
@@ -230,13 +233,16 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
                     return;
                 }
                 CompletableFuture<JsonElement> future = pendingRequests.remove(response.id);
-                if (future != null) {
-                    logger.debug("result type: {} ", response.type);
-                    if (!"resultSuccess".equals(response.type)) {
-                        future.completeExceptionally(new Exception(response.error));
-                    } else {
-                        future.complete(response.result);
-                    }
+                if (future == null) {
+                    logger.debug("no future for response id {}, type {} , did the request timeout?", response.id,
+                            response.type);
+                    return;
+                }
+                logger.debug("result type: {} ", response.type);
+                if (!"resultSuccess".equals(response.type)) {
+                    future.completeExceptionally(new Exception(response.error));
+                } else {
+                    future.complete(response.result);
                 }
             } else if ("event".equals(message.type)) {
                 Event event = gson.fromJson(message.message, Event.class);
@@ -367,6 +373,16 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
         String jsonMessage = gson.toJson(message);
         logger.debug("sendMessage: {}", jsonMessage);
         session.getRemote().sendStringByFuture(jsonMessage);
+
+        // timeout handling
+        scheduler.schedule(() -> {
+            CompletableFuture<JsonElement> future = pendingRequests.remove(requestId);
+            if (future != null && !future.isDone()) {
+                future.completeExceptionally(new TimeoutException(String.format(
+                        "Request %s:%s timed out after %d seconds", namespace, functionName, REQUEST_TIMEOUT_SECONDS)));
+            }
+        }, REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
         return responseFuture;
     }
 

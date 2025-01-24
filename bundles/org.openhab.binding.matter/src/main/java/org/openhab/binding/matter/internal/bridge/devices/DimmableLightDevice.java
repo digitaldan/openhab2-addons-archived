@@ -14,8 +14,13 @@ package org.openhab.binding.matter.internal.bridge.devices;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.matter.internal.bridge.MatterBridgeClient;
 import org.openhab.core.items.GenericItem;
 import org.openhab.core.items.GroupItem;
@@ -35,6 +40,10 @@ import org.openhab.core.types.State;
  */
 @NonNullByDefault
 public class DimmableLightDevice extends GenericDevice {
+    private ScheduledExecutorService updateScheduler = Executors.newSingleThreadScheduledExecutor();
+    private @Nullable ScheduledFuture<?> updateTimer = null;
+    private boolean lastOnOff = false;
+    private PercentType lastLevel = new PercentType(100);
 
     public DimmableLightDevice(MetadataRegistry metadataRegistry, MatterBridgeClient client, GenericItem item) {
         super(metadataRegistry, client, item);
@@ -66,23 +75,13 @@ public class DimmableLightDevice extends GenericDevice {
     @Override
     public void handleMatterEvent(String clusterName, String attributeName, Object data) {
         switch (attributeName) {
-            case "onOff": {
-                if (primaryItem instanceof GroupItem groupItem) {
-                    groupItem.send(OnOffType.from(Boolean.valueOf(data.toString())));
-                } else {
-                    ((SwitchItem) primaryItem).send(OnOffType.from(Boolean.valueOf(data.toString())));
-                }
-            }
+            case "onOff":
+                lastOnOff = Boolean.valueOf(data.toString());
+                startTimer();
                 break;
-            case "currentLevel": {
-                if (primaryItem instanceof GroupItem groupItem) {
-                    groupItem.send(levelToPercent(((Double) data).intValue()));
-                } else if (primaryItem instanceof DimmerItem) {
-                    ((DimmerItem) primaryItem).send(levelToPercent(((Double) data).intValue()));
-                } else {
-                    ((SwitchItem) primaryItem).send(OnOffType.from(((Double) data).intValue() > 0));
-                }
-            }
+            case "currentLevel":
+                lastLevel = levelToPercent(((Double) data).intValue());
+                startTimer();
                 break;
             default:
                 break;
@@ -95,9 +94,35 @@ public class DimmableLightDevice extends GenericDevice {
             setEndpointState("onOff", "onOff", hsb.getBrightness().intValue() > 0);
         } else if (state instanceof PercentType percentType) {
             setEndpointState("onOff", "onOff", percentType.intValue() > 0);
-            setEndpointState("levelControl", "currentLevel", percentToLevel(percentType));
+            if (percentType.intValue() > 0) {
+                setEndpointState("levelControl", "currentLevel", percentToLevel(percentType));
+            }
         } else if (state instanceof OnOffType onOffType) {
             setEndpointState("onOff", "onOff", onOffType == OnOffType.ON ? true : false);
         }
+    }
+
+    private synchronized void updateItemState() {
+        boolean on = lastOnOff && lastLevel.intValue() > 0;
+        OnOffType onOffType = OnOffType.from(on);
+        if (primaryItem instanceof GroupItem groupItem) {
+            groupItem.send(on ? lastLevel : onOffType);
+        } else if (primaryItem instanceof DimmerItem) {
+            if (on) {
+                ((DimmerItem) primaryItem).send(lastLevel);
+            } else {
+                ((SwitchItem) primaryItem).send(onOffType);
+            }
+        } else {
+            ((SwitchItem) primaryItem).send(onOffType);
+        }
+    }
+
+    private synchronized void startTimer() {
+        ScheduledFuture<?> updateTimer = this.updateTimer;
+        if (updateTimer != null) {
+            updateTimer.cancel(true);
+        }
+        this.updateTimer = updateScheduler.schedule(this::updateItemState, 500, TimeUnit.MILLISECONDS);
     }
 }

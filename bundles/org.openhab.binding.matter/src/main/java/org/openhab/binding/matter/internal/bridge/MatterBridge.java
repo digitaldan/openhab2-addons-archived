@@ -405,8 +405,8 @@ public class MatterBridge implements MatterClientListener {
         if (bridgeInitialized) {
             try {
                 logger.debug("Resetting Endpoints");
-                client.resetBridge().get();
                 bridgeInitialized = false;
+                client.resetBridge().get();
             } catch (InterruptedException | ExecutionException e) {
                 logger.debug("Could not reset endpoints", e);
                 return;
