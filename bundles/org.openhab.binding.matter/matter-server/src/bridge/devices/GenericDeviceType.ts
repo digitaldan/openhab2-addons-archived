@@ -80,14 +80,20 @@ export abstract class GenericDeviceType {
     
     //note that these overrides assume openHAB will be sending the state back when changed as we will not set it here prematurely  
     //other wise we would want to call super.on() and so on (same for level control or any other cluster behavior)to set local state
-    protected createOnOffServer(): typeof OnOffServer {
+    protected createOnOffServer(setLocally: boolean = false): typeof OnOffServer {
         const parent = this;
         return class extends OnOffServer {
             override async on() {
                 await parent.sendBridgeEvent("onOff", "onOff", true);
+                if(setLocally){
+                    await super.on();
+                }
             }
             override async off() {
                 await parent.sendBridgeEvent("onOff", "onOff", false);
+                if(setLocally){
+                    await super.off();
+                }
             }
         };
     }

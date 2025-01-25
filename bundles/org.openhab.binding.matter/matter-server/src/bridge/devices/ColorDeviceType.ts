@@ -9,7 +9,8 @@ export class ColorDeviceType extends GenericDeviceType {
 
     override createEndpoint(clusterValues: Record<string, any>) {
         const endpoint = new Endpoint(ExtendedColorLightDevice.with(
-            this.createOnOffServer().with(OnOff.Feature.Lighting),
+            //set locally=true for createOnOffServer otherwise moveToHueAndSaturationLogic will not be called b/c matter.js thinks the device is OFF.
+            this.createOnOffServer(true).with(OnOff.Feature.Lighting),
             this.createLevelControlServer().with(LevelControl.Feature.Lighting),
             this.createColorControlServer().with(ColorControl.Feature.HueSaturation, ColorControl.Feature.ColorTemperature),
             ...this.defaultClusterServers()), {
@@ -39,20 +40,15 @@ export class ColorDeviceType extends GenericDeviceType {
     protected createColorControlServer(): typeof ColorControlServer {
         const parent = this;
         return class extends ColorControlServer {
-            override async moveToHueLogic(targetHue: number, direction: ColorControl.Direction, transitionTime: number, isEnhancedHue = false) {
-                await parent.sendBridgeEvent("colorControl", "currentHue", targetHue);
-                return super.moveToHueLogic(targetHue, direction, transitionTime, isEnhancedHue);
-            }
-
-            override async moveToSaturationLogic(targetSaturation: number, transitionTime: number) {
-                await parent.sendBridgeEvent("colorControl", "currentSaturation", targetSaturation);
-                return super.moveToSaturationLogic(targetSaturation, transitionTime);
-            }
-
             override async moveToColorTemperatureLogic(targetMireds: number, transitionTime: number) {
                 await parent.sendBridgeEvent("colorControl", "colorTemperatureMireds", targetMireds);
                 return super.moveToColorTemperatureLogic(targetMireds, transitionTime);
             }
+
+            override async moveToHueAndSaturationLogic(targetHue: number, targetSaturation: number, transitionTime: number) {
+                await parent.sendBridgeEvent("colorControl", "currentHue", targetHue);
+                await parent.sendBridgeEvent("colorControl", "currentSaturation", targetSaturation);
+            }            
         };
     }
 }
