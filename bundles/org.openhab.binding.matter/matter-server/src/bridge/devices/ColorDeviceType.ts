@@ -9,7 +9,7 @@ export class ColorDeviceType extends GenericDeviceType {
 
     override createEndpoint(clusterValues: Record<string, any>) {
         const endpoint = new Endpoint(ExtendedColorLightDevice.with(
-            //set locally=true for createOnOffServer otherwise moveToHueAndSaturationLogic will not be called b/c matter.js thinks the device is OFF.
+            //setLocally=true for createOnOffServer otherwise moveToHueAndSaturationLogic will not be called b/c matter.js thinks the device is OFF.
             this.createOnOffServer(true).with(OnOff.Feature.Lighting),
             this.createLevelControlServer().with(LevelControl.Feature.Lighting),
             this.createColorControlServer().with(ColorControl.Feature.HueSaturation, ColorControl.Feature.ColorTemperature),

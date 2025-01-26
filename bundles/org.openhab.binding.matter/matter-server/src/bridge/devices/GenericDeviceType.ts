@@ -29,25 +29,10 @@ export abstract class GenericDeviceType {
         const args = {} as { [key: string]: any }
         args[clusterName] = {} as { [key: string]: any }
         args[clusterName][attributeName] = attributeValue
-        //lock sending event back to prevent update loop
-        this.updateLocks.add(`${clusterName}.${attributeName}`);
         await this.endpoint.set(args);
-        setTimeout(() => {
-            this.updateLocks.delete(`${clusterName}.${attributeName}`);
-        }, 100);
     }
 
     protected sendBridgeEvent(clusterName: string, attributeName: string, attributeValue: any) {
-        if (this.updateLocks.has(`${clusterName}.${attributeName}`)) {
-            logger.debug(`skipping sending bridge event for ${clusterName}.${attributeName} = ${attributeValue}`);
-            return;
-        }
-        // const be: BridgeAttributeChangedEvent = {  
-        //     endpointId: this.endpoint.id,
-        //     clusterName: clusterName,
-        //     attributeName: attributeName,
-        //     data: attributeValue,
-        // }
         const be: BridgeEvent = {
             type: BridgeEventType.AttributeChanged,
             data: {

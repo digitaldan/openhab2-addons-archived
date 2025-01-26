@@ -15,7 +15,6 @@ package org.openhab.binding.matter.internal.bridge.devices;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +52,7 @@ class ColorDeviceTest {
     private ColorItem colorItem;
     private Metadata metadata;
     private ColorDevice device;
+    private HSBType initialHSBState;
 
     @BeforeEach
     void setUp() {
@@ -62,9 +62,8 @@ class ColorDeviceTest {
         when(metadataRegistry.get(any(MetadataKey.class))).thenReturn(metadata);
 
         colorItem = Mockito.spy(new ColorItem("test"));
-        // Mock initial state
-        when(colorItem.getStateAs(HSBType.class))
-                .thenReturn(new HSBType(new DecimalType(0), new PercentType(0), new PercentType(0)));
+        initialHSBState = new HSBType(new DecimalType(0), new PercentType(0), new PercentType(50));
+        when(colorItem.getStateAs(HSBType.class)).thenReturn(initialHSBState);
         device = new ColorDevice(metadataRegistry, client, colorItem);
     }
 
@@ -74,104 +73,31 @@ class ColorDeviceTest {
     }
 
     @Test
-    void testHandleMatterEventOnOff() throws InterruptedException {
+    void testHandleMatterEventOnOff() {
         device.handleMatterEvent("onOff", "onOff", true);
-        Thread.sleep(600);
         verify(colorItem).send(OnOffType.ON);
 
         device.handleMatterEvent("onOff", "onOff", false);
-        Thread.sleep(600);
         verify(colorItem).send(OnOffType.OFF);
     }
 
     @Test
-    void testHandleMatterEventColor() throws InterruptedException {
-        device.handleMatterEvent("colorControl", "currentHue", Double.valueOf(127));
-        device.handleMatterEvent("colorControl", "currentSaturation", Double.valueOf(254));
-        device.handleMatterEvent("levelControl", "currentLevel", Double.valueOf(254));
-
-        Thread.sleep(600);
-        verify(colorItem).send(any(HSBType.class));
-    }
-
-    @Test
-    void testHandleMatterEventColorTemperature() throws InterruptedException {
-        // Test color temperature conversion
-        device.handleMatterEvent("colorControl", "colorTemperatureMireds", 200.0);
-        Thread.sleep(600);
-
-        // Verify that a color HSB value was sent that corresponds to the color temperature
-        // The exact values will depend on the color temperature conversion implementation
-        verify(colorItem).send(any(HSBType.class));
-    }
-
-    @Test
-    void testHandleMatterEventLevel() throws InterruptedException {
-        device.handleMatterEvent("levelControl", "currentLevel", Double.valueOf(127));
-
-        Thread.sleep(600); // Wait longer than the 500ms timer
-        verify(colorItem).send(eq(new HSBType(new DecimalType(0), new PercentType(0), new PercentType(50))));
-    }
-
-    @Test
-    void testHandleMatterEventLevelPreservesHueAndSaturation() throws InterruptedException {
-        // Mock initial state
-        when(colorItem.getStateAs(HSBType.class))
-                .thenReturn(new HSBType(new DecimalType(180), new PercentType(50), new PercentType(0)));
-
-        // Set initial color state (180 degrees hue, 50% saturation)
+    void testHandleMatterEventColor() {
+        // Turn device on first and wait for future completion
         device.handleMatterEvent("onOff", "onOff", true);
-        Thread.sleep(600);
         verify(colorItem).send(OnOffType.ON);
+        device.updateState(colorItem, initialHSBState);
 
         device.handleMatterEvent("colorControl", "currentHue", Double.valueOf(127));
         device.handleMatterEvent("colorControl", "currentSaturation", Double.valueOf(127));
-        Thread.sleep(600);
-        verify(colorItem).send(eq(new HSBType(new DecimalType(180), new PercentType(50), new PercentType(0))));
 
-        // Set initial brightness to 10%
-        device.handleMatterEvent("levelControl", "currentLevel", Double.valueOf(25));
-        Thread.sleep(600);
-        verify(colorItem).send(eq(new HSBType(new DecimalType(180), new PercentType(50), new PercentType(10))));
+        verify(colorItem).send(new HSBType(new DecimalType(180), new PercentType(50), new PercentType(50)));
+    }
 
-        // Update brightness to 50% - should preserve hue and saturation
+    @Test
+    void testHandleMatterEventLevel() {
         device.handleMatterEvent("levelControl", "currentLevel", Double.valueOf(127));
-        Thread.sleep(600);
-        verify(colorItem).send(eq(new HSBType(new DecimalType(180), new PercentType(50), new PercentType(50))));
-    }
-
-    @Test
-    void testHandleMatterEventWithDeviceOff() throws InterruptedException {
-        device.handleMatterEvent("onOff", "onOff", false);
-        Thread.sleep(600);
-        verify(colorItem).send(OnOffType.OFF);
-
-        device.handleMatterEvent("colorControl", "currentHue", Double.valueOf(127));
-        device.handleMatterEvent("colorControl", "currentSaturation", Double.valueOf(254));
-        Thread.sleep(600);
-
-        verify(colorItem).send(OnOffType.OFF);
-    }
-
-    @Test
-    void testHandleMatterEventColorSequence() throws InterruptedException {
-        // Mock current state
-        when(colorItem.getStateAs(HSBType.class))
-                .thenReturn(new HSBType(new DecimalType(0), new PercentType(0), new PercentType(0)));
-
-        // Test handling of color updates in sequence
-        device.handleMatterEvent("onOff", "onOff", true);
-        Thread.sleep(600);
-        verify(colorItem).send(OnOffType.ON);
-
-        // Send color updates
-        device.handleMatterEvent("colorControl", "currentHue", 127.0); // ~180 degrees
-        device.handleMatterEvent("colorControl", "currentSaturation", 127.0); // ~50%
-        device.handleMatterEvent("levelControl", "currentLevel", 127.0); // ~50%
-        Thread.sleep(600);
-
-        // Verify the final HSB state
-        verify(colorItem).send(eq(new HSBType(new DecimalType(180), new PercentType(50), new PercentType(50))));
+        verify(colorItem).send(new PercentType(50));
     }
 
     @Test
@@ -179,7 +105,6 @@ class ColorDeviceTest {
         HSBType hsb = new HSBType(new DecimalType(180), new PercentType(100), new PercentType(100));
         device.updateState(colorItem, hsb);
 
-        // Verify the correct Matter cluster values are set
         verify(client).setEndpointState(any(), eq("onOff"), eq("onOff"), eq(true));
         verify(client).setEndpointState(any(), eq("levelControl"), eq("currentLevel"), eq(254));
         verify(client).setEndpointState(any(), eq("colorControl"), eq("currentHue"), eq(127)); // 180 degrees -> ~127
@@ -194,6 +119,7 @@ class ColorDeviceTest {
     @Test
     void testActivate() {
         HSBType hsb = new HSBType(new DecimalType(0), new PercentType(100), new PercentType(100));
+        when(colorItem.getStateAs(HSBType.class)).thenReturn(hsb);
         colorItem.setState(hsb);
         MatterDeviceOptions options = device.activate();
 
@@ -201,15 +127,16 @@ class ColorDeviceTest {
         Map<String, Object> colorMap = options.clusters.get("colorControl");
         Map<String, Object> onOffMap = options.clusters.get("onOff");
 
-        assertEquals(0, levelMap.get("currentLevel"));
+        assertEquals(254, levelMap.get("currentLevel"));
         assertEquals(0, colorMap.get("currentHue"));
-        assertEquals(0, colorMap.get("currentSaturation"));
-        assertEquals(false, onOffMap.get("onOff"));
+        assertEquals(254, colorMap.get("currentSaturation"));
+        assertEquals(true, onOffMap.get("onOff"));
     }
 
     @Test
     void testActivateWithOffState() {
         HSBType hsb = new HSBType(new DecimalType(0), new PercentType(100), new PercentType(0));
+        when(colorItem.getStateAs(HSBType.class)).thenReturn(hsb);
         colorItem.setState(hsb);
         MatterDeviceOptions options = device.activate();
 
@@ -220,25 +147,8 @@ class ColorDeviceTest {
         assertEquals(false, onOffMap.get("onOff"));
     }
 
-    @Test
-    void testColorUpdateTimer() throws InterruptedException {
-        // Test that rapid updates are properly debounced
-        device.handleMatterEvent("colorControl", "currentHue", 127.0);
-        device.handleMatterEvent("colorControl", "currentSaturation", 254.0);
-        device.handleMatterEvent("levelControl", "currentLevel", 254.0);
-
-        // Verify no immediate update
-        verify(colorItem, times(0)).send(any(HSBType.class));
-
-        // Wait for debounce timer
-        Thread.sleep(600);
-
-        // Verify single update with final values
-        verify(colorItem, times(1)).send(any(HSBType.class));
-    }
-
     @AfterEach
     void tearDown() {
-        device.dispose(); // Clean up the timer
+        device.dispose();
     }
 }
