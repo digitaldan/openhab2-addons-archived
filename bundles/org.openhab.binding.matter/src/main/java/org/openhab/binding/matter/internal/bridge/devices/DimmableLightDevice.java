@@ -14,13 +14,8 @@ package org.openhab.binding.matter.internal.bridge.devices;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.matter.internal.bridge.MatterBridgeClient;
 import org.openhab.core.items.GenericItem;
 import org.openhab.core.items.GroupItem;
@@ -40,10 +35,6 @@ import org.openhab.core.types.State;
  */
 @NonNullByDefault
 public class DimmableLightDevice extends GenericDevice {
-    private ScheduledExecutorService updateScheduler = Executors.newSingleThreadScheduledExecutor();
-    private @Nullable ScheduledFuture<?> updateTimer = null;
-    private boolean lastOnOff = false;
-    private @Nullable PercentType lastLevel;
 
     public DimmableLightDevice(MetadataRegistry metadataRegistry, MatterBridgeClient client, GenericItem item) {
         super(metadataRegistry, client, item);
@@ -76,12 +67,10 @@ public class DimmableLightDevice extends GenericDevice {
     public void handleMatterEvent(String clusterName, String attributeName, Object data) {
         switch (attributeName) {
             case "onOff":
-                lastOnOff = Boolean.valueOf(data.toString());
-                startTimer();
+                updateOnOff(OnOffType.from(Boolean.valueOf(data.toString())));
                 break;
             case "currentLevel":
-                lastLevel = levelToPercent(((Double) data).intValue());
-                startTimer();
+                updateLevel(levelToPercent(((Double) data).intValue()));
                 break;
             default:
                 break;
@@ -103,28 +92,19 @@ public class DimmableLightDevice extends GenericDevice {
         }
     }
 
-    private synchronized void updateItemState() {
-        OnOffType onOffType = OnOffType.from(lastOnOff);
-        PercentType lastLevel = this.lastLevel;
+    private void updateOnOff(OnOffType onOffType) {
         if (primaryItem instanceof GroupItem groupItem) {
-            groupItem.send(lastLevel != null ? lastLevel : onOffType);
-        } else if (primaryItem instanceof DimmerItem) {
-            if (lastLevel != null && lastOnOff) {
-                ((DimmerItem) primaryItem).send(lastLevel);
-            } else {
-                ((SwitchItem) primaryItem).send(onOffType);
-            }
+            groupItem.send(onOffType);
         } else {
             ((SwitchItem) primaryItem).send(onOffType);
         }
-        this.lastLevel = null;
     }
 
-    private synchronized void startTimer() {
-        ScheduledFuture<?> updateTimer = this.updateTimer;
-        if (updateTimer != null) {
-            updateTimer.cancel(true);
+    private void updateLevel(PercentType level) {
+        if (primaryItem instanceof GroupItem groupItem) {
+            groupItem.send(level);
+        } else {
+            ((DimmerItem) primaryItem).send(level);
         }
-        this.updateTimer = updateScheduler.schedule(this::updateItemState, 500, TimeUnit.MILLISECONDS);
     }
 }
