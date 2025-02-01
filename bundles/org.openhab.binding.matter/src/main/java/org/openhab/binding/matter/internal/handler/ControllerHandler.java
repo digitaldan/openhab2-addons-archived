@@ -37,6 +37,7 @@ import org.openhab.binding.matter.internal.client.dto.Node;
 import org.openhab.binding.matter.internal.client.dto.ws.AttributeChangedMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.BridgeEventMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.EventTriggeredMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.NodeInitializedMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.NodeStateMessage;
 import org.openhab.binding.matter.internal.config.ControllerConfiguration;
 import org.openhab.binding.matter.internal.controller.MatterControllerClient;
@@ -164,6 +165,9 @@ public class ControllerHandler extends BaseBridgeHandler implements MatterClient
         logger.debug("Node onEvent: node {} is {}", message.nodeId, message.state);
         switch (message.state) {
             case CONNECTED:
+                updateEndpointStatuses(message.nodeId, ThingStatus.UNKNOWN, ThingStatusDetail.NOT_YET_READY,
+                        "Waiting for data");
+                break;
             case STRUCTURECHANGED:
                 updateNode(message.nodeId);
                 break;
@@ -207,6 +211,12 @@ public class ControllerHandler extends BaseBridgeHandler implements MatterClient
     }
 
     @Override
+    public void onEvent(NodeInitializedMessage message) {
+        logger.debug("NodeInitializedMessage onEvent: node {} is {}", message.node.id, message.node);
+        updateNode(message.node);
+    }
+
+    @Override
     public void onEvent(BridgeEventMessage message) {
     }
 
@@ -240,6 +250,7 @@ public class ControllerHandler extends BaseBridgeHandler implements MatterClient
             disconnectedNodes.remove(nodeId);
             outstandingNodeRequests.remove(nodeId);
             linkedNodes.remove(nodeId);
+            // client.disconnectNode(nodeId).get();
         } catch (Exception e) {
             logger.debug("Could not remove node {}", nodeId, e);
         }
@@ -257,8 +268,7 @@ public class ControllerHandler extends BaseBridgeHandler implements MatterClient
             outstandingNodeRequests.add(id);
         }
 
-        return client.getNode(id).thenAccept(node -> {
-            updateNode(node);
+        return client.initializeNode(id).thenAccept((Void) -> {
             disconnectedNodes.remove(id);
             logger.debug("updateNode END {}", id);
         }).exceptionally(e -> {
@@ -269,6 +279,21 @@ public class ControllerHandler extends BaseBridgeHandler implements MatterClient
                     message != null ? message : "");
             return null;
         }).whenComplete((node, e) -> outstandingNodeRequests.remove(id));
+    }
+
+    /**
+     * Update the endpoints (devices) for a node
+     * 
+     * @param node
+     */
+    private synchronized void updateNode(Node node) {
+        NodeHandler handler = linkedNodes.get(node.id);
+        disconnectedNodes.remove(node.id);
+        if (handler != null) {
+            handler.updateNode(node);
+        } else {
+            discoverChildNode(node);
+        }
     }
 
     private void connect() {
@@ -331,20 +356,6 @@ public class ControllerHandler extends BaseBridgeHandler implements MatterClient
             reconnectFuture.cancel(true);
         }
         this.reconnectFuture = null;
-    }
-
-    /**
-     * Update the endpoints (devices) for a node
-     * 
-     * @param node
-     */
-    private synchronized void updateNode(Node node) {
-        NodeHandler handler = linkedNodes.get(node.id);
-        if (handler != null) {
-            handler.updateNode(node);
-        } else {
-            discoverChildNode(node);
-        }
     }
 
     private void updateEndpointStatuses(BigInteger nodeId, ThingStatus status, ThingStatusDetail detail,

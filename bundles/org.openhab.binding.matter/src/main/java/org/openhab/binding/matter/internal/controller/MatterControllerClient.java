@@ -22,7 +22,6 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.matter.internal.client.MatterWebsocketClient;
 import org.openhab.binding.matter.internal.client.MatterWebsocketService;
-import org.openhab.binding.matter.internal.client.dto.Node;
 import org.openhab.binding.matter.internal.client.dto.PairingCodes;
 import org.openhab.binding.matter.internal.client.dto.cluster.ClusterCommand;
 import org.openhab.binding.matter.internal.client.dto.cluster.gen.OperationalCredentialsCluster;
@@ -69,14 +68,10 @@ public class MatterControllerClient extends MatterWebsocketClient {
         });
     }
 
-    public CompletableFuture<Node> getNode(BigInteger id) {
-        CompletableFuture<JsonElement> future = sendMessage("nodes", "getNode", new Object[] { id });
-        return future.thenApply(obj -> {
-            Node node = gson.fromJson(obj, Node.class);
-            if (node == null) {
-                throw new JsonParseException("Could not deserialize node");
-            }
-            return node;
+    public CompletableFuture<Void> initializeNode(BigInteger id) {
+        CompletableFuture<JsonElement> future = sendMessage("nodes", "initializeNode", new Object[] { id });
+        return future.thenAccept(obj -> {
+            // Do nothing, just to complete the future
         });
     }
 

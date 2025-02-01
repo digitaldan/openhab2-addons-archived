@@ -1,10 +1,8 @@
-import { NodeStateInformation } from "@project-chip/matter.js/device";
 import { Logger } from "@project-chip/matter.js/log";
-import { MatterNode } from "./MatterNode";
+import { ControllerNode } from "./ControllerNode";
 import { Nodes } from "./namespaces/Nodes";
 import { Clusters } from "./namespaces/Clusters";
 import { WebSocketSession } from "../app";
-import { EventType } from '../MessageTypes';
 import { Controller } from "../Controller";
 
 const logger = Logger.get("ClientController");
@@ -16,8 +14,9 @@ export class ClientController extends Controller {
 
     nodes?: Nodes;
     clusters?: Clusters;
-    theNode: MatterNode;
+    controllerNode: ControllerNode;
     controllerName: string;
+
     constructor(override ws: WebSocketSession, override params: URLSearchParams) {
         super(ws, params);
         const stringId = this.params.get('nodeId');
@@ -30,44 +29,24 @@ export class ClientController extends Controller {
         }
 
         this.controllerName = controllerName;
-        this.theNode = new MatterNode(storagePath, controllerName, nodeId);
+        this.controllerNode = new ControllerNode(storagePath, controllerName, nodeId, ws);
     }
 
     id(): string {
         return "client-" + this.controllerName;
     }
-    async init() {
-        await this.theNode.initialize();
-        logger.info(`Started Node`);
 
+    async init() {
+        await this.controllerNode.initialize();
+        logger.info(`Started Node`);
         //set up listeners to send events back to the client
-        this.nodes = new Nodes(this.theNode, {
-            autoSubscribe: true,
-            attributeChangedCallback: (peerNodeId, data) => {
-                logger.debug(`attributeChangedCallback ${peerNodeId} ${Logger.toJSON(data)}`);
-                data.path.nodeId = peerNodeId;
-                this.ws.sendEvent(EventType.AttributeChanged, data)
-            },
-            eventTriggeredCallback: (peerNodeId, data) => {
-                logger.debug(`eventTriggeredCallback ${peerNodeId} ${Logger.toJSON(data)}`);
-                data.path.nodeId = peerNodeId;
-                this.ws.sendEvent(EventType.EventTriggered, data)
-            },
-            stateInformationCallback: (peerNodeId, info) => {
-                logger.debug(`stateInformationCallback ${peerNodeId} ${Logger.toJSON(info)}`);
-                const data: any = {
-                    nodeId: peerNodeId,
-                    state: NodeStateInformation[info]
-                };
-                this.ws.sendEvent(EventType.NodeStateInformation, data)
-            }
-        });
-        this.clusters = new Clusters(this.theNode);
+        this.nodes = new Nodes(this.controllerNode);
+        this.clusters = new Clusters(this.controllerNode);
     }
 
     async close() {
         logger.info(`Closing Node`);
-        await this.theNode?.close();
+        await this.controllerNode?.close();
         logger.info(`Node Closed`);
     }
 

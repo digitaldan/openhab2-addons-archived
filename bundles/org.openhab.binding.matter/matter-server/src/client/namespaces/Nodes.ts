@@ -1,11 +1,9 @@
-import { CommissioningControllerNodeOptions, PairedNode } from "@project-chip/matter.js/device";
-import { EndpointInterface } from "@matter/protocol";
 import { NodeCommissioningOptions } from "@project-chip/matter.js";
 import { GeneralCommissioning, OperationalCredentialsCluster } from "@matter/main/clusters";
-import { ManualPairingCodeCodec, QrPairingCodeCodec, QrCode, NodeId, FabricIndex, ClusterId } from "@matter/types";
+import { ManualPairingCodeCodec, QrPairingCodeCodec, QrCode, NodeId, FabricIndex } from "@matter/types";
 
 import { Logger } from "@matter/main";
-import { MatterNode } from "../MatterNode";
+import { ControllerNode } from "../ControllerNode";
 const logger = Logger.get("matter");
 
 /**
@@ -13,75 +11,29 @@ const logger = Logger.get("matter");
  */
 export class Nodes {
 
-    constructor(private theNode: MatterNode, private nodeListener: Partial<CommissioningControllerNodeOptions>) {
+    constructor(private controllerNode: ControllerNode) {
     }
 
     async listNodes() {
-        if (this.theNode.commissioningController === undefined) {
+        if (this.controllerNode.commissioningController === undefined) {
             throw new Error("CommissioningController not initialized");
         }
-        return this.theNode.getCommissionedNodes();
+        return this.controllerNode.getCommissionedNodes();
+    }
+    
+    async initializeNode(nodeId: string | number) {
+        return this.controllerNode.initializeNode(nodeId);
+    }
+    
+    async refreshNode(nodeId: string | number) {
+         const node = await this.controllerNode.getNode(nodeId);
+         if (node.initialized) {
+            return this.controllerNode.sendSerializedNode(node);
+        } else {
+            throw new Error(`Node ${nodeId} not initialized`);
+        }
     }
 
-    async getNode(nodeId: string | number) {
-        const node = await this.theNode.getNode(nodeId, this.nodeListener);
-        const data = await this.serializePairedNode(node);
-        return data;
-    }
-
-    async serializePairedNode(node: PairedNode) {
-        if (!this.theNode.commissioningController) {
-            throw new Error("CommissioningController not initialized");
-        }
-    
-        // Recursive function to build the hierarchy
-        async function serializeEndpoint(endpoint: EndpointInterface): Promise<any> {
-            const endpointData: any = {
-                number: endpoint.number,
-                clusters: {},
-                children: []
-            };
-    
-            // Serialize clusters
-            for (const cluster of endpoint.getAllClusterClients()) {
-                if (!cluster.id) continue;
-                
-                const clusterData: any = {
-                    id: cluster.id,
-                    name: cluster.name
-                };
-    
-                // Serialize attributes
-                for (const attributeName in cluster.attributes) {
-                    const attribute = cluster.attributes[attributeName];
-                    if (!attribute) continue;
-                    const attributeValue = await attribute.get();
-                    if (attributeValue !== undefined) {
-                        clusterData[attributeName] = attributeValue;
-                    }
-                }
-    
-                endpointData.clusters[cluster.name] = clusterData;
-            }
-    
-            // Serialize child endpoints recursively
-            for (const child of endpoint.getChildEndpoints()) {
-                endpointData.children.push(await serializeEndpoint(child));
-            }
-    
-            return endpointData;
-        }
-    
-        // Start serialization from the root endpoint
-        const rootEndpoint = node.getRootEndpoint() as EndpointInterface;
-        const data: any = {
-            id: node.nodeId,
-            rootEndpoint: await serializeEndpoint(rootEndpoint)
-        };
-    
-        return data;
-    }
-    
     async pairNode(pairingCode: string | undefined, shortDiscriminator: number | undefined, setupPinCode: number | undefined) {
         let discriminator: number | undefined;
         let nodeIdStr: string | undefined;
@@ -107,7 +59,7 @@ export class Nodes {
         }
 
         const nodeId = nodeIdStr !== undefined ? NodeId(BigInt(nodeIdStr)) : undefined;
-        if (this.theNode.commissioningController === undefined) {
+        if (this.controllerNode.commissioningController === undefined) {
             throw new Error("CommissioningController not initialized");
         }
 
@@ -130,8 +82,7 @@ export class Nodes {
                     onIpNetwork: true,
                 },
             },
-            passcode: setupPinCode,
-            ... this.nodeListener,
+            passcode: setupPinCode
         } as NodeCommissioningOptions;
 
         options.commissioning = {
@@ -140,19 +91,19 @@ export class Nodes {
             regulatoryCountryCode: "XX"
         };
 
-        if (this.theNode.Store.has("WiFiSsid") && this.theNode.Store.has("WiFiPassword")) {
+        if (this.controllerNode.Store.has("WiFiSsid") && this.controllerNode.Store.has("WiFiPassword")) {
             options.commissioning.wifiNetwork = {
-                wifiSsid: await this.theNode.Store.get<string>("WiFiSsid", ""),
-                wifiCredentials: await this.theNode.Store.get<string>("WiFiPassword", ""),
+                wifiSsid: await this.controllerNode.Store.get<string>("WiFiSsid", ""),
+                wifiCredentials: await this.controllerNode.Store.get<string>("WiFiPassword", ""),
             };
         }
         if (
-            this.theNode.Store.has("ThreadName") &&
-            this.theNode.Store.has("ThreadOperationalDataset")
+            this.controllerNode.Store.has("ThreadName") &&
+            this.controllerNode.Store.has("ThreadOperationalDataset")
         ) {
             options.commissioning.threadNetwork = {
-                networkName: await this.theNode.Store.get<string>("ThreadName", ""),
-                operationalDataset: await this.theNode.Store.get<string>(
+                networkName: await this.controllerNode.Store.get<string>("ThreadName", ""),
+                operationalDataset: await this.controllerNode.Store.get<string>(
                     "ThreadOperationalDataset",
                     "",
                 ),
@@ -160,20 +111,20 @@ export class Nodes {
         }
 
         const commissionedNodeId =
-            await this.theNode.commissioningController.commissionNode(options);
+            await this.controllerNode.commissioningController.commissionNode(options);
 
         console.log("Commissioned Node:", commissionedNodeId);
-        const node = await this.theNode.getNode(commissionedNodeId, this.nodeListener);
+        const node = await this.controllerNode.getNode(commissionedNodeId);
         return node.nodeId;
     }
 
     async disconnectNode(nodeId: number | string) {
-        if (this.theNode.commissioningController === undefined) {
+        if (this.controllerNode.commissioningController === undefined) {
             console.log("Controller not initialized, nothing to disconnect.");
             return;
         }
 
-        const node = await this.theNode.getNode(nodeId, this.nodeListener);
+        const node = await this.controllerNode.getNode(nodeId);
         if (node === undefined) {
             throw new Error(`Node ${nodeId} not found`);
         }
@@ -181,12 +132,12 @@ export class Nodes {
     }
 
     async reconnectNode(nodeId: number | string) {
-        if (this.theNode.commissioningController === undefined) {
+        if (this.controllerNode.commissioningController === undefined) {
             console.log("Controller not initialized, nothing to disconnect.");
             return;
         }
 
-        const node = await this.theNode.getNode(nodeId, this.nodeListener);
+        const node = await this.controllerNode.getNode(nodeId);
         if (node === undefined) {
             throw new Error(`Node ${nodeId} not found`);
         }
@@ -194,12 +145,12 @@ export class Nodes {
     }
 
     async getFabrics(nodeId: number | string) {
-        if (this.theNode.commissioningController === undefined) {
+        if (this.controllerNode.commissioningController === undefined) {
             console.log("Controller not initialized, nothing to disconnect.");
             return;
         }
 
-        const node = await this.theNode.getNode(nodeId, this.nodeListener);
+        const node = await this.controllerNode.getNode(nodeId);
         if (node === undefined) {
             throw new Error(`Node ${nodeId} not found`);
         }
@@ -213,12 +164,12 @@ export class Nodes {
     }
 
     async removeFabric(nodeId: number | string, index: number) {
-        if (this.theNode.commissioningController === undefined) {
+        if (this.controllerNode.commissioningController === undefined) {
             console.log("Controller not initialized, nothing to disconnect.");
             return;
         }
 
-        const node = await this.theNode.getNode(nodeId, this.nodeListener);
+        const node = await this.controllerNode.getNode(nodeId);
         if (node === undefined) {
             throw new Error(`Node ${nodeId} not found`);
         }
@@ -240,16 +191,16 @@ export class Nodes {
     }
 
     async removeNode(nodeId: number | string) {
-        await this.theNode.commissioningController?.removeNode(NodeId(BigInt(nodeId)), true);
+        await this.controllerNode.commissioningController?.removeNode(NodeId(BigInt(nodeId)), true);
     }
 
     sessionInformation() {
-        return this.theNode.commissioningController?.getActiveSessionInformation() || {}
+        return this.controllerNode.commissioningController?.getActiveSessionInformation() || {}
     }
 
     async basicCommissioningWindow(nodeId: number | string, timeout = 900) {
 
-        const node = await this.theNode.getNode(nodeId);
+        const node = await this.controllerNode.getNode(nodeId);
 
         await node.openBasicCommissioningWindow(timeout);
 
@@ -257,7 +208,7 @@ export class Nodes {
     }
 
     async enhancedCommissioningWindow(nodeId: number | string, timeout = 900) {
-        const node = await this.theNode.getNode(nodeId);
+        const node = await this.controllerNode.getNode(nodeId);
         const data = await node.openEnhancedCommissioningWindow(timeout);
 
         console.log(`Enhanced Commissioning Window for node ${nodeId} opened`);
@@ -272,7 +223,7 @@ export class Nodes {
     }
 
     async logNode(nodeId: number | string) {
-        const node = await this.theNode.getNode(nodeId);
+        const node = await this.controllerNode.getNode(nodeId);
         console.log("Logging structure of Node ", node.nodeId.toString());
         node.logStructure({});
     }

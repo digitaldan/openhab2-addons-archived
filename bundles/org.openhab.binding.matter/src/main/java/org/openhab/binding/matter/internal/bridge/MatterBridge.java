@@ -48,6 +48,7 @@ import org.openhab.binding.matter.internal.client.dto.ws.BridgeEventAttributeCha
 import org.openhab.binding.matter.internal.client.dto.ws.BridgeEventMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.BridgeEventTriggered;
 import org.openhab.binding.matter.internal.client.dto.ws.EventTriggeredMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.NodeInitializedMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.NodeStateMessage;
 import org.openhab.core.OpenHAB;
 import org.openhab.core.common.ThreadPoolManager;
@@ -259,6 +260,10 @@ public class MatterBridge implements MatterClientListener {
 
     @Override
     public void onEvent(EventTriggeredMessage message) {
+    }
+
+    @Override
+    public void onEvent(NodeInitializedMessage message) {
     }
 
     @Override

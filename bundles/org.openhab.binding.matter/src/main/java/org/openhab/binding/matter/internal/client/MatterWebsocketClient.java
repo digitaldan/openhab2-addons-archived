@@ -52,6 +52,7 @@ import org.openhab.binding.matter.internal.client.dto.ws.BridgeEventTriggered;
 import org.openhab.binding.matter.internal.client.dto.ws.Event;
 import org.openhab.binding.matter.internal.client.dto.ws.EventTriggeredMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.Message;
+import org.openhab.binding.matter.internal.client.dto.ws.NodeInitializedMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.NodeStateMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.Path;
 import org.openhab.binding.matter.internal.client.dto.ws.Request;
@@ -292,6 +293,21 @@ public class MatterWebsocketClient implements WebSocketListener, MatterWebsocket
                         for (MatterClientListener listener : clientListeners) {
                             try {
                                 listener.onEvent(nodeStateMessage);
+                            } catch (Exception e) {
+                                logger.debug("Error notifying listener", e);
+                            }
+                        }
+                        break;
+                    case "nodeInitialized":
+                        logger.debug("nodeInitialized message {}", event.data);
+                        Node node = gson.fromJson(event.data, Node.class);
+                        if (node == null) {
+                            logger.debug("invalid NodeInitializedMessage");
+                            return;
+                        }
+                        for (MatterClientListener listener : clientListeners) {
+                            try {
+                                listener.onEvent(new NodeInitializedMessage(node));
                             } catch (Exception e) {
                                 logger.debug("Error notifying listener", e);
                             }

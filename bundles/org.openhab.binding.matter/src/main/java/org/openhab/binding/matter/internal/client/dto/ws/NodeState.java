@@ -21,9 +21,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  */
 @NonNullByDefault
 public enum NodeState {
-    /** Node is connected and all data is up-to-date. */
+    /** Node is connected, but may not be fully initialized / subscribed. */
     CONNECTED("Connected"),
-
     /**
      * Node is disconnected. Data are stale and interactions will most likely return an error. If controller
      * instance

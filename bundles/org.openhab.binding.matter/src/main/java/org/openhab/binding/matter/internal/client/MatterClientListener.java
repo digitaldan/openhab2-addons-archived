@@ -16,6 +16,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.matter.internal.client.dto.ws.AttributeChangedMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.BridgeEventMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.EventTriggeredMessage;
+import org.openhab.binding.matter.internal.client.dto.ws.NodeInitializedMessage;
 import org.openhab.binding.matter.internal.client.dto.ws.NodeStateMessage;
 
 /**
@@ -38,4 +39,6 @@ public interface MatterClientListener {
     public void onEvent(EventTriggeredMessage message);
 
     public void onEvent(BridgeEventMessage message);
+
+    public void onEvent(NodeInitializedMessage message);
 }

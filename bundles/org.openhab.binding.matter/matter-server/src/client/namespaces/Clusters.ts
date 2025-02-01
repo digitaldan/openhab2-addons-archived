@@ -1,5 +1,5 @@
 import { Logger } from "@matter/general";
-import { MatterNode } from "../MatterNode";
+import { ControllerNode } from "../ControllerNode";
 import { convertJsonDataWithModel } from "../../util/Json";
 import { ValidationError } from "@matter/main/types";
 import * as MatterClusters from "@matter/types/clusters";
@@ -11,7 +11,7 @@ const logger = Logger.get("Clusters");
  * This class is used for websocket clients interacting with Matter Clusters to send commands like OnOff, LevelControl, etc... 
  */
 export class Clusters {
-    constructor(private theNode: MatterNode) {
+    constructor(private theNode: ControllerNode) {
     }
 
     /**
