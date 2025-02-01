@@ -75,25 +75,6 @@ public class MatterNodeActions implements ThingActions {
         return null;
     }
 
-    @RuleAction(label = "Reconnect Matter node", description = "This will trigger a reconnection of the node if one is not already in progress")
-    public @Nullable @ActionOutputs({
-            @ActionOutput(name = "result", label = "Result from reconnection trigger", type = "java.lang.String") }) String reconnectNode() {
-        NodeHandler handler = this.handler;
-        if (handler != null) {
-            MatterControllerClient client = handler.getClient();
-            if (client != null) {
-                try {
-                    client.reconnectNode(handler.getNodeId()).get();
-                    return "success";
-                } catch (InterruptedException | ExecutionException e) {
-                    logger.debug("Failed to attempt reconnection to device {}", handler.getNodeId(), e);
-                    return e.getLocalizedMessage();
-                }
-            }
-        }
-        return null;
-    }
-
     @RuleAction(label = "Decommission Matter node from fabric", description = "This will remove the device from the Matter fabric.  If the device is online and reachable this will attempt to remove the credentials from the device first before removing it from the network.  Once a device is removed, this Thing will go offline and can be removed.")
     public @Nullable @ActionOutputs({
             @ActionOutput(name = "result", label = "Result from decommissioning process", type = "java.lang.String") }) String decommissionNode() {
