@@ -36,11 +36,17 @@ export class ControllerNode {
         return this.storageContext;
     }
 
+    /**
+     * Closes the controller node
+     */
     async close() {
         await this.matterServer?.close();
         this.nodes.clear();
     }
 
+    /**
+     * Initializes the controller node
+     */
     async initialize() {
         const outputDir = this.storageLocation;
         const id = `${this.controllerName}-${this.nodeNum.toString()}`
@@ -85,6 +91,11 @@ export class ControllerNode {
         }
     }
 
+    /**
+     * Connects to a node, setting up event listeners.  If called multiple times for the same node, it will trigger a node reconnect.
+     * @param nodeId 
+     * @returns 
+     */
     async initializeNode(nodeId: string | number) {
         if (this.commissioningController === undefined) {
             throw new Error("CommissioningController not initialized");
@@ -138,7 +149,12 @@ export class ControllerNode {
         });
     }
 
-    async getNode(nodeId: number | string | NodeId) {
+    /**
+     * Returns a node by nodeId.  If the node has not been initialized, it will throw an error.
+     * @param nodeId 
+     * @returns 
+     */
+    getNode(nodeId: number | string | NodeId) {
         if (this.commissioningController === undefined) {
             throw new Error("CommissioningController not initialized");
         }
@@ -150,6 +166,10 @@ export class ControllerNode {
         return node;
     }
 
+    /**
+     * Returns all commissioned nodes Ids
+     * @returns 
+     */
     async getCommissionedNodes() {
         return this.commissioningController?.getCommissionedNodes();
     }
@@ -190,6 +210,10 @@ export class ControllerNode {
         return undefined;
     }
 
+    /**
+     * Serializes a node and sends it to the web socket
+     * @param node 
+     */
     sendSerializedNode(node: PairedNode) {
         this.serializePairedNode(node).then(data => {
             this.ws.sendEvent(EventType.NodeInitialized, data);
@@ -200,6 +224,11 @@ export class ControllerNode {
         });
     }
 
+    /**
+     * Serializes a node and returns the json string   
+     * @param node 
+     * @returns 
+     */
     async serializePairedNode(node: PairedNode) {
         if (!this.commissioningController) {
             throw new Error("CommissioningController not initialized");

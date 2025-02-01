@@ -14,6 +14,10 @@ export class Nodes {
     constructor(private controllerNode: ControllerNode) {
     }
 
+    /**
+     * Returns all commissioned nodes Ids
+     * @returns 
+     */
     async listNodes() {
         if (this.controllerNode.commissioningController === undefined) {
             throw new Error("CommissioningController not initialized");
@@ -21,10 +25,20 @@ export class Nodes {
         return this.controllerNode.getCommissionedNodes();
     }
     
+    /**
+     * Initializes a node and connects to it
+     * @param nodeId 
+     * @returns 
+     */
     async initializeNode(nodeId: string | number) {
         return this.controllerNode.initializeNode(nodeId);
     }
     
+    /**
+     * Refreshes a nodes attributes and events
+     * @param nodeId 
+     * @returns 
+     */
     async refreshNode(nodeId: string | number) {
          const node = await this.controllerNode.getNode(nodeId);
          if (node.initialized) {
@@ -34,6 +48,13 @@ export class Nodes {
         }
     }
 
+    /**
+     * Pairs a node using a pairing code, supports multiple pairing code formats
+     * @param pairingCode 
+     * @param shortDiscriminator 
+     * @param setupPinCode 
+     * @returns 
+     */
     async pairNode(pairingCode: string | undefined, shortDiscriminator: number | undefined, setupPinCode: number | undefined) {
         let discriminator: number | undefined;
         let nodeIdStr: string | undefined;
@@ -118,51 +139,44 @@ export class Nodes {
         return node.nodeId;
     }
 
+    /**
+     * Disconnects a node
+     * @param nodeId 
+     */
     async disconnectNode(nodeId: number | string) {
-        if (this.controllerNode.commissioningController === undefined) {
-            console.log("Controller not initialized, nothing to disconnect.");
-            return;
-        }
-
-        const node = await this.controllerNode.getNode(nodeId);
-        if (node === undefined) {
-            throw new Error(`Node ${nodeId} not found`);
-        }
+        const node = this.controllerNode.getNode(nodeId);
         await node.disconnect();
     }
 
+    /**
+     * Reconnects a node
+     * @param nodeId 
+     */
     async reconnectNode(nodeId: number | string) {
-        if (this.controllerNode.commissioningController === undefined) {
-            console.log("Controller not initialized, nothing to disconnect.");
-            return;
-        }
-
         const node = await this.controllerNode.getNode(nodeId);
-        if (node === undefined) {
-            throw new Error(`Node ${nodeId} not found`);
-        }
         node.triggerReconnect();
     }
 
+    /**
+     * Returns the fabrics for a node.  Fabrics are the set of matter networks that the node has been commissioned to (openhab, alexa, google, apple, etc)
+     * @param nodeId 
+     * @returns 
+     */
     async getFabrics(nodeId: number | string) {
-        if (this.controllerNode.commissioningController === undefined) {
-            console.log("Controller not initialized, nothing to disconnect.");
-            return;
-        }
-
         const node = await this.controllerNode.getNode(nodeId);
-        if (node === undefined) {
-            throw new Error(`Node ${nodeId} not found`);
-        }
         const operationalCredentialsCluster = node.getRootClusterClient(OperationalCredentialsCluster);
-
         if (operationalCredentialsCluster === undefined) {
             throw new Error(`OperationalCredentialsCluster for node ${nodeId} not found.`);
         }
-
         return await operationalCredentialsCluster.getFabricsAttribute(true, false);
     }
 
+    /**
+     * Removes a fabric from a node, effectively decommissioning the node from the specific network
+     * @param nodeId 
+     * @param index 
+     * @returns 
+     */
     async removeFabric(nodeId: number | string, index: number) {
         if (this.controllerNode.commissioningController === undefined) {
             console.log("Controller not initialized, nothing to disconnect.");
@@ -190,23 +204,39 @@ export class Nodes {
         await operationalCredentialsCluster.commands.removeFabric({ fabricIndex: fabricInstance });
     }
 
+    /**
+     * Removes a node from the commissioning controller
+     * @param nodeId 
+     */
     async removeNode(nodeId: number | string) {
         await this.controllerNode.commissioningController?.removeNode(NodeId(BigInt(nodeId)), true);
     }
 
+    /**
+     * Returns active session information for all connected nodes.
+     * @returns 
+     */
     sessionInformation() {
         return this.controllerNode.commissioningController?.getActiveSessionInformation() || {}
     }
 
+    /**
+     * Opens a basic commissioning window for a node allowing for manual pairing to an additional fabric.
+     * @param nodeId 
+     * @param timeout 
+     */
     async basicCommissioningWindow(nodeId: number | string, timeout = 900) {
-
         const node = await this.controllerNode.getNode(nodeId);
-
         await node.openBasicCommissioningWindow(timeout);
-
         console.log(`Basic Commissioning Window for node ${nodeId} opened`);
     }
 
+    /**
+     * Opens an enhanced commissioning window for a node allowing for QR code pairing to an additional fabric.
+     * @param nodeId 
+     * @param timeout 
+     * @returns 
+     */
     async enhancedCommissioningWindow(nodeId: number | string, timeout = 900) {
         const node = await this.controllerNode.getNode(nodeId);
         const data = await node.openEnhancedCommissioningWindow(timeout);
@@ -222,6 +252,10 @@ export class Nodes {
         return data;
     }
 
+    /**
+     * Logs the structure of a node
+     * @param nodeId 
+     */
     async logNode(nodeId: number | string) {
         const node = await this.controllerNode.getNode(nodeId);
         console.log("Logging structure of Node ", node.nodeId.toString());

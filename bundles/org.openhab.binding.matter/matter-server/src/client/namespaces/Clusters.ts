@@ -47,6 +47,14 @@ export class Clusters {
         }
     }
 
+    /**
+     * Writes an attribute to a device (not all attributes are writable)
+     * @param nodeId 
+     * @param endpointId 
+     * @param clusterName 
+     * @param attributeName 
+     * @param value 
+     */
     async writeAttribute(nodeId: number, endpointId: number, clusterName: string, attributeName: string, value: string) {
         let parsedValue: any;
         try {
@@ -91,6 +99,13 @@ export class Clusters {
         }
     }
 
+    /**
+     * Reads an attribute from a device
+     * @param nodeId 
+     * @param endpointId 
+     * @param clusterName 
+     * @param attributeName 
+     */
     async readAttribute(nodeId: number, endpointId: number, clusterName: string, attributeName: string) {
         const node = await this.theNode.getNode(nodeId);
 
