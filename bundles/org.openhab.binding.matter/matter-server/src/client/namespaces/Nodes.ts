@@ -64,8 +64,8 @@ export class Nodes {
         let ble = false
 
         if (typeof pairingCode === "string" && pairingCode.trim().length > 0) {
-            if (pairingCode.indexOf('MT:') == 0) {
-                const qrcode = QrPairingCodeCodec.decode(pairingCode)[0];
+            if (pairingCode.toUpperCase().indexOf('MT:') == 0) {
+                const qrcode = QrPairingCodeCodec.decode(pairingCode.toUpperCase())[0];
                 setupPinCode = qrcode.passcode;
                 discriminator = qrcode.discriminator;
             } else {

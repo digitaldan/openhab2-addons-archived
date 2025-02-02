@@ -237,7 +237,9 @@ public class ThermostatConverter extends GenericConverter<ThermostatCluster> {
         Integer numberValue = message.value instanceof Number number ? number.intValue() : 0;
         switch (message.path.attributeName) {
             case "systemMode":
-                updateState(CHANNEL_ID_THERMOSTAT_SYSTEMMODE, new DecimalType(numberValue));
+                if (message.value instanceof ThermostatCluster.SystemModeEnum systemModeEnum) {
+                    updateState(CHANNEL_ID_THERMOSTAT_SYSTEMMODE, new DecimalType(systemModeEnum.value));
+                }
                 break;
             case "occupiedHeatingSetpoint":
                 updateState(CHANNEL_ID_THERMOSTAT_OCCUPIEDHEATING, valueToTemperature(numberValue));

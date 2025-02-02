@@ -129,9 +129,10 @@ class ThermostatConverterTest {
         AttributeChangedMessage message = new AttributeChangedMessage();
         message.path = new Path();
         message.path.attributeName = "systemMode";
-        message.value = 1; // Heat mode
+        message.value = ThermostatCluster.SystemModeEnum.HEAT;
         converter.onEvent(message);
-        verify(mockHandler, times(1)).updateState(eq(1), eq("thermostat-systemmode"), eq(new DecimalType(1)));
+        verify(mockHandler, times(1)).updateState(eq(1), eq("thermostat-systemmode"),
+                eq(new DecimalType(ThermostatCluster.SystemModeEnum.HEAT.value)));
     }
 
     @Test
